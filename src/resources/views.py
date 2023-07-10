@@ -25,7 +25,7 @@ class SelectDateDropdown(discord.ui.Select):
             for user in users:
                 await user.add_roles(role)
 
-            await self.buyer.send(content=f"Tus tickets han sido aprobados y tus roles han sido asignados. Tu fecha asignada: **{date['date']}**")
+            await self.buyer.send(content=f"🎉 Tus tickets han sido aprobados y tus roles han sido asignados. Tu fecha asignada: **{date['date']}**")
             await self.buyer.send(content="🔦 Si no ves tus roles, puede que haya habido un error. Contacta al staff.")
             
             await interaction.followup.send(content="🪄 Hecho! Roles asignados y usuario notificado.")
