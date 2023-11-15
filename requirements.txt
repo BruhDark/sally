@@ -1,3 +1,10 @@
 py-cord-dev
 tornado
+motor
 asyncio
+python-dotenv
+aiohttp
+datetime
+dnspython
+psutil
+jishaku
