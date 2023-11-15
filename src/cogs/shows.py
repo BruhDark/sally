@@ -31,7 +31,7 @@ class ManageView(discord.ui.View):
         await self.original_message.edit(embed=embed)
         await interaction.edit_original_response(content="<:checked:1173356058387951626> Successfully started the event.", view=None)
 
-        await asyncio.sleep(15)
+        await asyncio.sleep(60*15)
         fields[2].value = "[Click Here](https://www.roblox.com/games/15280036840/INKIGAYO-ROBLOX)"
         await self.original_message.edit(embed=embed)
         await self.original_message.reply("<:link:986648044525199390> Game link is now **available**.", mention_author=False)
