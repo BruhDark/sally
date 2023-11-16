@@ -48,7 +48,7 @@ class PollSelect(discord.ui.Select):
 
         if poll is None:
             interaction.followup.send(
-                "<:lifesaver:986648046592983150> This voting is invalid or something went wrong while fetching the information. Please contact a staff member.")
+                "<:x_:1174507495914471464> This voting is invalid or something went wrong while fetching the information. Please contact a staff member.")
 
         try:
             if interaction.user.id in poll[f"{user_choice}_MEMBERS"]:
@@ -70,7 +70,7 @@ class PollSelect(discord.ui.Select):
                 await interaction.followup.send(f"<:thunderbolt:987447657104560229> Your vote for **{user_choice}** was added successfully!", ephemeral=True)
 
         except Exception as ex:
-            await interaction.followup.send("<:lifesaver:986648046592983150> Something went wrong while processing your vote. Please contact a staff member.")
+            await interaction.followup.send("<:x_:1174507495914471464> Something went wrong while processing your vote. Please contact a staff member.")
             raise ex
 
 
@@ -82,13 +82,13 @@ class PollView(discord.ui.View):
     @discord.ui.button(style=discord.ButtonStyle.red, label="End Voting", custom_id="EndVoting", row=1)
     async def end_voting(self, button, interaction: discord.Interaction):
         if not interaction.user.guild_permissions.manage_messages:
-            await interaction.response.send_message("<:info:881973831974154250> You are not allowed to use this button.")
+            await interaction.response.send_message("<:padlock:987837727741464666> You are not allowed to use this button.")
 
         await interaction.response.defer()
         original_message = await interaction.original_response() if interaction.message is None else interaction.message
         poll = await get_poll(original_message.id)
         if poll == None:
-            return await interaction.followup.send("<:lifesaver:986648046592983150> This voting is invalid or something went wrong. Contact Dark.")
+            return await interaction.followup.send("<:x_:1174507495914471464> This voting is invalid or something went wrong.")
 
         if poll["total_votes"] == 0:
             embed = original_message.embeds[0]
@@ -104,7 +104,7 @@ class PollView(discord.ui.View):
             await original_message.edit(embed=embed, view=None)
             await delete_poll(original_message.id)
 
-            await interaction.followup.send("<a:asuccess:882405006572142603> Ended poll and posted results.", ephemeral=True)
+            await interaction.followup.send("<:checked:1173356058387951626> Ended poll and posted results.", ephemeral=True)
             return
 
         may = None
@@ -137,7 +137,7 @@ class PollView(discord.ui.View):
         await original_message.edit(embed=embed, view=None)
         await delete_poll(original_message.id)
 
-        await interaction.followup.send("<a:asuccess:882405006572142603> Ended poll and posted results.", ephemeral=True)
+        await interaction.followup.send("<:checked:1173356058387951626> Ended poll and posted results.", ephemeral=True)
 
 
 class Polls(commands.Cog):
@@ -176,7 +176,7 @@ class Polls(commands.Cog):
         poll_message = await channel.send(content="@everyone", embed=poll_embed, view=poll_view)
         await create_poll(poll_message.id, groups_parsed)
 
-        await ctx.respond("<a:asuccess:882405006572142603> Sent poll to channel.")
+        await ctx.respond("<:checked:1173356058387951626> Sent poll to channel.")
 
 
 def setup(bot):
