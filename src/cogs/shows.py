@@ -69,7 +69,7 @@ class ShowView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.button(label="Manage", emoji="<:lifesaver:986648046592983150>", style=discord.ButtonStyle.gray, custom_id="ManageEventButton")
+    @discord.ui.button(label="Manage", emoji="<:editing:1174508480481218580>", style=discord.ButtonStyle.gray, custom_id="ManageEventButton")
     async def manage_event(self, button, interaction: discord.Interaction):
         if not interaction.user.guild_permissions.manage_messages:
             return await interaction.response.send_message("<:padlock:987837727741464666> You can not manage this event.", ephemeral=True)
@@ -77,7 +77,15 @@ class ShowView(discord.ui.View):
         original_message = await interaction.original_response() if interaction.message == None else interaction.message
 
         show = await get_show(original_message.id)
+        if show is None:
+            return await interaction.response.send_message("<:x_:1174507495914471464> This show is invalid.", ephemeral=True)
+
         event = interaction.guild.get_scheduled_event(show["event_id"])
+        if event is None:
+            await interaction.response.send_message("<:x_:1174507495914471464> The scheduled event was deleted.", ephemeral=True)
+            await delete_show(original_message.id)
+            await original_message.edit(view=None)
+
         view = ManageView(original_message, event)
 
         await interaction.response.send_message(view=view, ephemeral=True)
@@ -93,6 +101,9 @@ class Show(commands.Cog):
 
     @commands.slash_command(description="Schedule and annonunce a show", guild_ids=[881968885279117342, 1170821546038800464])
     async def show(self, ctx: discord.ApplicationContext, show_number: discord.Option(str, "The show number"), date: discord.Option(str, "The date of the show. FORMAT: DD-MM"), time: discord.Option(str, "The time of the show in UTC TIME. FORMAT: HH:MM")):
+        if not ctx.author.guild_permissions.manage_messages:
+            return await ctx.respond("<:padlock:987837727741464666> You are not allowed to use this command.", ephemeral=True)
+
         await ctx.defer()
         date = date.split("-")
         day, month = date[0], date[1]
