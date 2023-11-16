@@ -82,7 +82,7 @@ class ShowView(discord.ui.View):
 
         event = interaction.guild.get_scheduled_event(show["event_id"])
         if event is None:
-            await interaction.response.send_message("<:x_:1174507495914471464> The scheduled event was deleted.", ephemeral=True)
+            await interaction.response.send_message("<:x_:1174507495914471464> The scheduled event was deleted. This show will be automatically deleted due to it becoming invalid.", ephemeral=True)
             await delete_show(original_message.id)
             await original_message.edit(view=None)
 
