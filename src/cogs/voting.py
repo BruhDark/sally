@@ -16,7 +16,6 @@ class PollSelect(discord.ui.Select):
         total = poll["total_votes"]
 
         for choice in poll["choices"]:
-            print(choice)
             for field in fields:
                 if choice in field.name:
                     if total == 0:
