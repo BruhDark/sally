@@ -210,7 +210,7 @@ class Polls(commands.Cog):
         embeds[0:0] += [main_embed]
 
         paginator = pages.Paginator(
-            pages=embeds, show_disabled=False, author_check=True)
+            pages=embeds, show_disabled=False, author_check=True, disable_on_timeout=True)
         await paginator.respond(ctx.interaction)
 
 
