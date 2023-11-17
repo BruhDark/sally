@@ -77,6 +77,7 @@ class PollView(discord.ui.View):
     async def end_voting(self, button, interaction: discord.Interaction):
         if not interaction.user.guild_permissions.manage_messages:
             await interaction.response.send_message("<:padlock:987837727741464666> You are not allowed to use this button.", ephemeral=True)
+            return
 
         await interaction.response.defer()
         original_message = await interaction.original_response() if interaction.message is None else interaction.message
