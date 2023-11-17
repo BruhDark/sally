@@ -173,7 +173,7 @@ class Polls(commands.Cog):
 
         await ctx.respond("<:checked:1173356058387951626> Sent poll to channel.")
 
-    @commands.slash_command(description="View the stats for a voting poll")
+    @commands.slash_command(guild_ids=[881968885279117342, 1170821546038800464], description="View the stats for a voting poll")
     async def view(self, ctx: discord.ApplicationContext, vote_id: discord.Option(str, "The ID of the vote. (Message ID)")):
         if not ctx.author.guild_permissions.manage_messages:
             return await ctx.repond("<:padlock:987837727741464666> You are not allowed to use this command.", ephemeral=True)
