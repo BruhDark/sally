@@ -203,7 +203,7 @@ class Polls(commands.Cog):
                 f"{user.mention} ({user.display_name})" for user in users]
             choice_embed.description = "\n".join(users_parsed)
             choice_embed.set_footer(
-                value=f"{poll[choice]} votes total votes for {choice}", icon_url=ctx.guild.icon.url)
+                text=f"{poll[choice]} votes total votes for {choice}", icon_url=ctx.guild.icon.url)
 
             embeds.append(choice_embed)
 
