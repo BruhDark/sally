@@ -207,7 +207,7 @@ class Polls(commands.Cog):
 
             embeds.append(choice_embed)
 
-        embeds[0:0] += main_embed
+        embeds[0:0] += [main_embed]
 
         paginator = pages.Paginator(
             pages=embeds, show_disabled=False, author_check=True)
