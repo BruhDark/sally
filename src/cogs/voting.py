@@ -189,7 +189,7 @@ class Polls(commands.Cog):
             name="<:rightarrow:1173350998388002888> Message", value=f"https://discord.com/channels/1170821546038800464/1171604109720297512/{vote_id}", inline=False)
 
         main_embed.add_field(
-            name="<:rightarrow:1173350998388002888> Total Votes", value=str(poll["total_votes"]))
+            name="<:rightarrow:1173350998388002888> Total Votes", value=str(poll["total_votes"]), inline=False)
         for choice in poll["choices"]:
             main_embed.add_field(
                 name=f"<:vinyl:1173351007263133756> {choice} votes", value=str(poll[choice]))
