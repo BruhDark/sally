@@ -19,8 +19,6 @@ class PollSelect(discord.ui.Select):
             print(choice)
             for field in fields:
                 if choice in field.name:
-                    print(field.name, field.value)
-
                     if total == 0:
                         print("default to 0")
                         percentage = 0
@@ -28,14 +26,11 @@ class PollSelect(discord.ui.Select):
                     else:
                         percentage = (poll[choice] / total) * 100
 
-                    print(poll[choice], total, percentage)
-
                     squares = ""
                     squares += "▱" * (10 - int(percentage) // 10)
                     squares = squares.rjust(10, "▰")
 
                     field.value = f"{squares} ({round(percentage, 2)}%)"
-                    print(field.name, field.value)
                     break
 
         return embed
