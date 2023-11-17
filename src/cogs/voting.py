@@ -184,7 +184,7 @@ class Polls(commands.Cog):
 
         embeds = []
         main_embed = discord.Embed(
-            color=discord.Color.nitro_pink(), title="Votes Stats")
+            color=discord.Color.nitro_pink(), title="<:elections:1173351008655642756> Votes Stats")
         main_embed.add_field(
             name="<:rightarrow:1173350998388002888> Message", value=f"https://discord.com/channels/1170821546038800464/1171604109720297512/{vote_id}", inline=False)
 
