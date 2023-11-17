@@ -178,9 +178,13 @@ class Polls(commands.Cog):
         if not ctx.author.guild_permissions.manage_messages:
             return await ctx.repond("<:padlock:987837727741464666> You are not allowed to use this command.", ephemeral=True)
 
-        poll = await get_poll(int(vote_id))
+        try:
+            poll = await get_poll(int(vote_id))
+        except ValueError:
+            return await ctx.respond("<:x_:1174507495914471464> Invalid vote ID.", ephemeral=True)
+
         if poll == None:
-            return await ctx.respond("<:x_:1174507495914471464> No voting found with this ID.")
+            return await ctx.respond("<:x_:1174507495914471464> No voting found with this ID.", ephemeral=True)
 
         embeds = []
         main_embed = discord.Embed(
