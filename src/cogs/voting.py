@@ -34,7 +34,7 @@ class PollSelect(discord.ui.Select):
                     squares += "▱" * (10 - int(percentage) // 10)
                     squares = squares.rjust(10, "▰")
 
-                    field.value = f"{squares} ({percentage}%)"
+                    field.value = f"{squares} ({round(percentage, 2)}%)"
                     print(field.name, field.value)
                     break
 
