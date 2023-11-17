@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, pages
 from discord.interactions import Interaction
 
 from resources.database import create_poll, get_poll, add_vote, remove_vote, delete_poll
@@ -172,6 +172,46 @@ class Polls(commands.Cog):
         await create_poll(poll_message.id, groups_parsed)
 
         await ctx.respond("<:checked:1173356058387951626> Sent poll to channel.")
+
+    @commands.slash_command(description="View the stats for a voting poll")
+    async def view(self, ctx: discord.ApplicationContext, vote_id: discord.Option(str, "The ID of the vote. (Message ID)")):
+        if not ctx.author.guild_permissions.manage_messages:
+            return await ctx.repond("<:padlock:987837727741464666> You are not allowed to use this command.", ephemeral=True)
+
+        poll = await get_poll(int(vote_id))
+        if poll == None:
+            return await ctx.respond("<:x_:1174507495914471464> No voting found with this ID.")
+
+        embeds = []
+        main_embed = discord.Embed(
+            color=discord.Color.nitro_pink(), title="Votes Stats")
+        main_embed.add_field(
+            name="<:rightarrow:1173350998388002888> Message", value=f"https://discord.com/channels/1170821546038800464/1171604109720297512/{vote_id}", inline=False)
+
+        main_embed.add_field(
+            name="<:rightarrow:1173350998388002888> Total Votes", value=str(poll["total_votes"]))
+        for choice in poll["choices"]:
+            main_embed.add_field(
+                name=f"<:vinyl:1173351007263133756> {choice} votes", value=str(poll[choice]))
+
+            users = [await self.bot.get_or_fetch_user(user)
+                     for user in poll[choice+"_MEMBERS"]]
+            choice_embed = discord.Embed(color=discord.Color.purple(
+            ), title=f"<:elections:1173351008655642756> Users that voted for {choice}")
+
+            users_parsed = [
+                f"{user.mention} ({user.display_name})" for user in users]
+            choice_embed.description = "\n".join(users_parsed)
+            choice_embed.set_footer(
+                value=f"{poll[choice]} votes total votes for {choice}", icon_url=ctx.guild.icon.url)
+
+            embeds.append(choice_embed)
+
+        embeds[0:0] += main_embed
+
+        paginator = pages.Paginator(
+            pages=embeds, show_disabled=False, author_check=True)
+        await paginator.respond(ctx.interaction)
 
 
 def setup(bot):
