@@ -30,8 +30,7 @@ class ManageView(discord.ui.View):
         await self.event.start(reason=f"Started by: {interaction.user.display_name}")
         await self.original_message.edit(embed=embed)
         await interaction.edit_original_response(content="<:checked:1173356058387951626> Successfully started the event.", view=None)
-        s_message = await self.original_message.reply(content=f"<:notification:990034677836427295> **INKIGAYO** is starting soon! Join <#1172515246615830609>. Game link will be automatically provided **{format_dt(datetime.datetime.now() + datetime.timedelta(minutes=15), 'R')}**")
-        await self.original_message.channel.send("@everyone", delete_after=1)
+        s_message = await self.original_message.reply(content=f"<:notification:990034677836427295> **INKIGAYO** is starting soon! Join <#1172515246615830609>. Game link will be automatically provided **{format_dt(datetime.datetime.now() + datetime.timedelta(minutes=15), 'R')}**, @everyone.")
 
         await asyncio.sleep(60*15)
         await s_message.delete()
@@ -39,8 +38,7 @@ class ManageView(discord.ui.View):
         fields[2].value = "[Click Here](https://www.roblox.com/games/15280036840/INKIGAYO-ROBLOX)"
         embed.title = embed.title.replace("STARTING", "LIVE")
         await self.original_message.edit(embed=embed)
-        await self.original_message.reply("<:link:986648044525199390> Game link is now **available**! Check the main message.", mention_author=False, delete_after=60*20)
-        await self.original_message.channel.send("@everyone", delete_after=1)
+        await self.original_message.reply("<:link:986648044525199390> Game link is now **available**! Check the main message, @everyone.", mention_author=False, delete_after=60*20)
 
     @discord.ui.button(label="End Event", style=discord.ButtonStyle.red)
     async def end_event(self, button, interaction: discord.Interaction):
@@ -89,6 +87,11 @@ class ShowView(discord.ui.View):
         if event is None:
             await interaction.response.send_message("<:x_:1174507495914471464> The scheduled event was deleted. This show will be automatically deleted due to it becoming invalid.", ephemeral=True)
             await delete_show(original_message.id)
+            embed = self.original_message.embeds[0]
+            fields = embed.fields
+            fields[0].value = "This event ended."
+            fields[2].value = "This event ended."
+            embed.title = "INKIGAYO SHOW - ENDED"
             await original_message.edit(view=None)
 
         view = ManageView(original_message, event)
