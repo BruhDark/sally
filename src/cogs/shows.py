@@ -139,7 +139,7 @@ class Show(commands.Cog):
             event_image = image.read()
 
         # For testing: 1057393912588800100 - INKIGAYO: 1172515246615830609
-        event = await ctx.guild.create_scheduled_event(name=f"INKIGAYO #{show_number}", description=f"INKIGAYO presents the week #{show_number} show. Watch your favorite artists perform and vote for them to give them a chance to win.", start_time=start_time, location=ctx.guild.get_channel(1172515246615830609), image=event_image, reason=f"Created by: {ctx.author.display_name}")
+        event = await ctx.guild.create_scheduled_event(name=f"INKIGAYO #{show_number}", description=f"INKIGAYO presents the week #{show_number} show. Watch your favorite artists perform, vote for them and give them a chance to win.", start_time=start_time, location=ctx.guild.get_channel(1178468708293808220), image=event_image, reason=f"Created by: {ctx.author.display_name}")
         message = await announcements_channel.send(content=f"@everyone [New INKIGAYO show!]({event.url})", embed=embed, view=ShowView())
         await add_show(message.id, event.id)
         await ctx.respond(content="<:checked:1173356058387951626> Successfully created this show.")
