@@ -123,8 +123,8 @@ class Show(commands.Cog):
         embed.add_field(name="<:link:986648044525199390> Join the game",
                         value="The event has not started yet. Link will be provided when it starts.")
 
-        # For testing: 1015249782211616799 - INKIGAYO: 1170851944055705700
-        announcements_channel = ctx.guild.get_channel(1170851944055705700)
+        # For testing: 1015249782211616799 - INKIGAYO: 1178391939490517134
+        announcements_channel = ctx.guild.get_channel(1178391939490517134)
 
         with open("src/resources/images/INKIGAYO-COVER.jpg", "rb") as image:
             event_image = image.read()

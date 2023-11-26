@@ -8,7 +8,7 @@ a = "▰▱"
 
 class PollSelect(discord.ui.Select):
     def __init__(self, options):
-        super().__init__(options=options, custom_id="PollSelect")
+        super().__init__(options=options, custom_id="PollSelect", placeholder="Select an artist")
 
     async def return_new_embed(self, message: discord.Message, poll: dict):
         embed = message.embeds[0]
@@ -99,7 +99,7 @@ class PollView(discord.ui.View):
             await original_message.edit(embed=embed, view=None)
             await delete_poll(original_message.id)
 
-            await interaction.followup.send("<:checked:1173356058387951626> Ended poll and posted results.", ephemeral=True)
+            await interaction.followup.send("<:checked:1173356058387951626> Ended the voting and posted results.", ephemeral=True)
             return
 
         may = None
@@ -119,7 +119,7 @@ class PollView(discord.ui.View):
         embed = original_message.embeds[0]
         embed.clear_fields()
         embed.title = "<:notification:990034677836427295> Voting time ended!"
-        embed.description = f"**INKIGAYO** presents the **winner** of this week group!\n\nBetween the {len(poll['choices'])} groups of this week (**{', '.join(poll['choices'])}**) the winner is:"
+        embed.description = f"**INKIGAYO** presents the **winner** group of this week!\n\nBetween the {len(poll['choices'])} groups of this week (**{', '.join(poll['choices'])}**) the winner is:"
         embed.set_footer(
             text=f"{poll['total_votes']} total votes · Ended by {interaction.user.display_name}", icon_url=interaction.guild.icon.url)
         if tie:
@@ -143,7 +143,7 @@ class Polls(commands.Cog):
     async def on_ready(self):
         self.bot.add_view(PollView(None))
 
-    @commands.slash_command(guild_ids=[881968885279117342, 1170821546038800464], description="Create a groups vote")
+    @commands.slash_command(guild_ids=[881968885279117342, 1170821546038800464], description="Create a groups voting")
     async def vote(self, ctx: discord.ApplicationContext, channel: discord.Option(discord.TextChannel, "The channel to send the voting"), group_1: discord.Option(str, "First group to add to the vote"), group_2: discord.Option(str, "Second group to add to the vote"), group_3: discord.Option(str, "Third group to add to the vote", default=None), group_4: discord.Option(str, "Fourth group to add to the vote", default=None), group_5: discord.Option(str, "Fifth group to add to the vote", default=None), group_6: discord.Option(str, "Sixth group to add to the vote", default=None)):
         if not ctx.author.guild_permissions.manage_messages:
             return await ctx.repond("<:padlock:987837727741464666> You are not allowed to use this command.", ephemeral=True)
@@ -154,7 +154,7 @@ class Polls(commands.Cog):
 
         poll_embed = discord.Embed(
             color=discord.Color.nitro_pink(), title="<:notification:990034677836427295> Voting Time!")
-        poll_embed.description = "**INKIGAYO** presents this week groups. Vote for your favorite group.\n\n<:info:881973831974154250> Only one vote is allowed per user."
+        poll_embed.description = "**INKIGAYO** presents this week group. Vote for your favorite group.\n\n<:info:881973831974154250> Only one vote is allowed per user."
 
         select_options = []
         for n, group in enumerate(groups_parsed):
@@ -162,7 +162,7 @@ class Polls(commands.Cog):
                 name=f"<:lyrics:1007803511028863066> Group #{n+1}: {group}", value="▱"*10 + " (0%)", inline=False)
 
             select_options.append(discord.SelectOption(
-                label=group, value=group, description=f"Select this option to vote for {group} or  to remove the vote.", emoji="<:lyrics:1007803511028863066>"))
+                label=group, value=group, description=f"Select this option to vote for {group} or to remove the vote.", emoji="<:lyrics:1007803511028863066>"))
 
         poll_embed.set_footer(
             text="Remove your vote by selecting the same option · INKIGAYO ROBLOX.", icon_url=ctx.guild.icon.url)
@@ -171,7 +171,7 @@ class Polls(commands.Cog):
         poll_message = await channel.send(content="@everyone", embed=poll_embed, view=poll_view)
         await create_poll(poll_message.id, groups_parsed)
 
-        await ctx.respond("<:checked:1173356058387951626> Sent poll to channel.")
+        await ctx.respond("<:checked:1173356058387951626> Sent voting to channel.")
 
     @commands.slash_command(guild_ids=[881968885279117342, 1170821546038800464], description="View the stats for a voting poll")
     async def view(self, ctx: discord.ApplicationContext, vote_id: discord.Option(str, "The ID of the vote. (Message ID)")):
@@ -181,14 +181,14 @@ class Polls(commands.Cog):
         try:
             poll = await get_poll(int(vote_id))
         except ValueError:
-            return await ctx.respond("<:x_:1174507495914471464> Invalid vote ID.", ephemeral=True)
+            return await ctx.respond("<:x_:1174507495914471464> Invalid voting ID.", ephemeral=True)
 
         if poll == None:
             return await ctx.respond("<:x_:1174507495914471464> No voting found with this ID.", ephemeral=True)
 
         embeds = []
         main_embed = discord.Embed(
-            color=discord.Color.nitro_pink(), title="<:elections:1173351008655642756> Votes Stats")
+            color=discord.Color.nitro_pink(), title="<:elections:1173351008655642756> Voting Stats")
         main_embed.add_field(
             name="<:rightarrow:1173350998388002888> Message", value=f"https://discord.com/channels/1170821546038800464/1171604109720297512/{vote_id}", inline=False)
 
@@ -207,7 +207,7 @@ class Polls(commands.Cog):
                 f"{user.mention} ({user.display_name})" for user in users]
             choice_embed.description = "\n".join(users_parsed)
             choice_embed.set_footer(
-                text=f"{poll[choice]} votes total votes for {choice}", icon_url=ctx.guild.icon.url)
+                text=f"{poll[choice]} total votes for {choice}", icon_url=ctx.guild.icon.url)
 
             embeds.append(choice_embed)
 
