@@ -30,7 +30,8 @@ class ManageView(discord.ui.View):
         await self.event.start(reason=f"Started by: {interaction.user.display_name}")
         await self.original_message.edit(embed=embed)
         await interaction.edit_original_response(content="<:checked:1173356058387951626> Successfully started the event.", view=None)
-        s_message = await self.original_message.reply(content=f"<:notification:990034677836427295> **INKIGAYO** is starting soon! Join the stage channel. Game link will be automatically provided **{format_dt(datetime.datetime.now() + datetime.timedelta(minutes=15), 'R')}**.\n@everyone")
+        s_message = await self.original_message.reply(content=f"<:notification:990034677836427295> **INKIGAYO** is starting soon! Join <#1172515246615830609>. Game link will be automatically provided **{format_dt(datetime.datetime.now() + datetime.timedelta(minutes=15), 'R')}**")
+        await self.original_message.channel.send("@everyone", delete_after=1)
 
         await asyncio.sleep(60*15)
         await s_message.delete()
@@ -38,8 +39,8 @@ class ManageView(discord.ui.View):
         fields[2].value = "[Click Here](https://www.roblox.com/games/15280036840/INKIGAYO-ROBLOX)"
         embed.title = embed.title.replace("STARTING", "LIVE")
         await self.original_message.edit(embed=embed)
-        await self.original_message.reply("<:link:986648044525199390> Game link is now **available**.", mention_author=False)
-        await self.original_message.channel.send("@here", delete_after=1)
+        await self.original_message.reply("<:link:986648044525199390> Game link is now **available**! Check the main message.", mention_author=False, delete_after=60*20)
+        await self.original_message.channel.send("@everyone", delete_after=1)
 
     @discord.ui.button(label="End Event", style=discord.ButtonStyle.red)
     async def end_event(self, button, interaction: discord.Interaction):
@@ -57,7 +58,7 @@ class ManageView(discord.ui.View):
         if self.event.status == discord.ScheduledEventStatus.active:
             await self.event.complete(reason=f"Ended by: {interaction.user.display_name}")
 
-        else:
+        elif self.event.status == discord.ScheduledEventStatus.scheduled:
             await self.event.cancel(reason=f"Ended by: {interaction.user.display_name}")
             fields[0].value = "This event was cancelled."
             fields[2].value = "This event was cancelled."
@@ -116,7 +117,7 @@ class Show(commands.Cog):
             f"2023-{month}-{day} {time}+00")
 
         embed = discord.Embed(color=discord.Color.nitro_pink(
-        ), title=f"<:spotlights:1173351002196422737> INKIGAYO WEEK {show_number}", description="**INKIGAYO** presents this week's show! Watch your favorite artists perform and vote for them.")
+        ), title=f"<:spotlights:1173351002196422737> INKIGAYO #{show_number}", description="**INKIGAYO** presents this week's show! Watch your favorite artists perform and vote for them.")
 
         embed.add_field(name="<:time:987836664355373096> Date",
                         value=f"{format_dt(start_time, 'F')} ({format_dt(start_time, 'R')})")
@@ -134,7 +135,7 @@ class Show(commands.Cog):
             event_image = image.read()
 
         # For testing: 1057393912588800100 - INKIGAYO: 1172515246615830609
-        event = await ctx.guild.create_scheduled_event(name=f"INKIGAYO SHOW #{show_number}", description=f"INKIGAYO presents the week #{show_number} show. Watch your favorite artists perform and vote for them to give them a chance to win.", start_time=start_time, location=ctx.guild.get_channel(1172515246615830609), image=event_image, reason=f"Created by: {ctx.author.display_name}")
+        event = await ctx.guild.create_scheduled_event(name=f"INKIGAYO #{show_number}", description=f"INKIGAYO presents the week #{show_number} show. Watch your favorite artists perform and vote for them to give them a chance to win.", start_time=start_time, location=ctx.guild.get_channel(1172515246615830609), image=event_image, reason=f"Created by: {ctx.author.display_name}")
         message = await announcements_channel.send(content=f"@everyone [New INKIGAYO show!]({event.url})", embed=embed, view=ShowView())
         await add_show(message.id, event.id)
         await ctx.respond(content="<:checked:1173356058387951626> Successfully created this show.")
