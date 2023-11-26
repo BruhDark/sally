@@ -93,6 +93,7 @@ class ShowView(discord.ui.View):
             fields[2].value = "This event ended."
             embed.title = "INKIGAYO SHOW - ENDED"
             await original_message.edit(view=None)
+            return
 
         view = ManageView(original_message, event)
 
