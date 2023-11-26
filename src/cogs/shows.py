@@ -23,7 +23,7 @@ class ManageView(discord.ui.View):
         embed = self.original_message.embeds[0]
         fields = embed.fields
 
-        fields[0].value = f"LIVE **NOW**!\n<:rightarrow:1173350998388002888> Join us in {self.event.location.value.mention}"
+        fields[0].value = f"LIVE **NOW**!\n<:rightarrow:1173350998388002888> Join us in <#1172515246615830609>"
         fields[2].value = f"Link will be automatically provided **{format_dt(datetime.datetime.now() + datetime.timedelta(minutes=15), 'R')}**."
         embed.title += " - LIVE NOW"
 
