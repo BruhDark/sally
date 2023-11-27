@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands, pages
 from discord.interactions import Interaction
+import datetime
+import time
 
 from resources.database import create_poll, get_poll, add_vote, remove_vote, delete_poll
 a = "▰▱"
@@ -36,6 +38,10 @@ class PollSelect(discord.ui.Select):
 
     async def callback(self, interaction: Interaction):
         await interaction.response.defer()
+
+        if time.time() - interaction.user.created_at.timestamp() <= 432000:
+            return await interaction.followup.send(content="<:x_:1174507495914471464> Your account is too young. You are not allowed to vote.", ephemeral=True)
+
         original_message = await interaction.original_response() if interaction.message is None else interaction.message
         poll = await get_poll(original_message.id)
         user_choice = self.values[0]
