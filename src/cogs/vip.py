@@ -35,10 +35,13 @@ class BuyVipView(discord.ui.View):
 
         user_id = user_id.content
 
+        def code_check(message):
+            return message.author.id == interaction.user.id and message.guild == None
+
         code = random.choice(words) + random.choice(words) + \
             random.choice(words) + random.choice(words)
         await interaction.user.send(f"To confirm your identity, paste the following code in your account description: `{code}`. Say `done` when you finish.")
-        await interaction.client.wait_for("message", check=check)
+        await interaction.client.wait_for("message", check=code_check)
 
         url = user_url + user_id
         headers = {"x-api-key": api_key}
@@ -71,6 +74,10 @@ class BuyVipView(discord.ui.View):
 class Vip(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.Cog.listener
+    async def on_ready(self):
+        self.bot.add_view(BuyVipView())
 
     @commands.slash_command(guild_ids=[881968885279117342])
     async def vip_sell(self, ctx: discord.ApplicationContext, channel: discord.TextChannel):
