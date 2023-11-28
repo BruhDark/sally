@@ -13,7 +13,6 @@ words = ("INK", "GAYO", "ROBLOX", "SHOW", "POP",
          "MUSIC", "DRESS", "DANCE", "BEE", "CAT")
 
 user_url = "https://users.roblox.com/v1/users/"
-gamepass_url = 'https://apis.roblox.com'
 api_key = os.getenv("ROBLOX_API_KEY")
 
 
@@ -59,12 +58,11 @@ class BuyVipView(discord.ui.View):
             return
 
         await interaction.user.send("Identity verified! Checking for gamepass and assigning roles.")
-        g_url = gamepass_url + f'/cloud/v2/users/{user_id}/inventory-items'
-        parameters = {"filter": "assetIds=664364469"}
+        g_url = f"https://inventory.roblox.com/v1/users/{user_id}/items/1/664364469/is-owned"
         async with aiohttp.ClientSession() as session:
-            async with session.get(g_url, headers=headers, params=parameters) as response:
-                resp = await response.json(content_type="text/html")
-                if len(resp["inventoryItems"]) == 0:
+            async with session.get(g_url, headers=headers) as response:
+                resp = await response.json()
+                if not resp:
                     await interaction.user.send("You do not own the gamepass. You must purchase first and then try again.")
                     return
 
