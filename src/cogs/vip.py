@@ -101,7 +101,7 @@ class Vip(commands.Cog):
     async def on_ready(self):
         self.bot.add_view(BuyVipView())
 
-    @commands.slash_command(guild_ids=[881968885279117342])
+    @commands.slash_command(guild_ids=[881968885279117342, 1170821546038800464])
     async def vip_sell(self, ctx: discord.ApplicationContext, channel: discord.TextChannel):
 
         embed = discord.Embed(
