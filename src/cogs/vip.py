@@ -107,13 +107,13 @@ class Vip(commands.Cog):
 
         embed = discord.Embed(
             title="<:thunderbolt:987447657104560229> INKIGAYO VIP", color=discord.Color.nitro_pink())
-        embed.description = "Want to enjoy awesome benefits for all of our INKIGAYO shows? Buy the VIP gamepass to earn them! Join the VIP people and enjoy these benefits:"
+        embed.description = "Want to enjoy **amazing benefits** for all of our **INKIGAYO** shows? Buy the **VIP gamepass** to earn them! Join the VIP people and enjoy these benefits:"
         embed.description += "\n\n<:rightarrow:1173350998388002888> **Front line** seats."
         embed.description += "\n<:rightarrow:1173350998388002888> Join **15 minutes before** everyone else."
         embed.description += "\n<:rightarrow:1173350998388002888> **Priority queue**, first in line to join the studio."
         embed.description += "\n<:rightarrow:1173350998388002888> **Meet** your favorite **idols** in the backstage after the show!"
 
-        embed.description += "\n\nBuy the VIP gamepass on the link below, then click the button to earn your gamepass. (Your identity will be confirmed and then we will check if you own the gamepass)"
+        embed.description += "\n\nBuy the **VIP gamepass** on the link below, then click the button to earn your VIP role in the server. (Your identity will be confirmed and then we will check if you own the gamepass)"
         embed.add_field(name="<:link:986648044525199390> Become a VIP",
                         value="[Click Here](https://www.roblox.com/game-pass/664364469/VIP)")
         await channel.send(embed=embed, view=BuyVipView())
