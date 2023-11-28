@@ -72,21 +72,21 @@ class BuyVipView(discord.ui.View):
             await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Couldn't find the code in your profile. Please try again.", color=discord.Color.red()))
             return
 
-        await interaction.user.send(embed=discord.Embed(description="<:checked:1173356058387951626> Identity confirmed! Checking if you own the gamepass and assigning you the role.", color=discord.Color.green()))
+        confirmation = await interaction.user.send(embed=discord.Embed(description="<:checked:1173356058387951626> Identity confirmed! Checking if you own the gamepass and assigning you the role.", color=discord.Color.green()))
         # 664364469
-        g_url = f"https://inventory.roblox.com/v1/users/{user_id}/items/1/88378124/is-owned"
+        g_url = f"https://inventory.roblox.com/v1/users/{user_id}/items/1/664364469/is-owned"
         async with aiohttp.ClientSession() as session:
             async with session.get(g_url, headers=headers) as response:
                 resp = await response.json()
                 if not resp:
-                    await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> You do not own the gamepass, you **must** buy the gamepass before trying to claim the role. Please try again.", color=discord.Color.red()))
+                    await confirmation.edit(embed=discord.Embed(description="<:x_:1174507495914471464> You do not own the gamepass, you **must** buy the gamepass before trying to claim the role. Please try again.", color=discord.Color.red()))
                     return
 
         role = interaction.guild.get_role(1179032931457581107)
         await interaction.user.add_roles(role)
         embed3 = discord.Embed(
-            title=f"<:owner:881973891017355344> Welcome to the VIP team of INKIGAYO, {interaction.user.display_name}!", color=discord.Color.nitro_pink())
-        embed3.description = "I have assigned your roles and you are not part of the VIP users of INKIGAYO! Enjoy these benefits for all of our shows and thank you for supporting us!\n\nIf you do not see the VIP role in your server profile, please contact a staff member."
+            title=f"<:thunderbolt:987447657104560229> Welcome to the VIP team of INKIGAYO, {interaction.user.display_name}!", color=discord.Color.nitro_pink())
+        embed3.description = "I have assigned your roles and you are now part of the VIP users of **INKIGAYO**! Enjoy these benefits for **all** of our shows and thank you for supporting us!\n\n<:lifesaver:986648046592983150> If you do not see the VIP role in your server profile, please contact a staff member."
         await interaction.user.send(embed=embed3)
 
     async def on_error(self, error: Exception, item: Item, interaction: Interaction) -> None:
