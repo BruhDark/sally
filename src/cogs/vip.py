@@ -60,7 +60,7 @@ class BuyVipView(discord.ui.View):
         g_url = gamepass_url + f'/cloud/v2/users/{user_id}/inventory-items'
         parameters = {"filter": "assetIds=664364469"}
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers, parameters=parameters) as response:
+            async with session.get(g_url, headers=headers, parameters=parameters) as response:
                 resp = await response.json()
                 if len(resp["inventoryItems"]) == 0:
                     await interaction.user.send("You do not own the gamepass. You must purchase first and then try again.")
