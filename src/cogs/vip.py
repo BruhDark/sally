@@ -19,7 +19,7 @@ class BuyVipView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.button(label="Get VIP Role")
+    @discord.ui.button(label="Get VIP Role", custom_id="buyvipbutton")
     async def vip_role_button(self, button, interaction: discord.Interaction):
         await interaction.response.send_message(content="I have sent you a DM to continue with the process", ephemeral=True)
 
