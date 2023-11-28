@@ -32,7 +32,7 @@ class BuyVipView(discord.ui.View):
             await interaction.user.send(embed=embed1)
             await interaction.response.send_message(content="<:box:987447660510334976> I DM'ed you. We will continue the process there.", ephemeral=True)
         except:
-            await interaction.response.send_message(content="<:x_:1174507495914471464> Please open your DMs and try again!")
+            await interaction.response.send_message(content="<:x_:1174507495914471464> Please open your DMs and try again!", ephemeral=True)
 
         def check(message: discord.Message):
             return message.author.id == interaction.user.id and message.guild == None and message.content.isdigit()
