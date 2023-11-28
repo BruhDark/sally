@@ -22,6 +22,7 @@ class BuyVipView(discord.ui.View):
 
     @discord.ui.button(emoji="<:thunderbolt:987447657104560229>", label="Get VIP Role", style=discord.ButtonStyle.blurple, custom_id="buyvipbutton")
     async def vip_role_button(self, button, interaction: discord.Interaction):
+        await interaction.response.defer()
         try:
             embed1 = discord.Embed(
                 title=f":wave: Hello, {interaction.user.display_name}!", color=discord.Color.nitro_pink())
@@ -30,9 +31,9 @@ class BuyVipView(discord.ui.View):
             embed1.set_footer(text="This prompt will expire in 10 minutes",
                               icon_url=interaction.guild.icon.url)
             await interaction.user.send(embed=embed1)
-            await interaction.response.send_message(content="<:box:987447660510334976> I DM'ed you. We will continue the process there.", ephemeral=True)
+            await interaction.followup.send(content="<:box:987447660510334976> I have sent you a private message! We will continue the process there.", ephemeral=True)
         except:
-            await interaction.response.send_message(content="<:x_:1174507495914471464> Please open your DMs and try again!", ephemeral=True)
+            await interaction.followup.send(content="<:x_:1174507495914471464> Please open your DMs and try again!", ephemeral=True)
 
         def check(message: discord.Message):
             return message.author.id == interaction.user.id and message.guild == None and message.content.isdigit()
