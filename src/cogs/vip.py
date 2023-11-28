@@ -78,3 +78,7 @@ class Vip(commands.Cog):
         embed = discord.Embed(title="INKIGAYO VIP", description="tes test est")
 
         await channel.send(embed=embed, view=BuyVipView())
+
+
+def setup(bot):
+    bot.add_cog(Vip(bot))
