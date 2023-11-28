@@ -50,7 +50,7 @@ class BuyVipView(discord.ui.View):
                 if response.status == 404:
                     await interaction.user.send("The ID you provided was invalid. Try again.")
                 data = await response.json()
-                description = data["Description"]
+                description = data["description"]
 
         if code not in description:
             await interaction.user.send("Could not verify your identity. Try again.")
