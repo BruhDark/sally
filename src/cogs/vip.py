@@ -73,7 +73,8 @@ class BuyVipView(discord.ui.View):
             return
 
         await interaction.user.send(embed=discord.Embed(description="<:checked:1173356058387951626> Identity confirmed! Checking if you own the gamepass and assigning you the role.", color=discord.Color.green()))
-        g_url = f"https://inventory.roblox.com/v1/users/{user_id}/items/1/664364469/is-owned"
+        # 664364469
+        g_url = f"https://inventory.roblox.com/v1/users/{user_id}/items/1/88378124/is-owned"
         async with aiohttp.ClientSession() as session:
             async with session.get(g_url, headers=headers) as response:
                 resp = await response.json()
