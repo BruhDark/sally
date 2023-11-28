@@ -72,7 +72,7 @@ class Vip(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.slash_command()
+    @commands.slash_command(guild_ids=[881968885279117342])
     async def vip_sell(self, ctx: discord.ApplicationContext, channel: discord.TextChannel):
 
         embed = discord.Embed(title="INKIGAYO VIP", description="tes test est")
