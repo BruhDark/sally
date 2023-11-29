@@ -93,8 +93,11 @@ class TryAgain(discord.ui.View):
                     return
 
         guild = interaction.client.get_guild(1170821546038800464)
+        guild = await interaction.client.fetch_guild(1170821546038800464) if guild == None else guild
         role = guild.get_role(1179032931457581107)
-        await interaction.user.add_roles(role)
+        role = discord.utils.get(await guild.fetch_roles(), id=1179032931457581107) if role == None else role
+        user = guild.get_member(interaction.user.id)
+        await user.add_roles(role, reason=f"Bought VIP for Roblox account: {user_id}")
         embed3 = discord.Embed(
             title=f"<:thunderbolt:987447657104560229> Welcome to the VIP team of INKIGAYO, {interaction.user.display_name}!", color=discord.Color.nitro_pink())
         embed3.description = "I have assigned your roles and you are now part of the VIP users of **INKIGAYO**! Enjoy these benefits for **all** of our shows and thank you for supporting us!\n\n<:lifesaver:986648046592983150> If you do not see the VIP role in your server profile, please contact a staff member."
@@ -182,7 +185,7 @@ class BuyVipView(discord.ui.View):
                     return
 
         role = interaction.guild.get_role(1179032931457581107)
-        await interaction.user.add_roles(role)
+        await interaction.user.add_roles(role, reason=f"Bought VIP for Roblox account: {user_id}")
         embed3 = discord.Embed(
             title=f"<:thunderbolt:987447657104560229> Welcome to the VIP team of INKIGAYO, {interaction.user.display_name}!", color=discord.Color.nitro_pink())
         embed3.description = "I have assigned your roles and you are now part of the VIP users of **INKIGAYO**! Enjoy these benefits for **all** of our shows and thank you for supporting us!\n\n<:lifesaver:986648046592983150> If you do not see the VIP role in your server profile, please contact a staff member."
