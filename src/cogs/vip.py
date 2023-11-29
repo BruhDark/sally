@@ -20,7 +20,7 @@ class TryAgain(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=60*5, disable_on_timeout=True)
 
-    @discord.ui.button(label="Start Again", style=discord.ButtonStyle.blurple)
+    @discord.ui.button(label="Try Again", style=discord.ButtonStyle.blurple, emoji="<:reload:1179444707114352723>")
     async def try_again(self, button, interaction: discord.Interaction):
         self.disable_all_items()
         await interaction.response.edit_message(view=self)
@@ -37,7 +37,7 @@ class TryAgain(discord.ui.View):
             if message.author.id == interaction.user.id and message.guild == None:
                 if not message.content.isdigit():
                     asyncio.run_coroutine_threadsafe(message.channel.send(
-                        content="<:x_:1174507495914471464> You are not providing a valid ID. You must only provided the **numbers** located in the URL."), interaction.client.loop)
+                        content="<:x_:1174507495914471464> You are not providing a valid ID. You only provide the **numbers** located in the URL."), interaction.client.loop)
                     return False
                 return True
             return False
@@ -45,7 +45,7 @@ class TryAgain(discord.ui.View):
         try:
             user_id = await interaction.client.wait_for("message", check=check, timeout=60*10)
         except asyncio.TimeoutError:
-            return await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Your prompt timed out.", color=discord.Color.red()))
+            return await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Your prompt timed out.", color=discord.Color.red()), view=TryAgain())
 
         user_id = user_id.content
 
@@ -74,12 +74,12 @@ class TryAgain(discord.ui.View):
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers) as response:
                 if response.status == 404:
-                    await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> The Roblox ID you originally provided me was wrong or invalid. Please try again and check the data you are providing.", color=discord.Color.red()))
+                    await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> The Roblox ID you originally provided me was wrong or invalid. Please try again and check the data you are providing.", color=discord.Color.red()), view=TryAgain())
                 data = await response.json()
                 description = data["description"]
 
         if code not in description:
-            await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Couldn't find the code in your profile. Please try again.", color=discord.Color.red()))
+            await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Couldn't find the code in your profile. Please try again.", color=discord.Color.red()), view=TryAgain())
             return
 
         await interaction.user.send(embed=discord.Embed(description="<:checked:1173356058387951626> Identity confirmed! Checking if you own the gamepass and assigning you the role.", color=discord.Color.green()))
@@ -89,7 +89,7 @@ class TryAgain(discord.ui.View):
             async with session.get(g_url, headers=headers) as response:
                 resp = await response.json()
                 if not resp:
-                    await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> You do not own the gamepass, you **must** buy the gamepass before trying to claim the role. Please try again.", color=discord.Color.red()))
+                    await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> You do not own the gamepass, you **must** buy the gamepass before trying to claim the role. Please try again.", color=discord.Color.red()), view=TryAgain())
                     return
 
         role = interaction.guild.get_role(1179032931457581107)
@@ -119,15 +119,15 @@ class BuyVipView(discord.ui.View):
             embed1.set_footer(text="This prompt will expire in 10 minutes",
                               icon_url=interaction.guild.icon.url)
             await interaction.user.send(embed=embed1)
-            await interaction.followup.send(content="<:box:987447660510334976> I have sent you a private message! We will continue the process there.", ephemeral=True)
+            await interaction.followup.send(embed=discord.Embed("<:box:987447660510334976> I have sent you a private message! We will continue the process there.", color=discord.Color.nitro_pink()), ephemeral=True)
         except:
-            await interaction.followup.send(content="<:x_:1174507495914471464> Please open your DMs and try again!", ephemeral=True)
+            await interaction.followup.send(embed=discord.Embed("<:x_:1174507495914471464> Please open your DMs and try again!", color=discord.Color.red()), ephemeral=True)
 
         def check(message: discord.Message):
             if message.author.id == interaction.user.id and message.guild == None:
                 if not message.content.isdigit():
                     asyncio.run_coroutine_threadsafe(message.channel.send(
-                        content="<:x_:1174507495914471464> You are not providing a valid ID. You must only provided the **numbers** located in the URL."), interaction.client.loop)
+                        content="<:x_:1174507495914471464> You are not providing a valid ID. You only provide the **numbers** located in the URL."), interaction.client.loop)
                     return False
                 return True
             return False
@@ -135,7 +135,7 @@ class BuyVipView(discord.ui.View):
         try:
             user_id = await interaction.client.wait_for("message", check=check, timeout=60*10)
         except asyncio.TimeoutError:
-            return await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Your prompt timed out.", color=discord.Color.red()))
+            return await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Your prompt timed out.", color=discord.Color.red()), view=TryAgain())
 
         user_id = user_id.content
 
@@ -162,12 +162,12 @@ class BuyVipView(discord.ui.View):
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers) as response:
                 if response.status == 404:
-                    await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> The Roblox ID you originally provided me was wrong or invalid. Please try again and check the data you are providing.", color=discord.Color.red()))
+                    await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> The Roblox ID you originally provided me was wrong or invalid. Please try again and check the data you are providing.", color=discord.Color.red()), view=TryAgain())
                 data = await response.json()
                 description = data["description"]
 
         if code not in description:
-            await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Couldn't find the code in your profile. Please try again.", color=discord.Color.red()))
+            await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Couldn't find the code in your profile. Please try again.", color=discord.Color.red()), view=TryAgain())
             return
 
         await interaction.user.send(embed=discord.Embed(description="<:checked:1173356058387951626> Identity confirmed! Checking if you own the gamepass and assigning you the role.", color=discord.Color.green()))
@@ -177,7 +177,7 @@ class BuyVipView(discord.ui.View):
             async with session.get(g_url, headers=headers) as response:
                 resp = await response.json()
                 if not resp:
-                    await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> You do not own the gamepass, you **must** buy the gamepass before trying to claim the role. Please try again.", color=discord.Color.red()))
+                    await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> You do not own the gamepass, you **must** buy the gamepass before trying to claim the role. Please try again.", color=discord.Color.red()), view=TryAgain())
                     return
 
         role = interaction.guild.get_role(1179032931457581107)
