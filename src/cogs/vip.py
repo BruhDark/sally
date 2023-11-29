@@ -92,7 +92,8 @@ class TryAgain(discord.ui.View):
                     await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> You do not own the gamepass, you **must** buy the gamepass before trying to claim the role. Please try again.", color=discord.Color.red()), view=TryAgain())
                     return
 
-        role = interaction.guild.get_role(1179032931457581107)
+        guild = interaction.client.get_guild(1170821546038800464)
+        role = guild.get_role(1179032931457581107)
         await interaction.user.add_roles(role)
         embed3 = discord.Embed(
             title=f"<:thunderbolt:987447657104560229> Welcome to the VIP team of INKIGAYO, {interaction.user.display_name}!", color=discord.Color.nitro_pink())
