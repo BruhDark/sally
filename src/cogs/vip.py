@@ -119,9 +119,9 @@ class BuyVipView(discord.ui.View):
             embed1.set_footer(text="This prompt will expire in 10 minutes",
                               icon_url=interaction.guild.icon.url)
             await interaction.user.send(embed=embed1)
-            await interaction.followup.send(embed=discord.Embed("<:box:987447660510334976> I have sent you a private message! We will continue the process there.", color=discord.Color.nitro_pink()), ephemeral=True)
+            await interaction.followup.send(embed=discord.Embed(description="<:box:987447660510334976> I have sent you a private message! We will continue the process there.", color=discord.Color.nitro_pink()), ephemeral=True)
         except:
-            await interaction.followup.send(embed=discord.Embed("<:x_:1174507495914471464> Please open your DMs and try again!", color=discord.Color.red()), ephemeral=True)
+            await interaction.followup.send(embed=discord.Embed(description="<:x_:1174507495914471464> Please open your DMs and try again!", color=discord.Color.red()), ephemeral=True)
 
         def check(message: discord.Message):
             if message.author.id == interaction.user.id and message.guild == None:
