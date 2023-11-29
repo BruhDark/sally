@@ -30,7 +30,7 @@ class TryAgain(discord.ui.View):
         embed1.description = "Thank you for your interest on buying the VIP pass for INKIGAYO. If you haven't already, you must first purchase the VIP pass to continue with the process. [Click Here](https://www.roblox.com/game-pass/664364469/VIP) to buy it.\n\nNow, if you already purchased it, please provide me your **Roblox ID**. You can find it in the URL of your profile. `Home > Profile > Numbers located at the top in the URL.` Check the image if you don't know where it is."
         embed1.set_image(url="https://dark.hates-this.place/i/gzEw6M.png")
         embed1.set_footer(text="This prompt will expire in 10 minutes",
-                          icon_url=interaction.guild.icon.url)
+                          icon_url=interaction.client.user.display_avatar.url)
         await interaction.followup.send(embed=embed1)
 
         def check(message: discord.Message):
@@ -61,7 +61,7 @@ class TryAgain(discord.ui.View):
         embed2.add_field(
             name="<:editing:1174508480481218580> Code", value=str(code))
         embed2.set_footer(text="This prompt will expire in 10 minutes",
-                          icon_url=interaction.guild.icon.url)
+                          icon_url=interaction.client.user.display_avatar.url)
 
         await interaction.user.send(embed=embed2)
         try:
