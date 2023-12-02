@@ -35,7 +35,7 @@ class ManageView(discord.ui.View):
         await asyncio.sleep(60*15)
         await s_message.delete()
         fields[0].value = f"Happening now!\n<:rightarrow:1173350998388002888> Join us in <#1172515246615830609>"
-        fields[2].value = "[Click Here](https://www.roblox.com/games/15280036840/INKIGAYO-ROBLOX)"
+        fields[2].value = "[Click Here](https://www.roblox.com/games/15522311097/INKIGAY0-ROBLOX)"
         embed.title = embed.title.replace("STARTING", "LIVE")
         await self.original_message.edit(embed=embed)
         await self.original_message.reply("<:link:986648044525199390> Game link is now **available**! Check the main message, @everyone.", mention_author=False, delete_after=60*20)
