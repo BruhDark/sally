@@ -9,3 +9,4 @@ dnspython
 psutil
 jishaku
 gunicorn
+flask[async]
