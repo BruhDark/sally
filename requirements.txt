@@ -8,3 +8,4 @@ datetime
 dnspython
 psutil
 jishaku
+gunicorn
