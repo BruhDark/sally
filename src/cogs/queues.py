@@ -135,7 +135,7 @@ class QueueCommands(commands.Cog):
             queue.task_done()
 
     queue = SlashCommandGroup(
-        "fila", guild_ids=[1120863134878547969, 881968885279117342])
+        "fila")
 
     @queue.command(description="Envia el mensaje de la fila a un canal")
     @commands.has_permissions(administrator=True)

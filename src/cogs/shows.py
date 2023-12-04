@@ -108,7 +108,7 @@ class Show(commands.Cog):
     async def on_ready(self):
         self.bot.add_view(ShowView())
 
-    @commands.slash_command(description="Schedule and annonunce a show", guild_ids=[881968885279117342, 1170821546038800464])
+    @commands.slash_command(description="Schedule and annonunce a show")
     async def show(self, ctx: discord.ApplicationContext, show_number: discord.Option(str, "The show number"), date: discord.Option(str, "The date of the show. FORMAT: DD-MM"), time: discord.Option(str, "The time of the show in UTC TIME. FORMAT: HH:MM")):
         if not ctx.author.guild_permissions.manage_messages:
             return await ctx.respond("<:padlock:987837727741464666> You are not allowed to use this command.", ephemeral=True)

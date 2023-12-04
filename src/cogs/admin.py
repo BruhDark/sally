@@ -10,7 +10,7 @@ class AdminCommands(commands.Cog):
         self.bot: commands.Bot = bot
 
     dates = discord.SlashCommandGroup(
-        "fechas", guild_ids=[1120863134878547969, 881968885279117342])
+        "fechas")
 
     @commands.is_owner()
     @commands.command(name="deleteinvalid")

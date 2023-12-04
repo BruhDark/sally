@@ -149,7 +149,7 @@ class Polls(commands.Cog):
     async def on_ready(self):
         self.bot.add_view(PollView(None))
 
-    @commands.slash_command(guild_ids=[881968885279117342, 1170821546038800464], description="Create a groups voting")
+    @commands.slash_command(description="Create a groups voting")
     async def vote(self, ctx: discord.ApplicationContext, channel: discord.Option(discord.TextChannel, "The channel to send the voting"), group_1: discord.Option(str, "First group to add to the vote"), group_2: discord.Option(str, "Second group to add to the vote"), group_3: discord.Option(str, "Third group to add to the vote", default=None), group_4: discord.Option(str, "Fourth group to add to the vote", default=None), group_5: discord.Option(str, "Fifth group to add to the vote", default=None), group_6: discord.Option(str, "Sixth group to add to the vote", default=None)):
         if not ctx.author.guild_permissions.manage_messages:
             return await ctx.repond("<:padlock:987837727741464666> You are not allowed to use this command.", ephemeral=True)
@@ -179,7 +179,7 @@ class Polls(commands.Cog):
 
         await ctx.respond("<:checked:1173356058387951626> Sent voting to channel.")
 
-    @commands.slash_command(guild_ids=[881968885279117342, 1170821546038800464], description="View the stats for a voting poll")
+    @commands.slash_command(description="View the stats for a voting poll")
     async def view(self, ctx: discord.ApplicationContext, vote_id: discord.Option(str, "The ID of the vote. (Message ID)")):
         if not ctx.author.guild_permissions.manage_messages:
             return await ctx.repond("<:padlock:987837727741464666> You are not allowed to use this command.", ephemeral=True)
