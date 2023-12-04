@@ -8,4 +8,5 @@ app = Flask(__name__)
 async def index():
     return jsonify({"success": True})
 
-app.run()
+if __name__ == "__main__":
+    app.run()
