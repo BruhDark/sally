@@ -117,7 +117,11 @@ class VerifyView(discord.ui.View):
         await add_roblox_info(interaction.user.id, data["id"], data)
 
         try:
-            await interaction.user.edit(nick=f"{data['displayName']} (@{data['name']})")
+            nickname = f"{data['displayName']} (@{data['name']})"
+            if len(nickname) > 32:
+                await interaction.user.edit(nick=f"{data['name']}")
+            else:
+                await interaction.user.edit(nick=nickname)
         except:
             embed3.set_footer(
                 text="I was not able to edit your nickname in the server")
