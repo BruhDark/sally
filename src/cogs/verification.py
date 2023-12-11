@@ -161,7 +161,7 @@ class VerifyViewPersistent(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.Button(label="Verify", emoji="<:link:986648044525199390>", custom_id="verifypersistent")
+    @discord.ui.button(label="Verify", emoji="<:link:986648044525199390>", custom_id="verifypersistent")
     async def verify_persistent_callback(self, button, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
         roblox_data = await get_roblox_info(interaction.user.id)
