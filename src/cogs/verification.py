@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from discord.interactions import Interaction
-from resources.database import add_roblox_info, update_roblox_info, get_roblox_info, delete_roblox_info
+from resources.database import add_roblox_info, get_roblox_info, delete_roblox_info, blacklist_roblox_user, remove_blacklist_roblox
 import asyncio
 import aiohttp
 import random
@@ -203,6 +203,21 @@ class Verification(commands.Cog):
         else:
             await ctx.respond(embed=discord.Embed(description="<:x_:1174507495914471464> This user is not linked with Sally.", color=discord.Color.red()))
 
+    @commands.slash_command(description="Blacklist or unblacklist a user")
+    async def blacklist(self, ctx: discord.ApplicationContext, user: discord.Option(discord.Member, "The user to blacklist/unblacklist"), reason: discord.Option(str, "The reason of the blacklist")):
+        await ctx.defer()
+        roblox_data = await get_roblox_info(user.id)
+        if roblox_data:
+            if roblox_data["blacklisted"]:
+                await blacklist_roblox_user(user.id, reason)
+                await ctx.respond(embed=discord.Embed(description=f" Successfully **blacklisted** {user.mention} with Roblox account `{roblox_data['data']['name']}`. They will not be able to join INKIGAYO on Roblox.", color=discord.Color.green()))
+
+            else:
+                await remove_blacklist_roblox(user.id)
+                await ctx.respond(embed=discord.Embed(description=f" Successfully **unblacklisted** {user.mention} with Roblox account `{roblox_data['data']['name']}`. They will be able to join INKIGAYO on Roblox.", color=discord.Color.green()))
+
+        else:
+            await ctx.respond(embed=discord.Embed(description="<:x_:1174507495914471464> This user is not linked with Sally."))
 
 def setup(bot):
     bot.add_cog(Verification(bot))

@@ -77,7 +77,14 @@ async def delete_roblox_info(user_id: str):
 async def blacklist_roblox_user(user_id: str, reason: str):
     collection = database["roblox_verifications"]
     check = {"user_id": str(user_id)}
-    new_data = {"blacklisted": True, "message": str}
+    new_data = {"blacklisted": True, "message": reason}
+    return await collection.find_one_and_update(check, {"$set": new_data})
+
+
+async def remove_blacklist_roblox(user_id: str):
+    collection = database["roblox_verifications"]
+    check = {"user_id": str(user_id)}
+    new_data = {"blacklisted": False}
     return await collection.find_one_and_update(check, {"$set": new_data})
 
 # EVENTS
