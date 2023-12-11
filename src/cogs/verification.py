@@ -204,7 +204,7 @@ class Verification(commands.Cog):
             await ctx.respond(embed=discord.Embed(description="<:x_:1174507495914471464> This user is not linked with Sally.", color=discord.Color.red()))
 
     @commands.slash_command(description="Blacklist or unblacklist a user")
-    async def blacklist(self, ctx: discord.ApplicationContext, user: discord.Option(discord.Member, "The user to blacklist/unblacklist"), reason: discord.Option(str, "The reason of the blacklist")):
+    async def blacklist(self, ctx: discord.ApplicationContext, user: discord.Option(discord.Member, "The user to blacklist/unblacklist"), reason: discord.Option(str, "The reason of the blacklist", default="Blacklisted")):
         await ctx.defer()
         roblox_data = await get_roblox_info(user.id)
         if roblox_data:
@@ -218,6 +218,7 @@ class Verification(commands.Cog):
 
         else:
             await ctx.respond(embed=discord.Embed(description="<:x_:1174507495914471464> This user is not linked with Sally."))
+
 
 def setup(bot):
     bot.add_cog(Verification(bot))
