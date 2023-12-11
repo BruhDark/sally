@@ -4,6 +4,9 @@ import os
 from aiohttp import web
 from resources.database import get_roblox_info_by_rbxid
 import datetime
+import dotenv
+
+dotenv.load_dotenv()
 
 # app = Flask(__name__)
 app = web.Application()
@@ -91,7 +94,8 @@ class App(commands.Cog):
     async def web_server(self):
         runner = web.AppRunner(app)
         await runner.setup()
-        site = web.TCPSite(runner)
+        site = web.TCPSite(
+            runner, host="sally-tickets-82ca1ba8fdc3.herokuapp.com", port=os.getenv("PORT"))
         await site.start()
         print("Started")
 
