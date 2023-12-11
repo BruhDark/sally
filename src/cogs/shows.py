@@ -23,20 +23,20 @@ class ManageView(discord.ui.View):
         embed = self.original_message.embeds[0]
         fields = embed.fields
 
-        fields[0].value = f"The show is starting!\n<:rightarrow:1173350998388002888> Join us in <#1172515246615830609>"
+        fields[0].value = f"The show is starting!\n<:rightarrow:1173350998388002888> Join us in <#1178468708293808220>"
         fields[2].value = f"Link will be automatically provided **{format_dt(datetime.datetime.now() + datetime.timedelta(minutes=15), 'R')}**."
-        embed.title += " - STARTING"
+        embed.title = "INKIGAYO Show - STARTING"
 
         await self.event.start(reason=f"Started by: {interaction.user.display_name}")
         await self.original_message.edit(embed=embed)
         await interaction.edit_original_response(content="<:checked:1173356058387951626> Successfully started the event.", view=None)
-        s_message = await self.original_message.reply(content=f"<:notification:990034677836427295> **INKIGAYO** is starting soon! Join <#1172515246615830609>. Game link will be automatically provided **{format_dt(datetime.datetime.now() + datetime.timedelta(minutes=15), 'R')}**, @everyone.")
+        s_message = await self.original_message.reply(content=f"<:notification:990034677836427295> **INKIGAYO** is starting soon! Join <#1178468708293808220>. Game link will be automatically provided **{format_dt(datetime.datetime.now() + datetime.timedelta(minutes=15), 'R')}**, @everyone.")
 
         await asyncio.sleep(60*15)
         await s_message.delete()
-        fields[0].value = f"Happening now!\n<:rightarrow:1173350998388002888> Join us in <#1172515246615830609>"
+        fields[0].value = f"Happening now!\n<:rightarrow:1173350998388002888> Join us in <#1178468708293808220>"
         fields[2].value = "[Click Here](https://www.roblox.com/games/15522311097/INKIGAY0-ROBLOX)"
-        embed.title = embed.title.replace("STARTING", "LIVE")
+        embed.title = "INKIGAYO Show - LIVE"
         await self.original_message.edit(embed=embed)
         await self.original_message.reply("<:link:986648044525199390> Game link is now **available**! Check the main message, @everyone.", mention_author=False, delete_after=60*20)
 
@@ -51,7 +51,7 @@ class ManageView(discord.ui.View):
 
         fields[0].value = "This event ended."
         fields[2].value = "This event ended."
-        embed.title = embed.title.replace("LIVE NOW", "ENDED")
+        embed.title = "INKIGAYO Show - ENDED"
 
         if self.event.status == discord.ScheduledEventStatus.active:
             await self.event.complete(reason=f"Ended by: {interaction.user.display_name}")
@@ -60,7 +60,7 @@ class ManageView(discord.ui.View):
             await self.event.cancel(reason=f"Ended by: {interaction.user.display_name}")
             fields[0].value = "This event was cancelled."
             fields[2].value = "This event was cancelled."
-            embed.title += " - CANCELLED"
+            embed.title = "INKIGAYO Show - CANCELLED"
 
         await self.original_message.edit(embed=embed, view=None)
 
