@@ -311,7 +311,8 @@ class Verification(commands.Cog):
             title="<:link:986648044525199390> Verfication Required!", color=discord.Color.nitro_pink())
         embed.description = "You are required to verify your Roblox account to be able to attend to our **INKIGAYO** shows. If you are not verified, you will not be able to join our Roblox game and be part of the audience.\n\n<:info:881973831974154250> All data stored is public information about your Roblox account. You can delete it at any time by clicking the button again or by using </verify:1183583727473917962> in a channel."
 
-        embed.set_footer(text="If you run into any issues, please DM Dark")
+        embed.set_footer(
+            text="If you run into any issues, please DM Dark - INKIGAYO ROBLOX")
         await channel.send(embed=embed, view=VerifyViewPersistent())
         await ctx.send(content="Sent!")
 
