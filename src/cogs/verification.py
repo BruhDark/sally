@@ -95,6 +95,7 @@ class VerifyView(discord.ui.View):
             async with session.get(url) as response:
                 if response.status == 404:
                     await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> The Roblox ID you originally provided me was wrong or invalid. Please try again and check the data you are providing.", color=discord.Color.red()))
+                    return
                 data = await response.json()
                 description = data["description"]
 
@@ -220,14 +221,36 @@ class Verification(commands.Cog):
         if roblox_data:
             if not roblox_data["blacklisted"]:
                 await blacklist_roblox_user(user.id, reason)
-                await ctx.respond(embed=discord.Embed(description=f" Successfully **blacklisted** {user.mention} with Roblox account `{roblox_data['data']['name']}`. They will not be able to join INKIGAYO on Roblox.", color=discord.Color.green()))
+                await ctx.respond(embed=discord.Embed(description=f"<:checked:1173356058387951626> Successfully **blacklisted** {user.mention} with Roblox account `{roblox_data['data']['name']}`. They will not be able to join INKIGAYO on Roblox.", color=discord.Color.green()))
 
             else:
                 await remove_blacklist_roblox(user.id)
-                await ctx.respond(embed=discord.Embed(description=f" Successfully **unblacklisted** {user.mention} with Roblox account `{roblox_data['data']['name']}`. They will be able to join INKIGAYO on Roblox.", color=discord.Color.green()))
+                await ctx.respond(embed=discord.Embed(description=f"<:checked:1173356058387951626> Successfully **unblacklisted** {user.mention} with Roblox account `{roblox_data['data']['name']}`. They will be able to join INKIGAYO on Roblox.", color=discord.Color.green()))
 
         else:
             await ctx.respond(embed=discord.Embed(description="<:x_:1174507495914471464> This user is not linked with Sally."))
+
+    @commands.command(name="forceverify")
+    @commands.is_owner()
+    async def force_verify(self, ctx: commands.Context, user_id: str, roblox_id: str):
+
+        url = ROBLOX_USERS_ENDPOINT + roblox_id
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 404:
+                    await ctx.send(embed=discord.Embed(description="<:x_:1174507495914471464> The Roblox ID is invalid.", color=discord.Color.red()))
+                    return
+                data = await response.json()
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds={data['id']}&size=420x420&format=Png&isCircular=false") as resp:
+                response = await resp.json()
+                print(response)
+                avatar_url = response["data"][0]["imageUrl"]
+
+        data["avatar"] = avatar_url
+        await add_roblox_info(user_id, roblox_id, data)
+        await ctx.send(embed=discord.Embed(description=f"<:checked:1173356058387951626> Successfully forced verification on <@{user_id}> as Roblox account `{roblox_id}`", color=discord.Color.green()))
 
 
 def setup(bot):
