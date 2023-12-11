@@ -57,7 +57,7 @@ class App(commands.Cog):
 
     @routes.post("/roblox/join")
     async def roblox_join(request: web.Request):
-        roblox_id = request.json()
+        roblox_id = await request.json()
         roblox_id = roblox_id["roblox_id"]
 
         roblox_data = await get_roblox_info_by_rbxid(roblox_id)
