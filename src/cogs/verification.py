@@ -208,7 +208,7 @@ class Verification(commands.Cog):
         await ctx.defer()
         roblox_data = await get_roblox_info(user.id)
         if roblox_data:
-            if roblox_data["blacklisted"]:
+            if not roblox_data["blacklisted"]:
                 await blacklist_roblox_user(user.id, reason)
                 await ctx.respond(embed=discord.Embed(description=f" Successfully **blacklisted** {user.mention} with Roblox account `{roblox_data['data']['name']}`. They will not be able to join INKIGAYO on Roblox.", color=discord.Color.green()))
 
