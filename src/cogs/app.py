@@ -91,7 +91,7 @@ class App(commands.Cog):
     async def web_server(self):
         runner = web.AppRunner(app)
         await runner.setup()
-        site = web.TCPSite(runner, host='localhost', port=5000)
+        site = web.TCPSite(runner)
         await site.start()
         print("Started")
 
