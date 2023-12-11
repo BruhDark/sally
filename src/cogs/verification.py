@@ -117,11 +117,13 @@ class VerifyView(discord.ui.View):
         await add_roblox_info(interaction.user.id, data["id"], data)
 
         try:
+            verified_role = interaction.guild.get_role(1183609826002079855)
             nickname = f"{data['displayName']} (@{data['name']})"
             if len(nickname) > 32:
-                await interaction.user.edit(nick=f"{data['name']}")
-            else:
-                await interaction.user.edit(nick=nickname)
+                nickname = f"{data['name']}"
+
+            await interaction.user.edit(nick=nickname)
+            await interaction.user.add_roles(verified_role, reason=f"Verified account as: {nickname}")
         except:
             embed3.set_footer(
                 text="I was not able to edit your nickname in the server")
