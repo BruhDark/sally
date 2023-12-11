@@ -10,6 +10,76 @@ client: motor_tornado.MotorClient = motor_tornado.MotorClient(
     os.getenv("MONGO_URI"))
 database: motor_tornado.MotorDatabase = client["sally"]
 
+# GENERIC FUNCTIONS
+
+
+async def find_one(col: str, data: dict):
+    collection = database[col]
+    return await collection.find_one(data)
+
+
+async def insert_one(col: str, data: dict):
+    collection = database[col]
+    return await collection.insert_one(data)
+
+
+async def update_one(col: str, check: dict, data: dict):
+    collection = database[col]
+    return await collection.find_one_and_update(check, {"$set": data})
+
+
+async def delete_one(col: str, data: dict):
+    collection = database[col]
+    return await collection.delete_one(data)
+
+
+async def return_all(col: str, filter: dict = {}):
+    collection = database[col]
+    find = collection.find(filter)
+    docs = []
+    for doc in await find.to_list(None):
+        docs.append(doc)
+
+    return docs
+
+
+# VERIFICATION
+
+async def add_roblox_info(user_id: str, roblox_id: str, data: dict):
+    collection = database["roblox_verifications"]
+    data = {"user_id": str(user_id), "roblox_id": str(
+        roblox_id), "data": data, "blacklisted": False}
+    return await collection.insert_one(data)
+
+
+async def update_roblox_info(user_id: str, roblox_id: str, data: dict):
+    collection = database["roblox_verifications"]
+    check = {"user_id": str(user_id)}
+    new_data = {"roblox_id": str(roblox_id), "data": data}
+    return await collection.find_one_and_update(check, {"$set": new_data})
+
+
+async def get_roblox_info(user_id: str):
+    collection = database["roblox_verifications"]
+    return await collection.find_one({"user_id": str(user_id)})
+
+
+async def get_roblox_info_by_rbxid(roblox_id: str):
+    collection = database["roblox_verifications"]
+    return await collection.find_one({"roblox_id": str(roblox_id)})
+
+
+async def delete_roblox_info(user_id: str):
+    collection = database["roblox_verifications"]
+    return await collection.delete_one({"user_id": str(user_id)})
+
+
+async def blacklist_roblox_user(user_id: str, reason: str):
+    collection = database["roblox_verifications"]
+    check = {"user_id": str(user_id)}
+    new_data = {"blacklisted": True, "message": str}
+    return await collection.find_one_and_update(check, {"$set": new_data})
+
 # EVENTS
 
 
@@ -70,36 +140,6 @@ async def delete_poll(message_id: int):
     return await collection.delete_one({"_id": message_id})
 
 # DATES FUNCTIONS
-
-
-async def find_one(col: str, data: dict):
-    collection = database[col]
-    return await collection.find_one(data)
-
-
-async def insert_one(col: str, data: dict):
-    collection = database[col]
-    return await collection.insert_one(data)
-
-
-async def update_one(col: str, check: dict, data: dict):
-    collection = database[col]
-    return await collection.find_one_and_update(check, {"$set": data})
-
-
-async def delete_one(col: str, data: dict):
-    collection = database[col]
-    return await collection.delete_one(data)
-
-
-async def return_all(col: str, filter: dict = {}):
-    collection = database[col]
-    find = collection.find(filter)
-    docs = []
-    for doc in await find.to_list(None):
-        docs.append(doc)
-
-    return docs
 
 
 async def add_date(guild_id: int, date_id: str, date: str, tickets_amount: str,

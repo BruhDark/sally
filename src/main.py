@@ -38,4 +38,6 @@ class Sally(commands.Bot):
 
 sally = Sally()
 sally.status = discord.Status.idle
-sally.run(os.getenv("SALLY_TOKEN"))
+
+if __name__ == "__main__":
+    sally.run(os.getenv("SALLY_TOKEN"))
