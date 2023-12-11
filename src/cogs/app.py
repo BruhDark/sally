@@ -95,7 +95,7 @@ class App(commands.Cog):
         runner = web.AppRunner(app)
         await runner.setup()
         site = web.TCPSite(
-            runner, host="sally-tickets-82ca1ba8fdc3.herokuapp.com", port=os.getenv("PORT"))
+            runner, port=int(os.getenv("PORT")))
         await site.start()
         print("Started")
 
