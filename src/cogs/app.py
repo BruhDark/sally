@@ -36,15 +36,18 @@ class App(commands.Cog):
         roblox_data = await get_roblox_info_by_rbxid(roblox_id)
         if roblox_data == None:
             message = "User is not verified with Sally"
-            resp = {'blacklisted': True, 'message': message}
+            resp = {'discord_id': roblox_data["user_id"],
+                    'blacklisted': True, 'message': message}
             return web.json_response(resp)
 
         if roblox_data["blacklisted"]:
             message = roblox_data["message"]
-            resp = {'blacklisted': True, 'message': message}
+            resp = {'discord_id': roblox_data["user_id"],
+                    'blacklisted': True, 'message': message}
             return web.json_response(resp)
 
-        resp = {'blacklisted': False, 'message': "User is not blacklisted"}
+        resp = {'discord_id': roblox_data["user_id"],
+                'blacklisted': False, 'message': "User is not blacklisted"}
         return web.json_response(resp)
 
     @routes.get("/roblox/get-info")
@@ -63,11 +66,19 @@ class App(commands.Cog):
         roblox_data = await get_roblox_info_by_rbxid(roblox_id)
         embed = discord.Embed(
             color=discord.Color.nitro_pink(), title="<:user:988229844301131776> User Join Triggered", timestamp=datetime.datetime.now())
-        embed.add_field(name="Discord Account",
-                        value=f"<@{roblox_data['user_id']}> ({roblox_data['user_id']})")
-        embed.add_field(name="Roblox Account",
-                        value=f"{roblox_data['data']['name']} ({roblox_data['data']['id']})")
-        embed.set_thumbnail(url=roblox_data["data"]["avatar"])
+
+        if roblox_data:
+            embed.add_field(name="Discord Account",
+                            value=f"<@{roblox_data['user_id']}> ({roblox_data['user_id']})")
+            embed.add_field(name="Roblox Account",
+                            value=f"{roblox_data['data']['name']} ({roblox_data['data']['id']})")
+            embed.set_thumbnail(url=roblox_data["data"]["avatar"])
+
+        else:
+            embed.add_field(name="Discord Account",
+                            value=f"Unknown")
+            embed.add_field(name="Roblox Account",
+                            value=str(roblox_id))
 
         logs = app.bot.get_channel(1183581233821790279)
         await logs.send(embed=embed)
