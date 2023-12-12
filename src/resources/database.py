@@ -56,7 +56,7 @@ async def update_roblox_info(user_id: str, roblox_id: str, data: dict):
     collection = database["roblox_verifications"]
     check = {"user_id": str(user_id)}
     new_data = {"roblox_id": str(roblox_id), "data": data}
-    return await collection.find_one_and_update(check, {"$set": new_data})
+    return await collection.find_one_and_update(check, {"$set": new_data}, return_document=ReturnDocument.AFTER)
 
 
 async def get_roblox_info(user_id: str):
