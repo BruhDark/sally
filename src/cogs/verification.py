@@ -176,8 +176,13 @@ class DeleteRobloxAccountView(discord.ui.View):
 
     @discord.ui.button(label="Delete Account", emoji="<:delete:1055494235111034890>", style=discord.ButtonStyle.red)
     async def delete_callback(self, button, interaction: discord.Interaction):
+        if not self.managed:
+            roblox_data = await get_roblox_info(str(self.user_id))
+            if roblox_data["blacklisted"]:
+                return await interaction.response.send_message(embed=discord.Embed(description="<:x_:1174507495914471464> You can't delete your Roblox data while being blacklisted. Please contact Dark if you wish to delete your data.", color=discord.Color.red()))
+
         await delete_roblox_info(str(self.user_id))
-        await interaction.response.edit_message(embed=discord.Embed(description="<:checked:1173356058387951626> Successfully deleted your Roblox info.", color=discord.Color.green()), view=None)
+        await interaction.response.edit_message(embed=discord.Embed(description="<:checked:1173356058387951626> Successfully deleted the Roblox data.", color=discord.Color.green()), view=None)
 
     @discord.ui.button(label="Refresh Data", emoji="<:reload:1179444707114352723>")
     async def refresh_callback(self, button, interaction: discord.Interaction):
@@ -232,7 +237,7 @@ class DeleteRobloxAccountView(discord.ui.View):
         else:
             embed.description = "You are verified! You are able to attend to our **INKIGAYOS** in Roblox.\n\n<:info:881973831974154250> If you wish to **link another account**, first delete your linked account using the `Delete Account` button below and run this command again.\nIf your **Roblox information** is **outdated**, click the `Refresh Data` button."
         await interaction.edit_original_response(embed=embed)
-        await interaction.followup.send(embed=discord.Embed(description="<:checked:1173356058387951626> Successfully refreshed your Roblox info.", color=discord.Color.green()), ephemeral=True)
+        await interaction.followup.send(embed=discord.Embed(description="<:checked:1173356058387951626> Successfully refreshed the Roblox data.", color=discord.Color.green()), ephemeral=True)
 
 
 class VerifyViewPersistent(discord.ui.View):

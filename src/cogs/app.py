@@ -54,7 +54,7 @@ class App(commands.Cog):
     async def get_info(request: web.Request):
         roblox_id = request.rel_url.query.get("roblox_id", None)
         if not roblox_id:
-            return web.json_response({'blacklisted': True, 'message': 'Improper request made'}, status=404)
+            return web.json_response({'success': False, 'message': 'Improper request made'}, status=404)
         roblox_data = await get_roblox_info_by_rbxid(roblox_id)
         roblox_data["_id"] = "."
         return web.json_response(roblox_data)
