@@ -56,6 +56,7 @@ class App(commands.Cog):
         if not roblox_id:
             return web.json_response({'blacklisted': True, 'message': 'Improper request made'}, status=404)
         roblox_data = await get_roblox_info_by_rbxid(roblox_id)
+        roblox_data["_id"] = "."
         return web.json_response(roblox_data)
 
     @routes.post("/roblox/join")
