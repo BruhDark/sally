@@ -3,6 +3,7 @@ from discord.ext import commands, tasks
 import os
 from aiohttp import web
 from resources.database import get_roblox_info_by_rbxid
+from resources import webhook_manager
 import datetime
 import dotenv
 
@@ -81,8 +82,7 @@ class App(commands.Cog):
             embed.add_field(name="Roblox Account",
                             value=str(roblox_id))
 
-        logs = app.bot.get_channel(1183581233821790279)
-        await logs.send(embed=embed)
+        await webhook_manager.send_join_log(embed)
         return web.json_response({"success": True})
 
     @routes.get("/roblox/test-join")
