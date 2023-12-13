@@ -31,6 +31,15 @@ class Sally(commands.Bot):
                     print(f"❌ Failed to load cog: {cog}: {e}")
                     raise e
 
+        for cog in os.listdir("src/listeners"):
+            if cog.endswith(".py"):
+                try:
+                    self.load_extension(f"cogs.{cog[:-3]}", store=False)
+                    print(f"✅ Loaded listener: {cog}")
+                except Exception as e:
+                    print(f"❌ Failed to load listener: {cog}: {e}")
+                    raise e
+
     async def on_ready(self):
         print("Ready!")
         self.uptime = datetime.datetime.now()
