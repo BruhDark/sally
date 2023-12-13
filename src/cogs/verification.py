@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from discord.interactions import Interaction
-from resources.database import add_roblox_info, get_roblox_info, delete_roblox_info, blacklist_roblox_user, remove_blacklist_roblox, update_roblox_info
+from resources.database import add_roblox_info, get_roblox_info, delete_roblox_info, blacklist_roblox_user, remove_blacklist_roblox, update_roblox_info, get_roblox_info_by_rbxid
 import asyncio
 import aiohttp
 import random
@@ -43,6 +43,8 @@ class VerifyView(discord.ui.View):
     async def verify_button(self, button, interaction: discord.Interaction):
         self.disable_all_items()
         await interaction.response.edit_message(view=self)
+        print(
+            f"🛫 Started verification process for: {interaction.user} ({interaction.user.id})")
         try:
             embed1 = discord.Embed(
                 title=f"<:link:986648044525199390> Roblox Information", color=discord.Color.nitro_pink())
@@ -52,23 +54,33 @@ class VerifyView(discord.ui.View):
             embed1.set_footer(text="This prompt will expire in 10 minutes",
                               icon_url=interaction.guild.icon.url)
 
+            print(
+                f"✈️ Sent inital DM for verification process to: {interaction.user} ({interaction.user.id})")
             await interaction.user.send(embed=embed1)
             await interaction.followup.send(embed=discord.Embed(description="<:box:987447660510334976> I have sent you a private message! We will continue the process there.", color=discord.Color.nitro_pink()), ephemeral=True)
         except:
+            print(
+                f"🚷 Finished verification process for: {interaction.user} ({interaction.user.id}). Could not send a DM.")
             await interaction.followup.send(embed=discord.Embed(description="<:x_:1174507495914471464> Please open your DMs and try again!", color=discord.Color.red()), ephemeral=True)
 
         def check(message: discord.Message):
             return message.author.id == interaction.user.id and message.guild == None
 
         try:
+            print(
+                f"📝 Asking Roblox username for verification to: {interaction.user} ({interaction.user.id})")
             roblox_username = await interaction.client.wait_for("message", check=check, timeout=60*10)
         except asyncio.TimeoutError:
+            print(
+                f"🚷 Finished verification for: {interaction.user} ({interaction.user.id}). Roblox username prompt timed out.")
             return await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Your prompt timed out.", color=discord.Color.red()))
 
         roblox_username = roblox_username.content
 
         validation, roblox_id, roblox_username = await self.validate_username(roblox_username)
         if not validation:
+            print(
+                f"🚷 Finished verification for: {interaction.user.id}. Invalid Roblox username.")
             return await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> The Roblox username you provided does not exist. Please rerun the verify command in the server.", color=discord.Color.red()))
 
         def code_check(message):
@@ -95,6 +107,8 @@ class VerifyView(discord.ui.View):
 
         await interaction.user.send(embed=embed2)
         try:
+            print(
+                f"⌛️ Waiting for Roblox code confimration on verification process for: {interaction.user} ({interaction.user.id})")
             await interaction.client.wait_for("message", check=code_check, timeout=60*10)
         except asyncio.TimeoutError:
             pass
@@ -103,12 +117,16 @@ class VerifyView(discord.ui.View):
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 if response.status == 404:
+                    print(
+                        f"🚷 Finished verification for: {interaction.user} ({interaction.user.id}). Invalid Roblox ID?")
                     await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> The Roblox ID you originally provided me was wrong or invalid. Please try again and check the data you are providing.", color=discord.Color.red()))
                     return
                 data = await response.json()
                 description = data["description"]
 
         if code not in description:
+            print(
+                f"🚷 Finished verification for: {interaction.user} ({interaction.user.id}). No code found in description.")
             await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Couldn't find the code in your profile. Please rerun the verify command in the server.", color=discord.Color.red()))
             return
 
@@ -127,16 +145,21 @@ class VerifyView(discord.ui.View):
             if len(nickname) > 32:
                 nickname = f"{data['name']}"
 
+            elif data["displayName"] == data["name"]:
+                nickname = data["name"]
+
             await interaction.user.edit(nick=nickname)
         except:
-            print(f"Failed to edit nickname to {interaction.user.id}")
+            print(
+                f"⚠️ Failed to edit nickname on verification process for: {interaction.user} ({interaction.user.id})")
             errors.append("edit your nickname")
 
         try:
             verified_role = interaction.guild.get_role(1183609826002079855)
             await interaction.user.add_roles(verified_role, reason=f"Verified account as: {nickname}")
         except:
-            print(f"Failed to add roles to {interaction.user.id}")
+            print(
+                f"⚠️ Failed to add verified role on verification process for: {interaction.user} ({interaction.user.id})")
             errors.append("assign your roles")
 
         if len(errors) > 0:
@@ -148,13 +171,13 @@ class VerifyView(discord.ui.View):
                               icon_url=interaction.guild.icon.url)
 
         print(
-            f"Completed verification for {interaction.user.id} on Roblox account {data['id']}.")
+            f"🛬 Completed verification process for {interaction.user} ({interaction.user.id}) on Roblox account: {data['id']}.")
         await interaction.user.send(embed=embed3)
 
     async def on_error(self, error: Exception, item, interaction: discord.Interaction) -> None:
         await interaction.user.send(embed=discord.Embed(description=f"<:x_:1174507495914471464> Something went wrong, please contact Dark and send him the text below:\n\n```\n{error}```", color=discord.Color.red()))
         print(
-            f"Failed to complete verification for {interaction.user.id} because of: {error}. Traceback:")
+            f"❗️ Failed to complete verification process for {interaction.user} ({interaction.user.id}) because of: {error}. Traceback:")
         raise error
 
 
@@ -288,6 +311,8 @@ class VerifyViewPersistent(discord.ui.View):
             nickname = f"{display_name} (@{username})"
             if len(nickname) > 32:
                 nickname = username
+            elif display_name == username:
+                nickname = username
 
             if interaction.user.display_name != nickname:
                 await interaction.user.edit(nick=nickname)
@@ -335,6 +360,8 @@ class Verification(commands.Cog):
             nickname = f"{display_name} (@{username})"
             if len(nickname) > 32:
                 nickname = username
+            elif display_name == username:
+                nickname = username
 
             if ctx.author.display_name != nickname:
                 await ctx.author.edit(nick=nickname)
@@ -346,10 +373,24 @@ class Verification(commands.Cog):
 
     @commands.slash_command(description="Get someones Roblox information")
     @commands.guild_only()
-    async def getinfo(self, ctx: discord.ApplicationContext, user: discord.Option(discord.Member, "The user to get the info from")):
+    async def getinfo(self, ctx: discord.ApplicationContext, user: discord.Option(discord.Member, "The user to get the info from", default=None), roblox_id: discord.Option(str, "The Roblox ID to look up for", default=None)):
+        if user and roblox_id:
+            return await ctx.respond(embed=discord.Embed(description="<:x_:1174507495914471464> You have to either provide a `user` **or** `roblox_id`.", color=discord.Color.red()))
+        elif not user and not roblox_id:
+            user = ctx.author
+
         await ctx.defer()
-        roblox_data = await get_roblox_info(user.id)
+
+        if user:
+            roblox_data = await get_roblox_info(user.id)
+        elif roblox_id:
+            roblox_data = await get_roblox_info_by_rbxid(roblox_id)
+        else:
+            return await ctx.respond(embed=await ctx.respond(embed=discord.Embed(description="<:x_:1174507495914471464> Something went wrong while choosing how to fetch the data. Try again.", color=discord.Color.red())))
+
         if roblox_data:
+            fetched_member = ctx.guild.get_member(
+                int(roblox_data["user_id"])) if not user else user
             username = roblox_data["data"]["name"]
             avatar_url = roblox_data["data"]["avatar"]
             display_name = roblox_data["data"]["displayName"]
@@ -361,7 +402,15 @@ class Verification(commands.Cog):
             embed = discord.Embed(
                 title=f"<:info:881973831974154250> Roblox Information for {username}", color=discord.Color.nitro_pink())
             embed.set_thumbnail(url=avatar_url)
-            embed.add_field(name="Display Name", value=display_name)
+
+            if fetched_member:
+                embed.add_field(
+                    name="Discord Account", value=f"{fetched_member.mention} (`{fetched_member.id}`)")
+            else:
+                embed.add_field(name="Discord Account",
+                                value=f"Could not fetch information")
+
+            embed.add_field(name="Roblox Display Name", value=display_name)
             embed.add_field(name="Roblox ID", value=roblox_id)
             embed.add_field(name="Created", value=created)
 
@@ -416,6 +465,8 @@ class Verification(commands.Cog):
             nickname = f"{data['displayName']} (@{data['name']})"
             if len(nickname) > 32:
                 nickname = f"{data['name']}"
+            elif data["displayName"] == data["name"]:
+                nickname = data["name"]
 
             await member.edit(nick=nickname)
         except:
@@ -427,7 +478,27 @@ class Verification(commands.Cog):
         except:
             pass
 
-        await ctx.reply(embed=discord.Embed(description=f"<:checked:1173356058387951626> Successfully forced verification on <@{user_id}> as Roblox account `{roblox_id}`", color=discord.Color.green()), mention_author=False)
+        await ctx.reply(embed=discord.Embed(description=f"<:checked:1173356058387951626> Successfully forced verification on {member.mention} as Roblox account `{roblox_id}`", color=discord.Color.green()), mention_author=False)
+
+    @commands.command(name="forceunverify")
+    @commands.is_owner()
+    async def force_unverify(self, ctx: commands.Context, user_id: str):
+        member = ctx.guild.get_member(int(user_id))
+
+        await delete_roblox_info(user_id)
+
+        try:
+            await member.edit(nick=None)
+        except:
+            pass
+
+        try:
+            role = ctx.guild.get_role(1183609826002079855)
+            await member.remove_roles(role)
+        except:
+            pass
+
+        await ctx.reply(embed=discord.Embed(description=f"<:checked:1173356058387951626> Successfully forced unverification on {member.mention}.", color=discord.Color.green()), mention_author=False)
 
     @commands.command(name="verifymsg")
     @commands.is_owner()
