@@ -315,7 +315,10 @@ class VerifyViewPersistent(discord.ui.View):
                 nickname = username
 
             if interaction.user.display_name != nickname:
-                await interaction.user.edit(nick=nickname)
+                try:
+                    await interaction.user.edit(nick=nickname)
+                except:
+                    pass
 
             embed.description = "You are verified! You are able to attend to our **INKIGAYOS** in Roblox.\n\n<:info:881973831974154250> If you wish to **link another account**, first delete your linked account using the `Delete Account` button below and run this command again.\nIf your **Roblox information** is **outdated**, click the `Refresh Data` button."
             return await interaction.followup.send(embed=embed, view=DeleteRobloxAccountView(interaction.user, interaction.user.id, roblox_id), ephemeral=True)
@@ -364,7 +367,10 @@ class Verification(commands.Cog):
                 nickname = username
 
             if ctx.author.display_name != nickname:
-                await ctx.author.edit(nick=nickname)
+                try:
+                    await ctx.author.edit(nick=nickname)
+                except:
+                    pass
 
             embed.description = "You are verified! You are able to attend to our **INKIGAYOS** in Roblox.\n\n<:info:881973831974154250> If you wish to **link another account**, first delete your linked account using the `Delete Account` button below and run this command again.\nIf your **Roblox information** is **outdated**, click the `Refresh Data` button."
             return await ctx.respond(embed=embed, view=DeleteRobloxAccountView(ctx.author, ctx.author.id, roblox_id))
