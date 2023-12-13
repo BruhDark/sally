@@ -347,6 +347,7 @@ class Verification(commands.Cog):
     @commands.slash_command(description="Get someones Roblox information")
     @commands.guild_only()
     async def getinfo(self, ctx: discord.ApplicationContext, user: discord.Option(discord.Member, "The user to get the info from")):
+        await ctx.defer()
         roblox_data = await get_roblox_info(user.id)
         if roblox_data:
             username = roblox_data["data"]["name"]
