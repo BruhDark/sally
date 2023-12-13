@@ -34,7 +34,7 @@ class Sally(commands.Bot):
         for cog in os.listdir("src/listeners"):
             if cog.endswith(".py"):
                 try:
-                    self.load_extension(f"cogs.{cog[:-3]}", store=False)
+                    self.load_extension(f"listeners.{cog[:-3]}", store=False)
                     print(f"✅ Loaded listener: {cog}")
                 except Exception as e:
                     print(f"❌ Failed to load listener: {cog}: {e}")
