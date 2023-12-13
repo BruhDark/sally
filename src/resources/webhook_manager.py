@@ -12,7 +12,7 @@ roblox_log_url = os.getenv("ROBLOX_LOG_WEBHOOK_URL")
 
 
 async def send_join_log(embed: discord.Embed):
-    async with aiohttp.ClientSession as session:
+    async with aiohttp.ClientSession() as session:
         webhook = discord.Webhook.from_url(roblox_log_url, session=session)
         await webhook.send(embed=embed)
 
