@@ -179,9 +179,20 @@ class DeleteRobloxAccountView(discord.ui.View):
         if not self.managed:
             roblox_data = await get_roblox_info(str(self.user_id))
             if roblox_data["blacklisted"]:
-                return await interaction.response.send_message(embed=discord.Embed(description="<:x_:1174507495914471464> You can't delete your Roblox data while being blacklisted. Please contact Dark if you wish to delete your data.", color=discord.Color.red()))
+                return await interaction.response.send_message(embed=discord.Embed(description="<:x_:1174507495914471464> You can't delete your Roblox data while being blacklisted. Please contact Dark if you wish to delete your data.", color=discord.Color.red()), ephemeral=True)
 
         await delete_roblox_info(str(self.user_id))
+        member = interaction.guild.get_member(int(roblox_data["user_id"]))
+        try:
+            await member.edit(nick=None)
+        except:
+            pass
+
+        try:
+            verified_role = interaction.guild.get_role(1183609826002079855)
+            await member.remove_roles(verified_role)
+        except:
+            pass
         await interaction.response.edit_message(embed=discord.Embed(description="<:checked:1173356058387951626> Successfully deleted the Roblox data.", color=discord.Color.green()), view=None)
 
     @discord.ui.button(label="Refresh Data", emoji="<:reload:1179444707114352723>")
@@ -269,6 +280,13 @@ class VerifyViewPersistent(discord.ui.View):
                 embed.add_field(name="Blacklist Info",
                                 value=str(roblox_data["message"]))
 
+            nickname = f"{display_name} (@{username})"
+            if len(nickname) > 32:
+                nickname = username
+
+            if interaction.user.display_name != nickname:
+                await interaction.user.edit(nick=nickname)
+
             embed.description = "You are verified! You are able to attend to our **INKIGAYOS** in Roblox.\n\n<:info:881973831974154250> If you wish to **link another account**, first delete your linked account using the `Delete Account` button below and run this command again.\nIf your **Roblox information** is **outdated**, click the `Refresh Data` button."
             return await interaction.followup.send(embed=embed, view=DeleteRobloxAccountView(interaction.user, interaction.user.id, roblox_id), ephemeral=True)
 
@@ -284,6 +302,7 @@ class Verification(commands.Cog):
         self.bot.add_view(VerifyViewPersistent())
 
     @commands.slash_command(description="Verify or delete your verified account with Sally")
+    @commands.guild_only()
     async def verify(self, ctx: discord.ApplicationContext):
         await ctx.defer()
         roblox_data = await get_roblox_info(ctx.author.id)
@@ -308,12 +327,20 @@ class Verification(commands.Cog):
                 embed.add_field(name="Blacklist Info",
                                 value=str(roblox_data["message"]))
 
+            nickname = f"{display_name} (@{username})"
+            if len(nickname) > 32:
+                nickname = username
+
+            if ctx.author.display_name != nickname:
+                await ctx.author.edit(nick=nickname)
+
             embed.description = "You are verified! You are able to attend to our **INKIGAYOS** in Roblox.\n\n<:info:881973831974154250> If you wish to **link another account**, first delete your linked account using the `Delete Account` button below and run this command again.\nIf your **Roblox information** is **outdated**, click the `Refresh Data` button."
             return await ctx.respond(embed=embed, view=DeleteRobloxAccountView(ctx.author, ctx.author.id, roblox_id))
 
         await ctx.respond(content=":wave: To verify click the button below and follow the steps.", view=VerifyView(ctx.author))
 
     @commands.slash_command(description="Get someones Roblox information")
+    @commands.guild_only()
     async def getinfo(self, ctx: discord.ApplicationContext, user: discord.Option(discord.Member, "The user to get the info from")):
         roblox_data = await get_roblox_info(user.id)
         if roblox_data:
@@ -394,9 +421,10 @@ class Verification(commands.Cog):
         except:
             pass
 
-        await ctx.send(embed=discord.Embed(description=f"<:checked:1173356058387951626> Successfully forced verification on <@{user_id}> as Roblox account `{roblox_id}`", color=discord.Color.green()))
+        await ctx.reply(embed=discord.Embed(description=f"<:checked:1173356058387951626> Successfully forced verification on <@{user_id}> as Roblox account `{roblox_id}`", color=discord.Color.green()), mention_author=False)
 
     @commands.command(name="verifymsg")
+    @commands.is_owner()
     async def verify_message(self, ctx: commands.Context, channel: discord.TextChannel):
         embed = discord.Embed(
             title="<:link:986648044525199390> Verfication Required!", color=discord.Color.nitro_pink())
