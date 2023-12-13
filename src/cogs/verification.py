@@ -25,11 +25,9 @@ class VerifyView(discord.ui.View):
         data = {"usernames": [username], "excludeBannedUsers": True}
         headers = {"accept": "application/json",
                    "Content-Type": "application/json"}
-        print(data)
         async with aiohttp.ClientSession() as session:
             async with session.post(ROBLOX_USERNAMES_ENDPOINT, json=data, headers=headers) as resp:
                 response = await resp.json()
-                print(response)
                 if len(response["data"]) == 0:
                     return False, None
 
@@ -82,7 +80,6 @@ class VerifyView(discord.ui.View):
         async with aiohttp.ClientSession() as session:
             async with session.get(f"https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds={roblox_id}&size=420x420&format=Png&isCircular=false") as resp:
                 response = await resp.json()
-                print(response)
                 avatar_url = response["data"][0]["imageUrl"]
 
         embed2 = discord.Embed(
@@ -132,12 +129,14 @@ class VerifyView(discord.ui.View):
 
             await interaction.user.edit(nick=nickname)
         except:
+            print(f"Failed to edit nickname to {interaction.user.id}")
             errors.append("edit your nickname")
 
         try:
             verified_role = interaction.guild.get_role(1183609826002079855)
             await interaction.user.add_roles(verified_role, reason=f"Verified account as: {nickname}")
         except:
+            print(f"Failed to add roles to {interaction.user.id}")
             errors.append("assign your roles")
 
         if len(errors) > 0:
@@ -148,10 +147,14 @@ class VerifyView(discord.ui.View):
             embed3.set_footer(text="INKIGAYO Verification",
                               icon_url=interaction.guild.icon.url)
 
+        print(
+            f"Completed verification for {interaction.user.id} on Roblox account {data['id']}.")
         await interaction.user.send(embed=embed3)
 
     async def on_error(self, error: Exception, item, interaction: discord.Interaction) -> None:
         await interaction.user.send(embed=discord.Embed(description=f"<:x_:1174507495914471464> Something went wrong, please contact Dark and send him the text below:\n\n```\n{error}```", color=discord.Color.red()))
+        print(
+            f"Failed to complete verification for {interaction.user.id} because of: {error}. Traceback:")
         raise error
 
 
@@ -182,6 +185,7 @@ class DeleteRobloxAccountView(discord.ui.View):
                 return await interaction.response.send_message(embed=discord.Embed(description="<:x_:1174507495914471464> You can't delete your Roblox data while being blacklisted. Please contact Dark if you wish to delete your data.", color=discord.Color.red()), ephemeral=True)
 
         await delete_roblox_info(str(self.user_id))
+        print("Deleted Roblox data for: " + str(self.user_id))
         member = interaction.guild.get_member(int(roblox_data["user_id"]))
         try:
             await member.edit(nick=None)
@@ -211,6 +215,7 @@ class DeleteRobloxAccountView(discord.ui.View):
 
         data["avatar"] = avatar_url
         roblox_data = await update_roblox_info(interaction.user.id, self.roblox_id, data)
+        print("Refreshed Roblox data for: " + str(self.user_id))
         member = interaction.guild.get_member(int(roblox_data["user_id"]))
         try:
             nickname = f"{data['displayName']} (@{data['name']})"
