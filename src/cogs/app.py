@@ -51,6 +51,28 @@ class App(commands.Cog):
                 'blacklisted': False, 'message': "User is not blacklisted"}
         return web.json_response(resp)
 
+    @routes.get("/roblox/is-booster")
+    async def is_booster(request: web.Request):
+        roblox_id = request.rel_url.query.get("roblox_id", None)
+        if not roblox_id:
+            return web.json_response({'booster': False, 'message': 'Improper request made'}, status=404)
+
+        roblox_data = await get_roblox_info_by_rbxid(roblox_id)
+        if roblox_data == None:
+            resp = {"booster": False}
+
+        else:
+            inkigayo = app.bot.get_guild(1170821546038800464)
+            server_booster = inkigayo.get_role(1177467255802564698)
+            member = inkigayo.get_member(int(roblox_data["user_id"]))
+
+            if server_booster in member.roles:
+                resp = {"booster": True}
+            else:
+                resp = {"booster": False}
+
+        return web.json_response(resp)
+
     @routes.get("/roblox/get-info")
     async def get_info(request: web.Request):
         roblox_id = request.rel_url.query.get("roblox_id", None)
