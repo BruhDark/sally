@@ -36,3 +36,20 @@ async def send_command_error(ctx: commands.Context | discord.ApplicationContext,
             name="Guild", value=f"{ctx.guild.name} ({ctx.guild.id})")
 
         await webhook.send(embed=embed)
+
+
+async def send_verification_error(interaction: discord.Interaction, error):
+    async with aiohttp.ClientSession() as session:
+
+        webhook = discord.Webhook.from_url(url, session=session)
+        tb = ''.join(traceback.format_exception(
+            error, error, error.__traceback__))
+        tb = tb + "\n"
+
+        embed = discord.Embed(
+            title=f"<:x_:1174507495914471464> Verification failed", color=discord.Color.red(), timestamp=datetime.utcnow())
+        embed.description = f"```py\n{tb}```"
+
+        embed.add_field(
+            name="Author", value=f"{interaction.user} ({interaction.user.id})")
+        await webhook.send(embed=embed)

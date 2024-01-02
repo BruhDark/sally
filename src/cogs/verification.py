@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord.interactions import Interaction
 from resources.database import add_roblox_info, get_roblox_info, delete_roblox_info, blacklist_roblox_user, remove_blacklist_roblox, update_roblox_info, get_roblox_info_by_rbxid
+from resources import webhook_manager
 import asyncio
 import aiohttp
 import random
@@ -178,6 +179,7 @@ class VerifyView(discord.ui.View):
         await interaction.user.send(embed=discord.Embed(description=f"<:x_:1174507495914471464> Something went wrong, please contact Dark and send him the text below:\n\n```\n{error}```", color=discord.Color.red()))
         print(
             f"❗️ Failed to complete verification process for {interaction.user} ({interaction.user.id}) because of: {error}. Traceback:")
+        await webhook_manager.send_verification_error(interaction, error)
         raise error
 
 
