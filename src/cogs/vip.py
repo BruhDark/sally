@@ -27,7 +27,7 @@ class BuyVipView(discord.ui.View):
     async def vip_role_button(self, button, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
         roblox_data = await get_roblox_info(interaction.user.id)
-        if roblox_data == None:
+        if not roblox_data:
             await interaction.followup.send(embed=discord.Embed(description=f"<:x_:1174507495914471464> You are not verified with Sally! Use `/verify` in a channel to verify.", color=discord.Color.red()), ephemeral=True)
 
         user_id = roblox_data["roblox_id"]
@@ -59,6 +59,18 @@ class Vip(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         self.bot.add_view(BuyVipView())
+
+    @commands.Cog.listener()
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
+        if after.guild.id != 1170821546038800464:
+            return
+        vip_role = after.guild.get_role(1179032931457581107)
+        booster_role = after.guild.get_role(1177467255802564698)
+        if booster_role in after.roles and booster_role not in before.roles:
+            await after.add_roles(vip_role, "User is a server booster.")
+
+        elif booster_role not in after.roles and booster_role in before.roles:
+            await after.remove_roles(vip_role, "User is no longer a server booster.")
 
     @commands.slash_command()
     async def vip_sell(self, ctx: discord.ApplicationContext, channel: discord.TextChannel):
