@@ -25,7 +25,7 @@ class App(commands.Cog):
 
     @routes.get("/")
     async def index(request: web.Request):
-        resp = {'success': True, 'message': "Hello world"}
+        resp = {'success': True, 'message': "Server is live"}
         return web.json_response(resp)
 
     @routes.get("/roblox/is-blacklisted")
@@ -35,20 +35,21 @@ class App(commands.Cog):
             return web.json_response({'blacklisted': True, 'message': 'Improper request made'}, status=404)
 
         roblox_data = await get_roblox_info_by_rbxid(roblox_id)
-        if roblox_data == None:
-            message = "User is not verified with Sally"
-            resp = {'discord_id': roblox_data["user_id"],
-                    'blacklisted': True, 'message': message}
-            return web.json_response(resp)
 
-        if roblox_data["blacklisted"]:
+        if not roblox_data:
+            message = "User is not verified with Sally"
+            resp = {'discord_id': None,
+                    'blacklisted': True, 'message': message}
+
+        elif roblox_data["blacklisted"]:
             message = roblox_data["message"]
             resp = {'discord_id': roblox_data["user_id"],
                     'blacklisted': True, 'message': message}
-            return web.json_response(resp)
 
-        resp = {'discord_id': roblox_data["user_id"],
-                'blacklisted': False, 'message': "User is not blacklisted"}
+        else:
+            resp = {'discord_id': roblox_data["user_id"],
+                    'blacklisted': False, 'message': "User is not blacklisted"}
+
         return web.json_response(resp)
 
     @routes.get("/roblox/is-booster")
@@ -62,12 +63,16 @@ class App(commands.Cog):
             resp = {"booster": False}
 
         else:
-            inkigayo = app.bot.get_guild(1170821546038800464)
+            inkigayo: discord.Guild = app.bot.get_guild(1170821546038800464)
             server_booster = inkigayo.get_role(1177467255802564698)
             member = inkigayo.get_member(int(roblox_data["user_id"]))
 
-            if server_booster in member.roles:
+            if not inkigayo or not member:
+                resp = {"booster": False}
+
+            elif server_booster in member.roles:
                 resp = {"booster": True}
+
             else:
                 resp = {"booster": False}
 
