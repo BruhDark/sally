@@ -28,7 +28,7 @@ class BuyVipView(discord.ui.View):
         await interaction.response.defer(ephemeral=True)
         roblox_data = await get_roblox_info(interaction.user.id)
         if not roblox_data:
-            await interaction.followup.send(embed=discord.Embed(description=f"<:x_:1174507495914471464> You are not verified with Sally! Use `/verify` in a channel to verify.", color=discord.Color.red()), ephemeral=True)
+            return await interaction.followup.send(embed=discord.Embed(description=f"<:x_:1174507495914471464> You are not verified with Sally! Use `/verify` in a channel to verify.", color=discord.Color.red()), ephemeral=True)
 
         user_id = roblox_data["roblox_id"]
         # 664364469
@@ -40,8 +40,8 @@ class BuyVipView(discord.ui.View):
                     await interaction.followup.send(embed=discord.Embed(description="<:x_:1174507495914471464> You do not own the gamepass, you **must** buy the gamepass before trying to claim the role.", color=discord.Color.red()), ephemeral=True)
                     return
 
-        role = interaction.guild.get_role(1179032931457581107)
-        await interaction.user.add_roles(role, reason=f"Bought VIP for Roblox account: {user_id}")
+        vip_role = interaction.guild.get_role(1179032931457581107)
+        await interaction.user.add_roles(vip_role, reason=f"Bought VIP for Roblox account: {user_id}")
         embed3 = discord.Embed(
             title=f"<:thunderbolt:987447657104560229> Welcome to the VIP team of INKIGAYO, {interaction.user.display_name}!", color=discord.Color.nitro_pink())
         embed3.description = "I have assigned your roles and you are now part of the VIP users of **INKIGAYO**! Enjoy these benefits for **all** of our shows and thank you for supporting us!\n\n<:lifesaver:986648046592983150> If you do not see the VIP role in your server profile, please contact a staff member."
