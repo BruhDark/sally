@@ -29,7 +29,7 @@ class VerifyView(discord.ui.View):
             async with session.post(ROBLOX_USERNAMES_ENDPOINT, json=data, headers=headers) as resp:
                 response = await resp.json()
                 if len(response["data"]) == 0:
-                    return False, None
+                    return False, None, None
 
                 return True, response["data"][0]["id"], response["data"][0]["name"]
 
