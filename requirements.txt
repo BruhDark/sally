@@ -1,4 +1,4 @@
-py-cord-dev
+git+https://github.com/Pycord-Development/pycord
 tornado
 motor
 asyncio
