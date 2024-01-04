@@ -11,21 +11,19 @@ class ManageView(discord.ui.View):
         super().__init__(timeout=None)
         self.original_message = message
         self.event = event
-        if event.status == discord.ScheduledEventStatus.active:
-            self.start_event.disabled = True
-
-        elif event.status == discord.ScheduledEventStatus.scheduled:
-            self.end_event.label = "Cancel Event"
 
     @discord.ui.button(label="Start Event", style=discord.ButtonStyle.green)
     async def start_event(self, button, interaction: discord.Interaction):
+        if self.event.status == discord.ScheduledEventStatus.active:
+            return await interaction.response.send_message("<:padlock:987837727741464666> This event is already active.", ephemeral=True)
+
         await interaction.response.defer()
         embed = self.original_message.embeds[0]
         fields = embed.fields
 
         fields[0].value = f"The show is starting!\n<:rightarrow:1173350998388002888> Join us in <#1178468708293808220>"
         fields[2].value = f"Link will be automatically provided **{format_dt(datetime.datetime.now() + datetime.timedelta(minutes=15), 'R')}**."
-        embed.title = "INKIGAYO Show - STARTING"
+        embed.title = "Status: STARTING"
 
         await self.event.start(reason=f"Started by: {interaction.user.display_name}")
         await self.original_message.edit(embed=embed)
@@ -36,7 +34,7 @@ class ManageView(discord.ui.View):
         await s_message.delete()
         fields[0].value = f"Happening now!\n<:rightarrow:1173350998388002888> Join us in <#1178468708293808220>"
         fields[2].value = "[Click Here](https://www.roblox.com/games/15522311097/INKIGAY0-ROBLOX)"
-        embed.title = "INKIGAYO Show - LIVE"
+        embed.title = "Status: LIVE"
         await self.original_message.edit(embed=embed)
         await self.original_message.reply("<:link:986648044525199390> Game link is now **available**! Check the main message, @everyone.", mention_author=False, delete_after=60*20)
 
@@ -51,7 +49,7 @@ class ManageView(discord.ui.View):
 
         fields[0].value = "This event ended."
         fields[2].value = "This event ended."
-        embed.title = "INKIGAYO Show - ENDED"
+        embed.title = "Status: ENDED"
 
         if self.event.status == discord.ScheduledEventStatus.active:
             await self.event.complete(reason=f"Ended by: {interaction.user.display_name}")
@@ -60,7 +58,7 @@ class ManageView(discord.ui.View):
             await self.event.cancel(reason=f"Ended by: {interaction.user.display_name}")
             fields[0].value = "This event was cancelled."
             fields[2].value = "This event was cancelled."
-            embed.title = "INKIGAYO Show - CANCELLED"
+            embed.title = "Status: CANCELLED"
 
         await self.original_message.edit(embed=embed, view=None)
 
@@ -77,13 +75,15 @@ class ShowView(discord.ui.View):
         if not interaction.user.guild_permissions.manage_messages:
             return await interaction.response.send_message("<:padlock:987837727741464666> You can not manage this event.", ephemeral=True)
 
-        original_message = await interaction.original_response() if interaction.message == None else interaction.message
+        original_message = interaction.message or await interaction.original_response()
+        if original_message is None:
+            return await interaction.response.send_message("<:x_:1174507495914471464> Something went wrong while fetching the message. Please try again.", ephemeral=True)
 
         show = await get_show(original_message.id)
         if show is None:
-            return await interaction.response.send_message("<:x_:1174507495914471464> This show is invalid.", ephemeral=True)
+            return await interaction.response.send_message("<:x_:1174507495914471464> I could not find an event with this message.", ephemeral=True)
 
-        event = interaction.guild.get_scheduled_event(show["event_id"])
+        event = interaction.guild.get_scheduled_event(show["event_id"]) or await interaction.guild.fetch_scheduled_event(show["event_id"])
         if event is None:
             await interaction.response.send_message("<:x_:1174507495914471464> The scheduled event was deleted. This show will be automatically deleted due to it becoming invalid.", ephemeral=True)
             await delete_show(original_message.id)
@@ -91,7 +91,7 @@ class ShowView(discord.ui.View):
             fields = embed.fields
             fields[0].value = "This event ended."
             fields[2].value = "This event ended."
-            embed.title = "INKIGAYO SHOW - ENDED"
+            embed.title = "Status: ENDED"
             await original_message.edit(view=None)
             return
 
@@ -121,13 +121,16 @@ class Show(commands.Cog):
             f"2023-{month}-{day} {time}+00")
 
         embed = discord.Embed(color=discord.Color.nitro_pink(
-        ), title=f"<:spotlights:1173351002196422737> INKIGAYO #{show_number}", description="**INKIGAYO** presents this week's show! Watch your favorite artists perform and vote for them.")
+        ), title=f"Status: SCHEDULED", description="**INKIGAYO** presents this week's show! Watch your favorite artists perform and vote for them.")
+
+        embed.set_author(
+            name=f"INKIGAYO #{show_number}", icon_url="https://cdn.discordapp.com/attachments/947298060646613032/1192273208699789492/spotlights.png")
 
         embed.add_field(name="<:time:987836664355373096> Date",
                         value=f"{format_dt(start_time, 'F')} ({format_dt(start_time, 'R')})")
 
         embed.add_field(name="<:elections:1173351008655642756> Vote",
-                        value=f"Vote for your favorite artist/group in <#1171604109720297512> and give them a chance to win this week!")
+                        value=f"Vote for your favorite artist/group in <#1171604109720297512> and give them a chance to win this INKIGAYO #{show_number}")
 
         embed.add_field(name="<:link:986648044525199390> Join the game",
                         value="The event has not started yet. Link will be provided when it starts.")
