@@ -1,6 +1,11 @@
 import discord
 from discord.ext import commands
 from resources import webhook_manager
+import os
+import aiohttp
+import traceback
+import datetime
+import sys
 
 
 class OnApplicationCommandError(commands.Cog):
@@ -23,6 +28,20 @@ class OnApplicationCommandError(commands.Cog):
             await webhook_manager.send_command_error(ctx, error)
 
         await ctx.respond(embed=base_embed)
+
+    @commands.Cog.listener()
+    async def on_error(self, event):
+        async with aiohttp.ClientSession() as session:
+            url = os.getenv("WEBHOOK_URL")
+            webhook = discord.Webhook.from_url(url, session=session)
+            tb = ''.join(traceback.format_tb(sys.exc_info()[2]))
+            tb = tb + "\n" + str(sys.exc_info()[1])
+
+            embed = discord.Embed(
+                title=f"Something Went Wrong | Event: {event}", color=discord.Color.red(),
+                timestamp=datetime.utcnow())
+            embed.description = f"```py\n{tb}```"
+            await webhook.send(embed=embed)
 
 
 def setup(bot):
