@@ -118,7 +118,7 @@ class Show(commands.Cog):
         day, month = date[0], date[1]
 
         start_time = datetime.datetime.fromisoformat(
-            f"2023-{month}-{day} {time}+00")
+            f"2024-{month}-{day} {time}+00")
 
         embed = discord.Embed(color=discord.Color.nitro_pink(
         ), title=f"Status: SCHEDULED", description="**INKIGAYO** presents this week's show! Watch your favorite artists perform and vote for them.")
