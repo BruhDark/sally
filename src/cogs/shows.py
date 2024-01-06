@@ -109,7 +109,7 @@ class Show(commands.Cog):
         self.bot.add_view(ShowView())
 
     @commands.slash_command(description="Schedule and annonunce a show")
-    async def show(self, ctx: discord.ApplicationContext, show_number: discord.Option(str, "The show number"), date: discord.Option(str, "The date of the show. FORMAT: DD-MM"), time: discord.Option(str, "The time of the show in UTC TIME. FORMAT: HH:MM")):
+    async def show(self, ctx: discord.ApplicationContext, show_number: discord.Option(str, "The show number"), date: discord.Option(str, "The date of the show. FORMAT: DD-MM"), time: discord.Option(str, "The time of the show in UTC TIME. FORMAT: HH:MM"), banner: discord.Option(str, "The banner of the show. Must be a link to an image.", default=None, required=False)):
         if not ctx.author.guild_permissions.manage_messages:
             return await ctx.respond("<:padlock:987837727741464666> You are not allowed to use this command.", ephemeral=True)
 
@@ -134,6 +134,12 @@ class Show(commands.Cog):
 
         embed.add_field(name="<:link:986648044525199390> Join the game",
                         value="The event has not started yet. Link will be provided when it starts.\n\n:warning: You **must be verified** with Sally to be able to **join** the Roblox game.")
+
+        if banner:
+            try:
+                embed.set_image(url=banner)
+            except:
+                pass
 
         # For testing: 1015249782211616799 - INKIGAYO: 1178391939490517134
         announcements_channel = ctx.guild.get_channel(1178391939490517134)
