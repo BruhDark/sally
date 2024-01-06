@@ -129,11 +129,11 @@ class Show(commands.Cog):
         embed.add_field(name="<:time:987836664355373096> Date",
                         value=f"{format_dt(start_time, 'F')} ({format_dt(start_time, 'R')})")
 
-        embed.add_field(name="<:elections:1173351008655642756> Vote",
-                        value=f"Vote for your favorite artist/group in <#1171604109720297512> and give them a chance to win this INKIGAYO #{show_number}")
+        embed.add_field(name="<:thunderbolt:987447657104560229> VIP Benefits",
+                        value=f"VIP members will be able to join the game **15 minutes** before the show starts and will be able to **skip the queue**. More perks and information in <#1179028774545784943>")
 
         embed.add_field(name="<:link:986648044525199390> Join the game",
-                        value="The event has not started yet. Link will be provided when it starts.")
+                        value="The event has not started yet. Link will be provided when it starts.\n\n:warning: You **must be verified** with Sally to be able to **join** the Roblox game.")
 
         # For testing: 1015249782211616799 - INKIGAYO: 1178391939490517134
         announcements_channel = ctx.guild.get_channel(1178391939490517134)
