@@ -222,7 +222,8 @@ class DeleteRobloxAccountView(discord.ui.View):
             await member.remove_roles(verified_role)
         except:
             pass
-        await interaction.response.edit_message(embed=discord.Embed(description="<:checked:1173356058387951626> Successfully deleted the Roblox data.", color=discord.Color.green()), view=None)
+        await interaction.response.edit_message(embed=discord.Embed(description=f"<:checked:1173356058387951626> Successfully deleted {'the' if self.managed else 'your'} Roblox data.", color=discord.Color.green()), view=None)
+        self.stop()
 
     @discord.ui.button(label="Refresh Data", emoji="<:reload:1179444707114352723>")
     async def refresh_callback(self, button, interaction: discord.Interaction):
