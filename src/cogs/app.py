@@ -12,7 +12,6 @@ dotenv.load_dotenv()
 # app = Flask(__name__)
 app = web.Application()
 routes = web.RouteTableDef()
-api_key = os.getenv("ROBLOX_API_KEY")
 
 
 class App(commands.Cog):
@@ -22,6 +21,19 @@ class App(commands.Cog):
         app.bot: commands.Bot = bot
 
         app.add_routes(routes)
+
+    @tasks.loop()
+    async def web_server(self):
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(
+            runner, port=int(os.getenv("PORT")))
+        await site.start()
+        print("[API Server] Started!")
+
+    @web_server.before_loop
+    async def web_server_before_loop(self):
+        await self.bot.wait_until_ready()
 
     @routes.get("/")
     async def index(request: web.Request):
@@ -65,12 +77,13 @@ class App(commands.Cog):
         else:
             inkigayo: discord.Guild = app.bot.get_guild(1170821546038800464)
             server_booster = inkigayo.get_role(1177467255802564698)
+            vip_role = discord.utils.get(inkigayo.roles, name="VIPS")
             member = inkigayo.get_member(int(roblox_data["user_id"]))
 
             if not inkigayo or not member:
                 resp = {"booster": False}
 
-            elif server_booster in member.roles:
+            elif server_booster in member.roles or vip_role in member.roles:
                 resp = {"booster": True}
 
             else:
@@ -128,19 +141,6 @@ class App(commands.Cog):
         logs = app.bot.get_channel(1183581233821790279)  # 1183581233821790279
         await logs.send(embed=embed)
         return web.json_response({"success": True})
-
-    @tasks.loop()
-    async def web_server(self):
-        runner = web.AppRunner(app)
-        await runner.setup()
-        site = web.TCPSite(
-            runner, port=int(os.getenv("PORT")))
-        await site.start()
-        print("Started")
-
-    @web_server.before_loop
-    async def web_server_before_loop(self):
-        await self.bot.wait_until_ready()
 
 
 def setup(bot):
