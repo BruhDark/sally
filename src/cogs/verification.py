@@ -235,7 +235,7 @@ class ManageRobloxAccountView(discord.ui.View):
                 avatar_url = response["data"][0]["imageUrl"]
 
         data["avatar"] = avatar_url
-        roblox_data = await update_roblox_info(interaction.user.id, self.roblox_id, data)
+        roblox_data = await update_roblox_info(self.user_id, self.roblox_id, data)
         await webhook_manager.send("Refreshed Roblox data for: " + str(self.user_id))
         member = interaction.guild.get_member(int(roblox_data["user_id"]))
         try:
