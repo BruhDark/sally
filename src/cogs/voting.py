@@ -21,7 +21,6 @@ class PollSelect(discord.ui.Select):
             for field in fields:
                 if choice in field.name:
                     if total == 0:
-                        print("default to 0")
                         percentage = 0
 
                     else:
