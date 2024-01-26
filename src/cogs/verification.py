@@ -184,18 +184,13 @@ class VerifyView(discord.ui.View):
         raise error
 
 
-class DeleteRobloxAccountView(discord.ui.View):
+class ManageRobloxAccountView(discord.ui.View):
     def __init__(self, author: discord.Member, user_id: str, roblox_id: str, managed: bool = False):
-        super().__init__()
+        super().__init__(disable_on_timeout=True)
         self.author = author
         self.user_id = user_id
         self.roblox_id = roblox_id
         self.managed = managed
-
-    async def on_timeout(self) -> None:
-        if len(self.message.components) != 0:
-            self.disable_all_items()
-            await self.message.edit(view=self)
 
     async def interaction_check(self, interaction: Interaction) -> bool:
         if interaction.user == self.author:
@@ -324,14 +319,14 @@ class VerifyViewPersistent(discord.ui.View):
                     pass
 
             embed.description = "You are verified! You are able to attend to our **INKIGAYOS** in Roblox.\n\n<:info:881973831974154250> If you wish to **link another account**, first delete your linked account using the `Delete Account` button below and run this command again.\nIf your **Roblox information** is **outdated**, click the `Refresh Data` button."
-            return await interaction.followup.send(embed=embed, view=DeleteRobloxAccountView(interaction.user, interaction.user.id, roblox_id), ephemeral=True)
+            return await interaction.followup.send(embed=embed, view=ManageRobloxAccountView(interaction.user, interaction.user.id, roblox_id), ephemeral=True)
 
         await interaction.followup.send(content=":wave: To verify click the button below and follow the steps.", view=VerifyView(interaction.user), ephemeral=True)
 
 
 class Verification(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -376,7 +371,7 @@ class Verification(commands.Cog):
                     pass
 
             embed.description = "You are verified! You are able to attend to our **INKIGAYOS** in Roblox.\n\n<:info:881973831974154250> If you wish to **link another account**, first delete your linked account using the `Delete Account` button below and run this command again.\nIf your **Roblox information** is **outdated**, click the `Refresh Data` button."
-            return await ctx.respond(embed=embed, view=DeleteRobloxAccountView(ctx.author, ctx.author.id, roblox_id))
+            return await ctx.respond(embed=embed, view=ManageRobloxAccountView(ctx.author, ctx.author.id, roblox_id))
 
         await ctx.respond(content=":wave: To verify click the button below and follow the steps.", view=VerifyView(ctx.author))
 
@@ -428,8 +423,8 @@ class Verification(commands.Cog):
                                 value=str(roblox_data["message"]))
 
             embed.description = "Description:\n" + description
-            if ctx.author.guild_permissions.manage_messages:
-                view = DeleteRobloxAccountView(
+            if self.bot.is_owner(ctx.author):
+                view = ManageRobloxAccountView(
                     ctx.author, roblox_data["user_id"], roblox_id, managed=True)
             else:
                 view = None
