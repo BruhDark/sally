@@ -8,6 +8,7 @@ import aiohttp
 import random
 import datetime
 import os
+from resources import webhook_manager
 
 words = ("INK", "GAYO", "ROBLOX", "SHOW", "POP",
          "MUSIC", "DRESS", "DANCE", "BEE", "CAT")
@@ -44,7 +45,7 @@ class VerifyView(discord.ui.View):
     async def verify_button(self, button, interaction: discord.Interaction):
         self.disable_all_items()
         await interaction.response.edit_message(view=self)
-        print(
+        await webhook_manager.send(
             f"🛫 Started verification process for: {interaction.user} ({interaction.user.id})")
         try:
             embed1 = discord.Embed(
@@ -55,12 +56,12 @@ class VerifyView(discord.ui.View):
             embed1.set_footer(text="This prompt will expire in 10 minutes",
                               icon_url=interaction.guild.icon.url)
 
-            print(
+            await webhook_manager.send(
                 f"✈️ Sent inital DM for verification process to: {interaction.user} ({interaction.user.id})")
             await interaction.user.send(embed=embed1)
             await interaction.followup.send(embed=discord.Embed(description="<:box:987447660510334976> I have sent you a private message! We will continue the process there.", color=discord.Color.nitro_pink()), ephemeral=True)
         except:
-            print(
+            await webhook_manager.send(
                 f"🚷 Finished verification process for: {interaction.user} ({interaction.user.id}). Could not send a DM.")
             await interaction.followup.send(embed=discord.Embed(description="<:x_:1174507495914471464> Please open your DMs and try again!", color=discord.Color.red()), ephemeral=True)
 
@@ -68,11 +69,11 @@ class VerifyView(discord.ui.View):
             return message.author.id == interaction.user.id and message.guild == None
 
         try:
-            print(
+            await webhook_manager.send(
                 f"📝 Asking Roblox username for verification to: {interaction.user} ({interaction.user.id})")
             roblox_username = await interaction.client.wait_for("message", check=check, timeout=60*10)
         except asyncio.TimeoutError:
-            print(
+            await webhook_manager.send(
                 f"🚷 Finished verification for: {interaction.user} ({interaction.user.id}). Roblox username prompt timed out.")
             return await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Your prompt timed out.", color=discord.Color.red()))
 
@@ -80,7 +81,7 @@ class VerifyView(discord.ui.View):
 
         validation, roblox_id, roblox_username = await self.validate_username(roblox_username)
         if not validation:
-            print(
+            await webhook_manager.send(
                 f"🚷 Finished verification for: {interaction.user.id}. Invalid Roblox username.")
             return await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> The Roblox username you provided does not exist. Please rerun the verify command in the server.", color=discord.Color.red()))
 
@@ -108,7 +109,7 @@ class VerifyView(discord.ui.View):
 
         await interaction.user.send(embed=embed2)
         try:
-            print(
+            await webhook_manager.send(
                 f"⌛️ Waiting for Roblox code confimration on verification process for: {interaction.user} ({interaction.user.id})")
             await interaction.client.wait_for("message", check=code_check, timeout=60*10)
         except asyncio.TimeoutError:
@@ -118,7 +119,7 @@ class VerifyView(discord.ui.View):
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 if response.status == 404:
-                    print(
+                    await webhook_manager.send(
                         f"🚷 Finished verification for: {interaction.user} ({interaction.user.id}). Invalid Roblox ID?")
                     await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> The Roblox ID you originally provided me was wrong or invalid. Please try again and check the data you are providing.", color=discord.Color.red()))
                     return
@@ -126,7 +127,7 @@ class VerifyView(discord.ui.View):
                 description = data["description"]
 
         if code not in description:
-            print(
+            await webhook_manager.send(
                 f"🚷 Finished verification for: {interaction.user} ({interaction.user.id}). No code found in description.")
             await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Couldn't find the code in your profile. Please rerun the verify command in the server.", color=discord.Color.red()))
             return
@@ -151,7 +152,7 @@ class VerifyView(discord.ui.View):
 
             await interaction.user.edit(nick=nickname)
         except:
-            print(
+            await webhook_manager.send(
                 f"⚠️ Failed to edit nickname on verification process for: {interaction.user} ({interaction.user.id})")
             errors.append("edit your nickname")
 
@@ -159,7 +160,7 @@ class VerifyView(discord.ui.View):
             verified_role = interaction.guild.get_role(1183609826002079855)
             await interaction.user.add_roles(verified_role, reason=f"Verified account as: {nickname}")
         except:
-            print(
+            await webhook_manager.send(
                 f"⚠️ Failed to add verified role on verification process for: {interaction.user} ({interaction.user.id})")
             errors.append("assign your roles")
 
@@ -171,13 +172,13 @@ class VerifyView(discord.ui.View):
             embed3.set_footer(text="INKIGAYO Verification",
                               icon_url=interaction.guild.icon.url)
 
-        print(
+        await webhook_manager.send(
             f"🛬 Completed verification process for {interaction.user} ({interaction.user.id}) on Roblox account: {data['id']}.")
         await interaction.user.send(embed=embed3)
 
     async def on_error(self, error: Exception, item, interaction: discord.Interaction) -> None:
         await interaction.user.send(embed=discord.Embed(description=f"<:x_:1174507495914471464> Something went wrong, please contact Dark and send him the text below:\n\n```\n{error}```", color=discord.Color.red()))
-        print(
+        await webhook_manager.send(
             f"❗️ Failed to complete verification process for {interaction.user} ({interaction.user.id}) because of: {error}. Traceback:")
         await webhook_manager.send_verification_error(interaction, error)
         raise error
@@ -210,7 +211,7 @@ class DeleteRobloxAccountView(discord.ui.View):
                 return await interaction.response.send_message(embed=discord.Embed(description="<:x_:1174507495914471464> You can't delete your Roblox data while being blacklisted. Please contact Dark if you wish to delete your data.", color=discord.Color.red()), ephemeral=True)
 
         await delete_roblox_info(str(self.user_id))
-        print("Deleted Roblox data for: " + str(self.user_id))
+        await webhook_manager.send("Deleted Roblox data for: " + str(self.user_id))
         member = interaction.guild.get_member(int(roblox_data["user_id"]))
         try:
             await member.edit(nick=None)
@@ -236,12 +237,11 @@ class DeleteRobloxAccountView(discord.ui.View):
         async with aiohttp.ClientSession() as session:
             async with session.get(f"https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds={data['id']}&size=420x420&format=Png&isCircular=false") as resp:
                 response = await resp.json()
-                print(response)
                 avatar_url = response["data"][0]["imageUrl"]
 
         data["avatar"] = avatar_url
         roblox_data = await update_roblox_info(interaction.user.id, self.roblox_id, data)
-        print("Refreshed Roblox data for: " + str(self.user_id))
+        await webhook_manager.send("Refreshed Roblox data for: " + str(self.user_id))
         member = interaction.guild.get_member(int(roblox_data["user_id"]))
         try:
             nickname = f"{data['displayName']} (@{data['name']})"
@@ -470,7 +470,6 @@ class Verification(commands.Cog):
         async with aiohttp.ClientSession() as session:
             async with session.get(f"https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds={data['id']}&size=420x420&format=Png&isCircular=false") as resp:
                 response = await resp.json()
-                print(response)
                 avatar_url = response["data"][0]["imageUrl"]
 
         data["avatar"] = avatar_url
