@@ -37,6 +37,10 @@ class PollSelect(discord.ui.Select):
 
     async def callback(self, interaction: Interaction):
         await interaction.response.defer()
+        verified_role = discord.utils.get(
+            interaction.guild.roles, name="Verified")
+        if verified_role not in interaction.user.roles:
+            return await interaction.followup.send(content="<:x_:1174507495914471464> You must be verified to vote. Please use </verify:1183583727473917962> in a channel.", ephemeral=True)
 
         if time.time() - interaction.user.created_at.timestamp() <= 432000:
             return await interaction.followup.send(content="<:x_:1174507495914471464> Your account is too young. You are not allowed to vote.", ephemeral=True)
