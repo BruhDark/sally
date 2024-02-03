@@ -3,6 +3,7 @@ import dotenv
 import os
 from motor import motor_tornado
 from pymongo import ReturnDocument
+from pymongo import results
 
 dotenv.load_dotenv()
 
@@ -25,10 +26,10 @@ async def insert_one(col: str, data: dict):
 
 async def update_one(col: str, check: dict, data: dict):
     collection = database[col]
-    return await collection.find_one_and_update(check, {"$set": data})
+    return await collection.find_one_and_update(check, {"$set": data}, return_document=ReturnDocument.AFTER)
 
 
-async def delete_one(col: str, data: dict):
+async def delete_one(col: str, data: dict) -> results.DeleteResult:
     collection = database[col]
     return await collection.delete_one(data)
 
@@ -69,7 +70,7 @@ async def get_roblox_info_by_rbxid(roblox_id: str):
     return await collection.find_one({"roblox_id": str(roblox_id)})
 
 
-async def delete_roblox_info(user_id: str):
+async def delete_roblox_info(user_id: str) -> results.DeleteResult:
     collection = database["roblox_verifications"]
     return await collection.delete_one({"user_id": str(user_id)})
 
@@ -78,14 +79,14 @@ async def blacklist_roblox_user(user_id: str, reason: str):
     collection = database["roblox_verifications"]
     check = {"user_id": str(user_id)}
     new_data = {"blacklisted": True, "message": reason}
-    return await collection.find_one_and_update(check, {"$set": new_data})
+    return await collection.find_one_and_update(check, {"$set": new_data}, return_document=ReturnDocument.AFTER)
 
 
 async def remove_blacklist_roblox(user_id: str):
     collection = database["roblox_verifications"]
     check = {"user_id": str(user_id)}
     new_data = {"blacklisted": False}
-    return await collection.find_one_and_update(check, {"$set": new_data})
+    return await collection.find_one_and_update(check, {"$set": new_data}, return_document=ReturnDocument.AFTER)
 
 # EVENTS
 
