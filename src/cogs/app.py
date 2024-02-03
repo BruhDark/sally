@@ -98,6 +98,8 @@ class App(commands.Cog):
             return web.json_response({'success': False, 'message': 'Improper request made'}, status=404)
         roblox_data = await get_roblox_info_by_rbxid(roblox_id)
         roblox_data["_id"] = "."
+        if not roblox_data:
+            return web.json_response({'success': False, 'message': 'User is not verified with Sally'}, status=404)
         return web.json_response(roblox_data)
 
     @routes.post("/roblox/join")
