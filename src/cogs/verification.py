@@ -346,6 +346,7 @@ class Verification(commands.Cog):
     async def on_member_remove(self, member: discord.Member):
         if member.guild.id == 1170821546038800464:
             await delete_roblox_info(member.id)
+            await webhook_manager.send("Deleted Roblox data for: " + str(self.user_id) + ". User left the server.")
 
     @commands.slash_command(description="Verify or delete your verified account with Sally")
     @commands.guild_only()
