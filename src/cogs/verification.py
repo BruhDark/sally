@@ -9,6 +9,7 @@ import random
 import datetime
 import os
 from resources import webhook_manager
+from pymongo import results
 
 words = ("INK", "GAYO", "ROBLOX", "SHOW", "POP",
          "MUSIC", "DRESS", "DANCE", "BEE", "CAT")
@@ -345,8 +346,9 @@ class Verification(commands.Cog):
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
         if member.guild.id == 1170821546038800464:
-            await delete_roblox_info(member.id)
-            await webhook_manager.send("Deleted Roblox data for: " + str(self.user_id) + ". User left the server.")
+            result: results.DeleteResult = await delete_roblox_info(member.id)
+            if result.deleted_count != 0:
+                await webhook_manager.send("Deleted Roblox data for: " + str(member.id) + ". User left the server.")
 
     @commands.slash_command(description="Verify or delete your verified account with Sally")
     @commands.guild_only()
