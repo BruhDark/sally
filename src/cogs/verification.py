@@ -45,6 +45,8 @@ class VerifyView(discord.ui.View):
     async def verify_button(self, button, interaction: discord.Interaction):
         self.disable_all_items()
         await interaction.response.edit_message(view=self)
+        if interaction.user.id in interaction.client.user_prompts:
+            return await interaction.followup.send(embed=discord.Embed(description="<:x_:1174507495914471464> You are already in a verification process. Please finish it before starting another one.", color=discord.Color.red()), ephemeral=True)
 
         interaction.client.user_prompts.append(interaction.user.id)
 
@@ -349,10 +351,9 @@ class Verification(commands.Cog):
     @commands.guild_only()
     async def verify(self, ctx: discord.ApplicationContext):
         await ctx.defer()
-        if ctx.author.id in self.bot.user_prompts:
-            return await ctx.respond(embed=discord.Embed(description="<:x_:1174507495914471464> You are already in a verification prompt.", color=discord.Color.red()))
 
         roblox_data = await get_roblox_info(ctx.author.id)
+
         if roblox_data:
             username = roblox_data["data"]["name"]
             avatar_url = roblox_data["data"]["avatar"]
