@@ -45,6 +45,9 @@ class VerifyView(discord.ui.View):
     async def verify_button(self, button, interaction: discord.Interaction):
         self.disable_all_items()
         await interaction.response.edit_message(view=self)
+
+        interaction.client.user_prompts.append(interaction.user.id)
+
         await webhook_manager.send(
             f"🛫 Started verification process for: {interaction.user} ({interaction.user.id})")
         try:
@@ -63,6 +66,7 @@ class VerifyView(discord.ui.View):
         except:
             await webhook_manager.send(
                 f"🚷 Finished verification process for: {interaction.user} ({interaction.user.id}). Could not send a DM.")
+            interaction.client.user_prompts.remove(interaction.user.id)
             await interaction.followup.send(embed=discord.Embed(description="<:x_:1174507495914471464> Please open your DMs and try again!", color=discord.Color.red()), ephemeral=True)
 
         def check(message: discord.Message):
@@ -75,6 +79,7 @@ class VerifyView(discord.ui.View):
         except asyncio.TimeoutError:
             await webhook_manager.send(
                 f"🚷 Finished verification for: {interaction.user} ({interaction.user.id}). Roblox username prompt timed out.")
+            interaction.client.user_prompts.remove(interaction.user.id)
             return await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Your prompt timed out.", color=discord.Color.red()))
 
         roblox_username = roblox_username.content
@@ -83,6 +88,7 @@ class VerifyView(discord.ui.View):
         if not validation:
             await webhook_manager.send(
                 f"🚷 Finished verification for: {interaction.user.id}. Invalid Roblox username.")
+            interaction.client.user_prompts.remove(interaction.user.id)
             return await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> The Roblox username you provided does not exist. Please rerun the verify command in the server.", color=discord.Color.red()))
 
         def code_check(message):
@@ -121,6 +127,7 @@ class VerifyView(discord.ui.View):
                 if response.status == 404:
                     await webhook_manager.send(
                         f"🚷 Finished verification for: {interaction.user} ({interaction.user.id}). Invalid Roblox ID?")
+                    interaction.client.user_prompts.remove(interaction.user.id)
                     await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> The Roblox ID you originally provided me was wrong or invalid. Please try again and check the data you are providing.", color=discord.Color.red()))
                     return
                 data = await response.json()
@@ -129,6 +136,7 @@ class VerifyView(discord.ui.View):
         if code not in description:
             await webhook_manager.send(
                 f"🚷 Finished verification for: {interaction.user} ({interaction.user.id}). No code found in description.")
+            interaction.client.user_prompts.remove(interaction.user.id)
             await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Couldn't find the code in your profile. Please rerun the verify command in the server.", color=discord.Color.red()))
             return
 
@@ -332,10 +340,18 @@ class Verification(commands.Cog):
     async def on_ready(self):
         self.bot.add_view(VerifyViewPersistent())
 
+    @commands.Cog.listener()
+    async def on_member_remove(self, member: discord.Member):
+        if member.guild.id == 1170821546038800464:
+            await delete_roblox_info(member.id)
+
     @commands.slash_command(description="Verify or delete your verified account with Sally")
     @commands.guild_only()
     async def verify(self, ctx: discord.ApplicationContext):
         await ctx.defer()
+        if ctx.author.id in self.bot.user_prompts:
+            return await ctx.respond(embed=discord.Embed(description="<:x_:1174507495914471464> You are already in a verification prompt.", color=discord.Color.red()))
+
         roblox_data = await get_roblox_info(ctx.author.id)
         if roblox_data:
             username = roblox_data["data"]["name"]

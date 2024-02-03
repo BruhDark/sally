@@ -21,6 +21,7 @@ class Sally(commands.Bot):
         self.database = database
         self.queue: asyncio.Queue = None
         self.queue_paused = False
+        self.user_prompts = []
 
         for cog in os.listdir("src/cogs"):
             if cog.endswith(".py"):
