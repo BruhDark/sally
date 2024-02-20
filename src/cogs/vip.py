@@ -72,7 +72,8 @@ class Vip(commands.Cog):
         elif booster_role not in after.roles and booster_role in before.roles:
             await after.remove_roles(vip_role, "User is no longer a server booster.")
 
-    @commands.slash_command()
+    @commands.command(name="vipsell")
+    @commands.is_owner()
     async def vip_sell(self, ctx: discord.ApplicationContext, channel: discord.TextChannel):
 
         embed = discord.Embed(
