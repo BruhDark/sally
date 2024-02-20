@@ -144,6 +144,30 @@ class App(commands.Cog):
         await logs.send(embed=embed)
         return web.json_response({"success": True})
 
+    @routes.get("/verification/check")
+    async def check_verication(request: web.Request):
+        roblox_id = request.rel_url.query.get("roblox_id")
+        if roblox_id == None:
+            return web.json_response({"success": False, "message": "Improper request made"}, status=404)
+
+        discord_member = app.bot.pending_verifications.get(roblox_id)
+        if discord_member == None:
+            return web.json_response({"success": False, "message": "Could not find pending verication"}, status=404)
+
+        response = {"success": True,
+                    "username": discord_member["username"], "id": discord_member["id"]}
+        return web.json_response(response)
+
+    @routes.post("/verification/complete")
+    async def complete_verification(request: web.Request):
+        data = await request.json()
+        roblox_id = int(data["roblox_id"])
+        discord_id = int(data["discord_id"])
+
+        await app.bot.dispatch("verification_complete", roblox_id, discord_id)
+        app.bot.pending_verifications.pop(roblox_id)
+        return web.json_response({"success": True})
+
 
 def setup(bot):
     bot.add_cog(App(bot))
