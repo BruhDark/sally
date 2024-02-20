@@ -159,6 +159,7 @@ class VerificationMethodsView(discord.ui.View):
         except asyncio.TimeoutError:
             interaction.client.pending_verifications.remove(
                 str(self.roblox_id))
+            interaction.client.user_prompts.remove(interaction.user.id)
             return await interaction.user.send(content="You did not join the game in time, please try again.")
 
         embed3 = discord.Embed(
