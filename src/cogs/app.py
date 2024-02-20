@@ -148,11 +148,11 @@ class App(commands.Cog):
     async def check_verication(request: web.Request):
         roblox_id = request.rel_url.query.get("roblox_id")
         if roblox_id == None:
-            return web.json_response({"success": False, "message": "Improper request made"}, status=404)
+            return web.json_response({"success": False, "message": "Improper request made"})
 
         discord_member = app.bot.pending_verifications.get(roblox_id)
         if discord_member == None:
-            return web.json_response({"success": False, "message": "Could not find pending verication"}, status=404)
+            return web.json_response({"success": False, "message": "Could not find pending verication"})
 
         response = {"success": True,
                     "username": discord_member["username"], "id": discord_member["id"]}
