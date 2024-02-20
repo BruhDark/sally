@@ -155,7 +155,7 @@ class VerificationMethodsView(discord.ui.View):
         try:
             await webhook_manager.send(
                 f"⌛️ Waiting for Roblox game join on verification process for: {interaction.user} ({interaction.user.id})")
-            await interaction.client.wait_for("roblox_confirmation", check=confirmation_check, timeout=60*10)
+            await interaction.client.wait_for("verification_completed", check=confirmation_check, timeout=60*10)
         except asyncio.TimeoutError:
             interaction.client.pending_verifications.remove(
                 str(self.roblox_id))
