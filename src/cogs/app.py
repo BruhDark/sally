@@ -165,7 +165,7 @@ class App(commands.Cog):
         discord_id = int(data["discord_id"])
 
         await app.bot.dispatch("verification_complete", roblox_id, discord_id)
-        app.bot.pending_verifications.pop(roblox_id)
+        app.bot.pending_verifications.remove(roblox_id)
         return web.json_response({"success": True})
 
 
