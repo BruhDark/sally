@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands, pages
 from discord.interactions import Interaction
+from resources.utility_views import ConfirmActionView
 import datetime
 import time
 
@@ -89,6 +90,13 @@ class PollView(discord.ui.View):
             return
 
         await interaction.response.defer()
+        view = ConfirmActionView()
+        await interaction.followup.send("Are you sure you want to end this voting?", ephemeral=True, view=view)
+        await view.wait()
+
+        if not view.confirmed:
+            return
+
         original_message = await interaction.original_response() if interaction.message is None else interaction.message
         poll = await get_poll(original_message.id)
         if poll == None:
