@@ -146,7 +146,8 @@ class VerificationMethodsView(discord.ui.View):
                           icon_url=self.guild.icon.url)
 
         await interaction.response.send_message(embed=embed2)
-        interaction.client.pending_verifications.append(self.roblox_id)
+        interaction.client.pending_verifications[str(self.roblox_id)] = {
+            "username": str(interaction.user), "id": str(interaction.user.id)}
 
         def confirmation_check(roblox_id, discord_id):
             return int(roblox_id) == self.roblox_id and int(discord_id) == interaction.user.id
@@ -156,7 +157,7 @@ class VerificationMethodsView(discord.ui.View):
                 f"⌛️ Waiting for Roblox game join on verification process for: {interaction.user} ({interaction.user.id})")
             await interaction.client.wait_for("roblox_confirmation", check=confirmation_check, timeout=60*10)
         except asyncio.TimeoutError:
-            interaction.client.pending_verifications.remove(self.roblox_id)
+            interaction.client.pending_verifications.pop(self.roblox_id)
             return await interaction.user.send(content="You did not join the game in time, please try again.")
 
         embed3 = discord.Embed(

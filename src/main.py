@@ -22,7 +22,7 @@ class Sally(commands.Bot):
         self.queue: asyncio.Queue = None
         self.queue_paused = False
         self.user_prompts = []
-        self.pending_verifications = []
+        self.pending_verifications = {}
 
         for cog in os.listdir("src/cogs"):
             if cog.endswith(".py"):
