@@ -163,6 +163,8 @@ class App(commands.Cog):
         data = await request.json()
         roblox_id = int(data["roblox_id"])
         discord_id = int(data["discord_id"])
+        if roblox_id is None or discord_id is None:
+            return web.json_response({"success": False, "message": "Improper request made"})
 
         await app.bot.dispatch("verification_completed", roblox_id, discord_id)
         app.bot.pending_verifications.remove(roblox_id)
