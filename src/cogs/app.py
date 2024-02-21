@@ -18,7 +18,7 @@ class App(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.web_server.start()
-        app.bot: commands.Bot = bot
+        app.bot = bot
 
         app.add_routes(routes)
 

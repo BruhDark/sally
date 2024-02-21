@@ -129,8 +129,6 @@ class VerificationMethodsView(discord.ui.View):
 
     @discord.ui.button(label="Game Verification", style=discord.ButtonStyle.gray)
     async def game_verification(self, button, interaction: discord.Interaction):
-        if interaction.user.id != 449245847767482379:
-            return await interaction.response.send_message(embed=discord.Embed(description="<:x_:1174507495914471464> This method is not available yet.", color=discord.Color.red()), ephemeral=True)
 
         embed2 = discord.Embed(
             title="<:user:988229844301131776> Game Verification", color=discord.Color.nitro_pink())
