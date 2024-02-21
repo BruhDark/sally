@@ -171,7 +171,8 @@ class App(commands.Cog):
             app.bot.pending_verifications.pop(str(roblox_id))
             return web.json_response({"success": True})
         except Exception as e:
-            raise e
+            print(e)
+            return web.json_response({"success": False, "message": "An error occured"})
 
 
 def setup(bot):
