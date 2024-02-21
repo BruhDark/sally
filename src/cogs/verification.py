@@ -123,6 +123,7 @@ class VerificationMethodsView(discord.ui.View):
 
         await webhook_manager.send(
             f"🛬 Completed verification process for {interaction.user} ({interaction.user.id}) on Roblox account: {self.roblox_data['id']}.")
+        interaction.client.user_prompts.remove(interaction.user.id)
         await interaction.user.send(embed=embed3)
 
     @discord.ui.button(label="Game Verification", style=discord.ButtonStyle.gray)
@@ -134,8 +135,6 @@ class VerificationMethodsView(discord.ui.View):
             title="<:user:988229844301131776> Game Verification", color=discord.Color.nitro_pink())
 
         embed2.description = f"Thank you, {interaction.user.display_name}! We will need to confirm you indeed own **{self.username}**,  please join the game I am providing you below. Follow the steps in-game and come back to this chat. If a join is not detected in 10 minutes, this prompt will be expire."
-        embed2.add_field(
-            name="<:editing:1174508480481218580> Game", value="[Click Here](https://www.roblox.com/games/16441883725/Sally-Verification-Game)")
 
         embed2.set_thumbnail(url=self.avatar_url)
 
@@ -145,7 +144,12 @@ class VerificationMethodsView(discord.ui.View):
         embed2.set_footer(text="This prompt will expire in 10 minutes",
                           icon_url=self.guild.icon.url)
 
-        await interaction.response.send_message(embed=embed2)
+        button_view = discord.ui.View()
+        button_view.add_item(discord.ui.Button(style=discord.ButtonStyle.link, label="Join Verification Game",
+                             url="https://www.roblox.com/games/16441883725/Sally-Verification-Game"))
+
+        await interaction.response.edit_message(embed=embed2, view=button_view)
+
         interaction.client.pending_verifications[str(self.roblox_id)] = {
             "username": str(interaction.user), "id": str(interaction.user.id)}
 
@@ -160,7 +164,7 @@ class VerificationMethodsView(discord.ui.View):
             interaction.client.pending_verifications.remove(
                 str(self.roblox_id))
             interaction.client.user_prompts.remove(interaction.user.id)
-            return await interaction.user.send(content="You did not join the game in time, please try again.")
+            return await interaction.user.send(content="<:x_:1174507495914471464> You took too long to join the game, please run `/verify` in the server again.")
 
         embed3 = discord.Embed(
             title=f"<:link:986648044525199390> Thank you for verifying, {self.roblox_data['name']}!", color=discord.Color.nitro_pink())
@@ -203,6 +207,10 @@ class VerificationMethodsView(discord.ui.View):
         else:
             embed3.set_footer(text="INKIGAYO Verification",
                               icon_url=self.guild.icon.url)
+
+        interaction.client.pending_verifications.remove(
+            str(self.roblox_id))
+        interaction.client.user_prompts.remove(interaction.user.id)
 
         await webhook_manager.send(
             f"🛬 Completed verification process for {interaction.user} ({interaction.user.id}) on Roblox account: {self.roblox_data['id']}.")
