@@ -52,6 +52,7 @@ class VerificationMethodsView(discord.ui.View):
                           icon_url=self.guild.icon.url)
 
         await interaction.response.edit_message(embed=embed2, view=None)
+        self.stop()
 
         try:
             await webhook_manager.send(
@@ -149,6 +150,7 @@ class VerificationMethodsView(discord.ui.View):
                              url="https://www.roblox.com/games/16441883725/Sally-Verification-Game"))
 
         await interaction.response.edit_message(embed=embed2, view=button_view)
+        self.stop()
 
         interaction.client.pending_verifications[str(self.roblox_id)] = {
             "username": str(interaction.user), "id": str(interaction.user.id)}
