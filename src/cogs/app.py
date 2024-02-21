@@ -170,7 +170,8 @@ class App(commands.Cog):
             app.bot.dispatch("verification_completed", roblox_id, discord_id)
             app.bot.pending_verifications.pop(str(roblox_id))
             return web.json_response({"success": True})
-        except:
+        except Exception as e:
+            print(e)
             return web.json_response({"success": False, "message": "An error occured"})
 
 
