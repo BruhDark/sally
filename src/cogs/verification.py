@@ -161,7 +161,7 @@ class VerificationMethodsView(discord.ui.View):
                 f"⌛️ Waiting for Roblox game join on verification process for: {interaction.user} ({interaction.user.id})")
             await interaction.client.wait_for("verification_completed", check=confirmation_check, timeout=60*10)
         except asyncio.TimeoutError:
-            interaction.client.pending_verifications.remove(
+            interaction.client.pending_verifications.pop(
                 str(self.roblox_id))
             interaction.client.user_prompts.remove(interaction.user.id)
             return await interaction.user.send(content="<:x_:1174507495914471464> You took too long to join the game, please run `/verify` in the server again.")
@@ -208,8 +208,6 @@ class VerificationMethodsView(discord.ui.View):
             embed3.set_footer(text="INKIGAYO Verification",
                               icon_url=self.guild.icon.url)
 
-        interaction.client.pending_verifications.remove(
-            str(self.roblox_id))
         interaction.client.user_prompts.remove(interaction.user.id)
 
         await webhook_manager.send(
