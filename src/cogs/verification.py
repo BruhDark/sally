@@ -28,7 +28,7 @@ class VerificationMethodsView(discord.ui.View):
         self.guild = guild
         self.roblox_data = roblox_data
 
-    @discord.ui.button(label="Code Verification", style=discord.ButtonStyle.blurple)
+    @discord.ui.button(label="Code Verification", style=discord.ButtonStyle.gray)
     async def code_verification(self, button, interaction: discord.Interaction):
         def code_check(message):
             return message.author.id == interaction.user.id and message.guild == None
@@ -127,7 +127,7 @@ class VerificationMethodsView(discord.ui.View):
         interaction.client.user_prompts.remove(interaction.user.id)
         await interaction.user.send(embed=embed3)
 
-    @discord.ui.button(label="Game Verification", style=discord.ButtonStyle.gray)
+    @discord.ui.button(label="Game Verification", style=discord.ButtonStyle.blurple)
     async def game_verification(self, button, interaction: discord.Interaction):
 
         embed2 = discord.Embed(
@@ -145,7 +145,7 @@ class VerificationMethodsView(discord.ui.View):
 
         button_view = discord.ui.View()
         button_view.add_item(discord.ui.Button(style=discord.ButtonStyle.link, label="Join Verification Game",
-                             url="https://www.roblox.com/games/16441883725/Sally-Verification-Game"))
+                             url="https://www.roblox.com/games/16462865396"))
 
         await interaction.response.edit_message(embed=embed2, view=button_view)
         self.stop()
