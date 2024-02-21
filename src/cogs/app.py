@@ -167,7 +167,7 @@ class App(commands.Cog):
             return web.json_response({"success": False, "message": "Improper request made"})
 
         try:
-            await app.bot.dispatch("verification_completed", roblox_id, discord_id)
+            app.bot.dispatch("verification_completed", roblox_id, discord_id)
             app.bot.pending_verifications.pop(str(roblox_id))
             return web.json_response({"success": True})
         except:
