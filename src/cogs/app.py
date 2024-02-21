@@ -166,9 +166,12 @@ class App(commands.Cog):
         if roblox_id is None or discord_id is None:
             return web.json_response({"success": False, "message": "Improper request made"})
 
-        await app.bot.dispatch("verification_completed", roblox_id, discord_id)
-        app.bot.pending_verifications.pop(str(roblox_id))
-        return web.json_response({"success": True})
+        try:
+            await app.bot.dispatch("verification_completed", roblox_id, discord_id)
+            app.bot.pending_verifications.pop(str(roblox_id))
+            return web.json_response({"success": True})
+        except:
+            return web.json_response({"success": False, "message": "An error occured"})
 
 
 def setup(bot):
