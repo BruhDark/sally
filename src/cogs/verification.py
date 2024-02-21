@@ -21,7 +21,7 @@ api_key = os.getenv("ROBLOX_API_KEY")
 
 class VerificationMethodsView(discord.ui.View):
     def __init__(self, roblox_id: int, avatar_url: str, username: str, guild: discord.Guild, roblox_data: dict):
-        super().__init__(disable_on_timeout=True)
+        super().__init__(disable_on_timeout=True, timeout=60*5)
         self.roblox_id = roblox_id
         self.avatar_url = avatar_url
         self.username = username
