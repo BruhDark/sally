@@ -266,7 +266,7 @@ class VerifyView(discord.ui.View):
             await webhook_manager.send(
                 f"🚷 Finished verification process for: {interaction.user} ({interaction.user.id}). Could not send a DM.")
             interaction.client.user_prompts.remove(interaction.user.id)
-            await interaction.followup.send(embed=discord.Embed(description="<:x_:1174507495914471464> Please open your DMs and try again!", color=discord.Color.red()), ephemeral=True)
+            return await interaction.followup.send(embed=discord.Embed(description="<:x_:1174507495914471464> Please open your DMs and try again!", color=discord.Color.red()), ephemeral=True)
 
         def check(message: discord.Message):
             return message.author.id == interaction.user.id and message.guild == None
