@@ -3,6 +3,7 @@ import discord
 
 class ConfirmActionView(discord.ui.View):
     def __init__(self):
+        super().__init__()
         self.confirmed = False
 
     async def on_timeout(self) -> None:
