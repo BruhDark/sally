@@ -56,7 +56,7 @@ class VerificationMethodsView(discord.ui.View):
 
         try:
             await webhook_manager.send(
-                f"⌛️ Waiting for Roblox code confimration on verification process for: {interaction.user} ({interaction.user.id})")
+                f"⌛️ Waiting for Roblox code confirmation on verification process for: {interaction.user} ({interaction.user.id})")
             await interaction.client.wait_for("message", check=code_check, timeout=60*10)
         except asyncio.TimeoutError:
             pass
@@ -164,6 +164,8 @@ class VerificationMethodsView(discord.ui.View):
             interaction.client.pending_verifications.pop(
                 str(self.roblox_id))
             interaction.client.user_prompts.remove(interaction.user.id)
+            await webhook_manager.send(
+                f"🚷 Finished verification for: {interaction.user} ({interaction.user.id}). No game join detected.")
             return await interaction.user.send(content="<:x_:1174507495914471464> You took too long to join the game, please run `/verify` in the server again.")
 
         embed3 = discord.Embed(
@@ -316,6 +318,8 @@ class VerifyView(discord.ui.View):
                           icon_url=interaction.guild.icon.url)
 
         await interaction.user.send(embed=embed2, view=VerificationMethodsView(roblox_id, avatar_url, roblox_username, interaction.guild, roblox_data))
+        await webhook_manager.send(
+            f"⌛️ Waiting for method selection on verification process for: {interaction.user} ({interaction.user.id})")
 
     async def on_error(self, error: Exception, item, interaction: discord.Interaction) -> None:
         await interaction.user.send(embed=discord.Embed(description=f"<:x_:1174507495914471464> Something went wrong, please contact Dark and send him the text below:\n\n```\n{error}```", color=discord.Color.red()))
