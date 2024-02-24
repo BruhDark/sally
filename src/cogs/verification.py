@@ -317,9 +317,14 @@ class VerifyView(discord.ui.View):
         embed2.set_footer(text="This prompt will expire in 10 minutes",
                           icon_url=interaction.guild.icon.url)
 
-        await interaction.user.send(embed=embed2, view=VerificationMethodsView(roblox_id, avatar_url, roblox_username, interaction.guild, roblox_data))
+        verifyMethodView = VerificationMethodsView(
+            roblox_id, avatar_url, roblox_username, interaction.guild, roblox_data)
+        await interaction.user.send(embed=embed2, view=verifyMethodView)
         await webhook_manager.send(
             f"⌛️ Waiting for method selection on verification process for: {interaction.user} ({interaction.user.id})")
+        if await verifyMethodView.wait():
+            interaction.client.user_prompts.remove(interaction.user.id)
+            await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> You took too long to select a verification method, please run `/verify` in the server again.", color=discord.Color.red()))
 
     async def on_error(self, error: Exception, item, interaction: discord.Interaction) -> None:
         await interaction.user.send(embed=discord.Embed(description=f"<:x_:1174507495914471464> Something went wrong, please contact Dark and send him the text below:\n\n```\n{error}```", color=discord.Color.red()))
