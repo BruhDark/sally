@@ -20,13 +20,15 @@ api_key = os.getenv("ROBLOX_API_KEY")
 
 
 class VerificationMethodsView(discord.ui.View):
-    def __init__(self, roblox_id: int, avatar_url: str, username: str, guild: discord.Guild, roblox_data: dict):
+    def __init__(self, roblox_id: int, avatar_url: str, username: str, guild: discord.Guild, roblox_data: dict, WEBHOOK_MESSAGE, LOG_EMBED):
         super().__init__(disable_on_timeout=True, timeout=60*5)
         self.roblox_id = roblox_id
         self.avatar_url = avatar_url
         self.username = username
         self.guild = guild
         self.roblox_data = roblox_data
+        self.WEBHOOK_MESSAGE = WEBHOOK_MESSAGE
+        self.LOG_EMBED = LOG_EMBED
 
     @discord.ui.button(label="Code Verification", style=discord.ButtonStyle.gray)
     async def code_verification(self, button, interaction: discord.Interaction):
@@ -55,8 +57,7 @@ class VerificationMethodsView(discord.ui.View):
         self.stop()
 
         try:
-            await webhook_manager.send(
-                f"⌛️ Waiting for Roblox code confirmation on verification process for: {interaction.user} ({interaction.user.id})")
+            self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, ["Waiting for Roblox code confirmation"], "pending", self.LOG_EMBED)
             await interaction.client.wait_for("message", check=code_check, timeout=60*10)
         except asyncio.TimeoutError:
             pass
@@ -65,16 +66,14 @@ class VerificationMethodsView(discord.ui.View):
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 if response.status == 404:
-                    await webhook_manager.send(
-                        f"🚷 Finished verification for: {interaction.user} ({interaction.user.id}). Invalid Roblox ID?")
+                    self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, ["Invalid Roblox ID?"], "error", self.LOG_EMBED)
                     interaction.client.user_prompts.remove(interaction.user.id)
                     await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> The Roblox ID you originally provided me was wrong or invalid. Please try again and check the data you are providing.", color=discord.Color.red()))
                     return
                 new_roblox_data = await response.json()
 
         if code not in new_roblox_data["description"]:
-            await webhook_manager.send(
-                f"🚷 Finished verification for: {interaction.user} ({interaction.user.id}). No code found in description.")
+            self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, ["No code found in description"], "error", self.LOG_EMBED)
             interaction.client.user_prompts.remove(interaction.user.id)
             await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Couldn't find the code in your profile. Please rerun the verify command in the server.", color=discord.Color.red()))
             return
@@ -101,8 +100,7 @@ class VerificationMethodsView(discord.ui.View):
             member = self.guild.get_member(interaction.user.id)
             await member.edit(nick=nickname)
         except:
-            await webhook_manager.send(
-                f"⚠️ Failed to edit nickname on verification process for: {interaction.user} ({interaction.user.id})")
+            self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, ["Failed to edit nickname"], "pending", self.LOG_EMBED)
             errors.append("edit your nickname")
 
         try:
@@ -110,8 +108,7 @@ class VerificationMethodsView(discord.ui.View):
             member = self.guild.get_member(interaction.user.id)
             await member.add_roles(verified_role, reason=f"Verified account as: {nickname}")
         except:
-            await webhook_manager.send(
-                f"⚠️ Failed to add verified role on verification process for: {interaction.user} ({interaction.user.id})")
+            self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, ["Failed to add verified role"], "pending", self.LOG_EMBED)
             errors.append("assign your roles")
 
         if len(errors) > 0:
@@ -122,8 +119,7 @@ class VerificationMethodsView(discord.ui.View):
             embed3.set_footer(text="INKIGAYO Verification",
                               icon_url=self.guild.icon.url)
 
-        await webhook_manager.send(
-            f"🛬 Completed verification process for {interaction.user} ({interaction.user.id}) on Roblox account: {self.roblox_data['id']}.")
+        self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, [f"Completed verification. Account: {self.roblox_data['id']}"], "success", self.LOG_EMBED)
         interaction.client.user_prompts.remove(interaction.user.id)
         await interaction.user.send(embed=embed3)
 
@@ -157,15 +153,13 @@ class VerificationMethodsView(discord.ui.View):
             return int(roblox_id) == self.roblox_id and int(discord_id) == interaction.user.id
 
         try:
-            await webhook_manager.send(
-                f"⌛️ Waiting for Roblox game join on verification process for: {interaction.user} ({interaction.user.id})")
+            self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, ["Waiting for Roblox gamre join"], "pending", self.LOG_EMBED)
             await interaction.client.wait_for("verification_completed", check=confirmation_check, timeout=60*10)
         except asyncio.TimeoutError:
             interaction.client.pending_verifications.pop(
                 str(self.roblox_id))
             interaction.client.user_prompts.remove(interaction.user.id)
-            await webhook_manager.send(
-                f"🚷 Finished verification for: {interaction.user} ({interaction.user.id}). No game join detected.")
+            self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, ["No game join detected"], "error", self.LOG_EMBED)
             return await interaction.user.send(content="<:x_:1174507495914471464> You took too long to join the game, please run `/verify` in the server again.")
 
         embed3 = discord.Embed(
@@ -189,8 +183,7 @@ class VerificationMethodsView(discord.ui.View):
             member = self.guild.get_member(interaction.user.id)
             await member.edit(nick=nickname)
         except:
-            await webhook_manager.send(
-                f"⚠️ Failed to edit nickname on verification process for: {interaction.user} ({interaction.user.id})")
+            self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, ["Failed to edit nickname"], "pending", self.LOG_EMBED)
             errors.append("edit your nickname")
 
         try:
@@ -198,8 +191,7 @@ class VerificationMethodsView(discord.ui.View):
             member = self.guild.get_member(interaction.user.id)
             await member.add_roles(verified_role, reason=f"Verified account as: {nickname}")
         except:
-            await webhook_manager.send(
-                f"⚠️ Failed to add verified role on verification process for: {interaction.user} ({interaction.user.id})")
+            self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, ["Failed to add verified role"], "pending", self.LOG_EMBED)
             errors.append("assign your roles")
 
         if len(errors) > 0:
@@ -212,8 +204,7 @@ class VerificationMethodsView(discord.ui.View):
 
         interaction.client.user_prompts.remove(interaction.user.id)
 
-        await webhook_manager.send(
-            f"🛬 Completed verification process for {interaction.user} ({interaction.user.id}) on Roblox account: {self.roblox_data['id']}.")
+        self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, [f"Completed verification. Account: {self.roblox_data['id']}"], "success", self.LOG_EMBED)
         await interaction.user.send(embed=embed3)
 
 
@@ -249,8 +240,12 @@ class VerifyView(discord.ui.View):
 
         interaction.client.user_prompts.append(interaction.user.id)
 
-        await webhook_manager.send(
-            f"🛫 Started verification process for: {interaction.user} ({interaction.user.id})")
+        WEBHOOK_MESSAGE, LOG_EMBED = await webhook_manager.send_log(interaction.user, ["Started verification process"], "pending")
+        print(WEBHOOK_MESSAGE)
+        if WEBHOOK_MESSAGE is None or LOG_EMBED is None:
+            interaction.client.user_prompts.remove(interaction.user.id)
+            return await interaction.followup.send(embed=discord.Embed(description="<:x_:1174507495914471464> Something went wrong, please try again.", color=discord.Color.red()), ephemeral=True)
+
         try:
             embed1 = discord.Embed(
                 title=f"<:link:986648044525199390> Roblox Information", color=discord.Color.nitro_pink())
@@ -260,13 +255,11 @@ class VerifyView(discord.ui.View):
             embed1.set_footer(text="This prompt will expire in 10 minutes",
                               icon_url=interaction.guild.icon.url)
 
-            await webhook_manager.send(
-                f"✈️ Sent inital DM for verification process to: {interaction.user} ({interaction.user.id})")
+            WEBHOOK_MESSAGE, LOG_EMBED = await webhook_manager.update_log(WEBHOOK_MESSAGE, ["Sent initial DM"], "pending", LOG_EMBED)
             await interaction.user.send(embed=embed1)
             await interaction.followup.send(embed=discord.Embed(description="<:box:987447660510334976> I have sent you a private message! We will continue the process there.", color=discord.Color.nitro_pink()), ephemeral=True)
         except:
-            await webhook_manager.send(
-                f"🚷 Finished verification process for: {interaction.user} ({interaction.user.id}). Could not send a DM.")
+            WEBHOOK_MESSAGE, LOG_EMBED = await webhook_manager.update_log(WEBHOOK_MESSAGE, ["Failed to send a DM"], "error", LOG_EMBED)
             interaction.client.user_prompts.remove(interaction.user.id)
             return await interaction.followup.send(embed=discord.Embed(description="<:x_:1174507495914471464> Please open your DMs and try again!", color=discord.Color.red()), ephemeral=True)
 
@@ -274,12 +267,10 @@ class VerifyView(discord.ui.View):
             return message.author.id == interaction.user.id and message.guild == None
 
         try:
-            await webhook_manager.send(
-                f"📝 Asking Roblox username for verification to: {interaction.user} ({interaction.user.id})")
+            WEBHOOK_MESSAGE, LOG_EMBED = await webhook_manager.update_log(WEBHOOK_MESSAGE, ["Asking Roblox username"], "pending", LOG_EMBED)
             roblox_username = await interaction.client.wait_for("message", check=check, timeout=60*10)
         except asyncio.TimeoutError:
-            await webhook_manager.send(
-                f"🚷 Finished verification for: {interaction.user} ({interaction.user.id}). Roblox username prompt timed out.")
+            WEBHOOK_MESSAGE, LOG_EMBED = await webhook_manager.update_log(WEBHOOK_MESSAGE, ["Roblox username prompt timed out"], "error", LOG_EMBED)
             interaction.client.user_prompts.remove(interaction.user.id)
             return await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Your prompt timed out.", color=discord.Color.red()))
 
@@ -287,8 +278,7 @@ class VerifyView(discord.ui.View):
 
         validation, roblox_id, roblox_username = await self.validate_username(roblox_username)
         if not validation:
-            await webhook_manager.send(
-                f"🚷 Finished verification for: {interaction.user.id}. Invalid Roblox username.")
+            WEBHOOK_MESSAGE, LOG_EMBED = await webhook_manager.update_log(WEBHOOK_MESSAGE, ["Invalid Roblox username"], "error", LOG_EMBED)
             interaction.client.user_prompts.remove(interaction.user.id)
             return await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> The Roblox username you provided does not exist. Please rerun the verify command in the server.", color=discord.Color.red()))
 
@@ -301,8 +291,7 @@ class VerifyView(discord.ui.View):
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 if response.status == 404:
-                    await webhook_manager.send(
-                        f"🚷 Finished verification for: {interaction.user} ({interaction.user.id}). Invalid Roblox ID?")
+                    WEBHOOK_MESSAGE, LOG_EMBED = await webhook_manager.update_log(WEBHOOK_MESSAGE, ["Invalid Roblox ID?"], "error", LOG_EMBED)
                     interaction.client.user_prompts.remove(interaction.user.id)
                     await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> The Roblox ID you originally provided me was wrong or invalid. Please try again and check the data you are providing.", color=discord.Color.red()))
                     return
@@ -318,16 +307,17 @@ class VerifyView(discord.ui.View):
                           icon_url=interaction.guild.icon.url)
 
         verifyMethodView = VerificationMethodsView(
-            roblox_id, avatar_url, roblox_username, interaction.guild, roblox_data)
+            roblox_id, avatar_url, roblox_username, interaction.guild, roblox_data, WEBHOOK_MESSAGE, LOG_EMBED)
         await interaction.user.send(embed=embed2, view=verifyMethodView)
-        await webhook_manager.send(
-            f"⌛️ Waiting for method selection on verification process for: {interaction.user} ({interaction.user.id})")
+        WEBHOOK_MESSAGE, LOG_EMBED = await webhook_manager.update_log(WEBHOOK_MESSAGE, ["Waiting for method selection"], "pending", LOG_EMBED)
         if await verifyMethodView.wait():
+            WEBHOOK_MESSAGE, LOG_EMBED = await webhook_manager.update_log(WEBHOOK_MESSAGE, ["Method selection timed out"], "error", LOG_EMBED)
             interaction.client.user_prompts.remove(interaction.user.id)
             await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> You took too long to select a verification method, please run `/verify` in the server again.", color=discord.Color.red()))
 
     async def on_error(self, error: Exception, item, interaction: discord.Interaction) -> None:
         await interaction.user.send(embed=discord.Embed(description=f"<:x_:1174507495914471464> Something went wrong, please contact Dark and send him the text below:\n\n```\n{error}```", color=discord.Color.red()))
+        interaction.client.user_prompts.remove(interaction.user.id)
         await webhook_manager.send(
             f"❗️ Failed to complete verification process for {interaction.user} ({interaction.user.id}) because of: {error}. Traceback:")
         await webhook_manager.send_verification_error(interaction, error)
