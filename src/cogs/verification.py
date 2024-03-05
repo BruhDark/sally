@@ -153,7 +153,7 @@ class VerificationMethodsView(discord.ui.View):
             return int(roblox_id) == self.roblox_id and int(discord_id) == interaction.user.id
 
         try:
-            self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, ["Waiting for Roblox gamre join"], "pending", self.LOG_EMBED)
+            self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, ["Waiting for Roblox game join"], "pending", self.LOG_EMBED)
             await interaction.client.wait_for("verification_completed", check=confirmation_check, timeout=60*10)
         except asyncio.TimeoutError:
             interaction.client.pending_verifications.pop(
