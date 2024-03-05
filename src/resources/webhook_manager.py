@@ -38,9 +38,9 @@ async def send_log(user: discord.Member, actions: list[str], status: str):
 
     embed.color = p_color
     embed.add_field(name="Real-time Status",
-                    value=p_status, inline=False)
+                    value=p_status, inline=True)
     embed.add_field(name="Last Action",
-                    value=actions[-1] + f" - {discord.utils.format_dt(datetime.utcnow(), 'R')}", inline=False)
+                    value=actions[-1] + f" - {discord.utils.format_dt(datetime.utcnow(), 'R')}", inline=True)
     embed.add_field(name="Detailed Actions",
                     value=", ".join(actions), inline=False)
     async with aiohttp.ClientSession() as session:
