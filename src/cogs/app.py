@@ -22,12 +22,16 @@ class App(commands.Cog):
 
         app.add_routes(routes)
 
-    @tasks.loop()
+    @tasks.loop(count=1)
     async def web_server(self):
         runner = web.AppRunner(app)
         await runner.setup()
+        port = os.getenv("PORT")
+        if port == None:
+            print("No port found. Did not start web server.")
+            return
         site = web.TCPSite(
-            runner, port=int(os.getenv("PORT")))
+            runner, port=int(port))
         await site.start()
         print("[API Server] Started!")
 
