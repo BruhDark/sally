@@ -7,6 +7,7 @@ import os
 import asyncio
 
 from resources.database import database
+from resources import webhook_manager
 
 dotenv.load_dotenv()
 
@@ -23,6 +24,7 @@ class Sally(commands.Bot):
         self.queue_paused = False
         self.user_prompts = []
         self.pending_verifications = {}
+        self.ready_fired = False
 
         for cog in os.listdir("src/cogs"):
             if cog.endswith(".py"):
@@ -43,8 +45,10 @@ class Sally(commands.Bot):
                     raise e
 
     async def on_ready(self):
-        print("Ready!")
-        self.uptime = datetime.datetime.now()
+        if not self.ready_fired:
+            print("Ready!")
+            self.ready_fired = True
+            self.uptime = datetime.datetime.now()
 
 
 sally = Sally()
