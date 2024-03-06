@@ -17,30 +17,40 @@ async def send(*args, **kwargs):
         return await webhook.send(*args, **kwargs)
 
 
-def parse_status(status: str):
+def parse_status(status: str) -> tuple[str, discord.Color]:
     if status == "success":
         return "<:Operational:882404710148083724>", discord.Color.green()
     elif status == "error":
         return "<:MajorOutage:882404641286000681>", discord.Color.red()
-    elif status == "pending":
+    elif status == "warning":
         return "<:PartialOutage:882404755949895730>", discord.Color.orange()
+    elif status == "pending":
+        return "<a:load:881972395626348648>", discord.Color.greyple()
     else:
         return status, discord.Color.blurple()
 
 
-async def send_log(user: discord.Member, actions: list[str], status: str):
-    embed = discord.Embed(
-        title=f"<:link:986648044525199390> Verification status process for: {user} ({user.id})")
+async def send_log(user: discord.Member | int, actions: list[str], status: str) -> tuple[int, discord.Embed]:
+    embed = discord.Embed()
+    if isinstance(user, discord.Member):
+        embed.title = f"<:link:986648044525199390> Verification process status for: {user} ({user.id})"
+    else:
+        embed.title = f"<:link:986648044525199390> Verification process status for: {user}"
+
     embed.timestamp = datetime.utcnow()
     embed.description = f"Started: {discord.utils.format_dt(datetime.utcnow(), 'R')}"
 
     p_status, p_color = parse_status(status)
+    if status != "pending":
+        embed.description = embed.description + \
+            f", Finished: {discord.utils.format_dt(datetime.utcnow(), 'R')}"
 
     embed.color = p_color
     embed.add_field(name="Real-time Status",
                     value=p_status, inline=True)
     embed.add_field(name="Last Action",
                     value=actions[-1] + f" - {discord.utils.format_dt(datetime.utcnow(), 'R')}", inline=True)
+    embed.add_field(name="Past Status", value="None", inline=True)
     embed.add_field(name="Detailed Actions",
                     value=", ".join(actions), inline=False)
     async with aiohttp.ClientSession() as session:
@@ -49,16 +59,19 @@ async def send_log(user: discord.Member, actions: list[str], status: str):
         return webhook_message.id, embed
 
 
-async def update_log(webhook_message: int, actions: list[str], status: str, embed: discord.Embed):
+async def update_log(webhook_message: int, actions: list[str], status: str, embed: discord.Embed) -> tuple[int, discord.Embed]:
     p_status, p_color = parse_status(status)
     if status == "success" or status == "error":
         embed.description = embed.description + \
             f", Finished: {discord.utils.format_dt(datetime.utcnow(), 'R')}"
+
+    embed.fields[2].value = embed.fields[0].value
     embed.fields[0].value = p_status
+
     embed.color = p_color
     embed.fields[1].value = actions[-1] + \
         f" - {discord.utils.format_dt(datetime.utcnow(), 'R')}"
-    embed.fields[2].value = embed.fields[2].value + ", " + ", ".join(actions)
+    embed.fields[3].value = embed.fields[3].value + ", " + ", ".join(actions)
     async with aiohttp.ClientSession() as session:
         webhook = discord.Webhook.from_url(url, session=session)
         webhook_message = await webhook.edit_message(webhook_message, embed=embed)

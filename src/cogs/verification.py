@@ -183,7 +183,7 @@ class VerificationMethodsView(discord.ui.View):
             member = self.guild.get_member(interaction.user.id)
             await member.edit(nick=nickname)
         except:
-            self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, ["Failed to edit nickname"], "pending", self.LOG_EMBED)
+            self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, ["Failed to edit nickname"], "warning", self.LOG_EMBED)
             errors.append("edit your nickname")
 
         try:
@@ -191,7 +191,7 @@ class VerificationMethodsView(discord.ui.View):
             member = self.guild.get_member(interaction.user.id)
             await member.add_roles(verified_role, reason=f"Verified account as: {nickname}")
         except:
-            self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, ["Failed to add verified role"], "pending", self.LOG_EMBED)
+            self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, ["Failed to add verified role"], "warning", self.LOG_EMBED)
             errors.append("assign your roles")
 
         if len(errors) > 0:
@@ -346,8 +346,8 @@ class ManageRobloxAccountView(discord.ui.View):
                 return await interaction.response.send_message(embed=discord.Embed(description="<:x_:1174507495914471464> You can't delete your Roblox data while being blacklisted. Please contact Dark if you wish to delete your data.", color=discord.Color.red()), ephemeral=True)
 
         await delete_roblox_info(str(self.user_id))
-        await webhook_manager.send("Deleted Roblox data for: " + str(self.user_id))
         member = interaction.guild.get_member(int(roblox_data["user_id"]))
+        await webhook_manager.send_log(member, ["Deleted Roblox data"], "warning")
         try:
             await member.edit(nick=None)
         except:
@@ -376,8 +376,8 @@ class ManageRobloxAccountView(discord.ui.View):
 
         data["avatar"] = avatar_url
         roblox_data = await update_roblox_info(self.user_id, self.roblox_id, data)
-        await webhook_manager.send("Refreshed Roblox data for: " + str(self.user_id))
         member = interaction.guild.get_member(int(roblox_data["user_id"]))
+        await webhook_manager.send_log(member, ["Refreshed Roblox data"], "warning")
         try:
             nickname = f"{data['displayName']} (@{data['name']})"
             if len(nickname) > 32:
@@ -477,7 +477,7 @@ class Verification(commands.Cog):
         if member.guild.id == 1170821546038800464:
             result: results.DeleteResult = await delete_roblox_info(member.id)
             if result.deleted_count != 0:
-                await webhook_manager.send("Deleted Roblox data for: " + str(member.id) + ". User left the server.")
+                await webhook_manager.send_log(member, ["User left the guild", "Deleted Roblox data"], "warning")
 
     @commands.slash_command(description="Verify or delete your verified account with Sally")
     @commands.guild_only()
