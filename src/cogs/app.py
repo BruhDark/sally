@@ -44,6 +44,8 @@ class App(commands.Cog):
         resp = {'success': True, 'message': "Server is live"}
         return web.json_response(resp)
 
+    # ROBLOX ENDPOINTS
+
     @routes.get("/roblox/is-blacklisted")
     async def is_blacklisted(request: web.Request):
         roblox_id = request.rel_url.query.get("roblox_id", None)
@@ -129,7 +131,7 @@ class App(commands.Cog):
                             value=str(roblox_id))
 
         await webhook_manager.send_join_log(embed)
-        return web.json_response({"success": True})
+        return web.json_response({"success": True}, status=201)
 
     @routes.get("/roblox/test-join")
     async def roblox_join(request: web.Request):
@@ -147,6 +149,8 @@ class App(commands.Cog):
         logs = app.bot.get_channel(1183581233821790279)  # 1183581233821790279
         await logs.send(embed=embed)
         return web.json_response({"success": True})
+
+    # ROBLOX VERIFICATION ENDPOINTS
 
     @routes.get("/verification/check")
     async def check_verication(request: web.Request):
@@ -173,10 +177,39 @@ class App(commands.Cog):
         try:
             app.bot.dispatch("verification_completed", roblox_id, discord_id)
             app.bot.pending_verifications.pop(str(roblox_id))
-            return web.json_response({"success": True})
+            return web.json_response({"success": True}, status=201)
         except Exception as e:
             print(e)
-            return web.json_response({"success": False, "message": "An error occured"})
+            return web.json_response({"success": False, "message": "An error occured"}, status=409)
+
+    # ROBLOX LOCK ENDPOINTS
+
+    @routes.get("/lock/check-user")
+    async def check_user(request: web.Request):
+        roblox_id = request.rel_url.query.get("roblox_id")
+        if roblox_id == None:
+            return web.json_response({"success": False, "message": "Improper request made"})
+
+        user = await get_roblox_info_by_rbxid(roblox_id)
+        inkigayo = app.bot.get_guild(1170821546038800464)
+        member = inkigayo.get_member(int(user["user_id"]))
+        if member == None:
+            return web.json_response({"success": False, "message": "User not found"})
+
+        staff_role = inkigayo.get_role(1224881097146372226)
+        artists_role = inkigayo.get_role(1224881164569808927)
+        vip_role = inkigayo.get_role(1179032931457581107)
+
+        data = {"success": True, "staff": False, "artist": False, "vip": False}
+
+        if staff_role in member.roles:
+            data["staff"] = True
+        if artists_role in member.roles:
+            data["artist"] = True
+        if vip_role in member.roles:
+            data["vip"] = True
+
+        return web.json_response(data)
 
 
 def setup(bot):

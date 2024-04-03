@@ -526,7 +526,7 @@ class Verification(commands.Cog):
 
     @commands.slash_command(description="Get someones Roblox information")
     @commands.guild_only()
-    async def getinfo(self, ctx: discord.ApplicationContext, user: discord.Option(discord.Member, "The user to get the info from", default=None), roblox_id: discord.Option(str, "The Roblox ID to look up for", default=None)):
+    async def getinfo(self, ctx: discord.ApplicationContext, user: discord.Option(discord.Member, "The user to get the info from", default=None), roblox_id: discord.Option(str, "The Roblox ID to look up for", default=None)):  # type: ignore
         if user and roblox_id:
             return await ctx.respond(embed=discord.Embed(description="<:x_:1174507495914471464> You have to either provide a `user` **or** `roblox_id`.", color=discord.Color.red()))
         elif not user and not roblox_id:
@@ -584,7 +584,7 @@ class Verification(commands.Cog):
             await ctx.respond(embed=discord.Embed(description="<:x_:1174507495914471464> This user is not linked with Sally.", color=discord.Color.red()))
 
     @commands.slash_command(description="Blacklist or unblacklist a user")
-    async def blacklist(self, ctx: discord.ApplicationContext, user: discord.Option(discord.Member, "The user to blacklist/unblacklist"), reason: discord.Option(str, "The reason of the blacklist", default="Blacklisted")):
+    async def blacklist(self, ctx: discord.ApplicationContext, user: discord.Option(discord.Member, "The user to blacklist/unblacklist"), reason: discord.Option(str, "The reason of the blacklist", default="Blacklisted")):  # type: ignore
         await ctx.defer()
         roblox_data = await get_roblox_info(user.id)
         if roblox_data:
