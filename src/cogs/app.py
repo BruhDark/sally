@@ -191,6 +191,9 @@ class App(commands.Cog):
             return web.json_response({"success": False, "message": "Improper request made"})
 
         user = await get_roblox_info_by_rbxid(roblox_id)
+        if user == None:
+            return web.json_response({"success": False, "message": "User not found"}, status=404)
+
         inkigayo = app.bot.get_guild(1170821546038800464)
         member = inkigayo.get_member(int(user["user_id"]))
         if member == None:
