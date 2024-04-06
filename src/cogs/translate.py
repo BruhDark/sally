@@ -31,8 +31,8 @@ class Translate(commands.Cog):
         detected_source_lang = translation.src
         pronounciation = translation.pronunciation
 
-        embed = discord.Embed(timestamp=datetime.datetime.now(datetime.UTC
-                                                              ), color=discord.Color.nitro_pink(), description=f"<:sally:1225256761154600971> Processing text from `{detected_source_lang}` (detected) to `{language}`\n\n**Result:** \n`{translated_text}`")
+        embed = discord.Embed(timestamp=datetime.datetime.now(datetime.UTC), color=discord.Color.nitro_pink(
+        ), description=f"<:sally:1225256761154600971> Processing text from `{detected_source_lang}` (detected) to `{language}`\n\n**Result:** \n`{translated_text}`")
 
         if pronounciation:
             embed.add_field(
@@ -44,7 +44,7 @@ class Translate(commands.Cog):
         await ctx.respond(embed=embed, mention_author=False)
 
     @discord.message_command(description="Translate text to English")
-    async def translate_english(self, ctx: discord.ApplicationCommandInteraction, message: discord.Message):
+    async def translate_english(self, ctx: discord.ApplicationContext, message: discord.Message):
         translation = self.translator.translate(message.content)
         translated_text = translation.text
         detected_source_lang = translation.src
@@ -63,7 +63,7 @@ class Translate(commands.Cog):
         await ctx.respond(embed=embed, ephemeral=True)
 
     @discord.message_command(description="Traduce el mensaje al español")
-    async def translate_spanish(self, ctx: discord.ApplicationCommandInteraction, message: discord.Message):
+    async def translate_spanish(self, ctx: discord.ApplicationContext, message: discord.Message):
         translation = self.translator.translate(message.content, dest="es")
         translated_text = translation.text
         detected_source_lang = translation.src
