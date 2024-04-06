@@ -18,7 +18,7 @@ class Translate(commands.Cog):
         self.translator = googletrans.Translator()
 
     @slash_command(description="Translate text to another language")
-    async def translate(self, ctx: discord.ApplicationContext, text: discord.Option(str, "The text you want to translate"), language: discord.Option(str, description="Language to translate to", autocomplete=get_langs)):  # type: ignore
+    async def translate(self, ctx: discord.ApplicationContext, language: discord.Option(str, description="Language to translate to", autocomplete=get_langs), text: discord.Option(str, "The text you want to translate")):  # type: ignore
         if language.lower() not in LANGS:
             languages = ", ".join(LANGS)
             await ctx.reply(embed=discord.Embed(description=f"<:x_:1174507495914471464> Target language not found. Make sure it is one of these languages: ```{languages}```", color=discord.Color.red()))
@@ -41,7 +41,7 @@ class Translate(commands.Cog):
         embed.set_footer(
             text=f"{ctx.author}", icon_url=ctx.author.display_avatar.url)
 
-        await ctx.respond(embed=embed, mention_author=False)
+        await ctx.respond(embed=embed)
 
     @discord.message_command(name="Translate to English", description="Translate text to English")
     async def translate_english(self, ctx: discord.ApplicationContext, message: discord.Message):
