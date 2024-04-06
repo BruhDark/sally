@@ -43,7 +43,7 @@ class Translate(commands.Cog):
 
         await ctx.respond(embed=embed, mention_author=False)
 
-    @discord.message_command(description="Translate text to English")
+    @discord.message_command(name="Translate to English", description="Translate text to English")
     async def translate_english(self, ctx: discord.ApplicationContext, message: discord.Message):
         translation = self.translator.translate(message.content)
         translated_text = translation.text
@@ -62,7 +62,7 @@ class Translate(commands.Cog):
 
         await ctx.respond(embed=embed, ephemeral=True)
 
-    @discord.message_command(description="Traduce el mensaje al español")
+    @discord.message_command(name="Traducir al Español", description="Traduce el mensaje al español")
     async def translate_spanish(self, ctx: discord.ApplicationContext, message: discord.Message):
         translation = self.translator.translate(message.content, dest="es")
         translated_text = translation.text
