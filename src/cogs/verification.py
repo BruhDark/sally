@@ -50,6 +50,7 @@ class VerificationMethodsView(discord.ui.View):
         embed2.set_author(
             name=f"Hello there, {self.username}!", icon_url=self.avatar_url)
 
+        embed2.timestamp = datetime.datetime.now(datetime.UTC)
         embed2.set_footer(text="This prompt will expire in 10 minutes",
                           icon_url=self.guild.icon.url)
 
@@ -131,6 +132,7 @@ class VerificationMethodsView(discord.ui.View):
 
         embed2.description = f"Thank you, {interaction.user.display_name}! We will need to confirm you indeed own **{self.username}**,  please join the game I am providing you below. Follow the steps in-game and come back to this chat. If a join is not detected in 10 minutes, this prompt will be expire."
 
+        embed2.timestamp = datetime.datetime.now(datetime.UTC)
         embed2.set_thumbnail(url=self.avatar_url)
 
         embed2.set_author(
@@ -250,14 +252,15 @@ class VerifyView(discord.ui.View):
             embed1 = discord.Embed(
                 title=f"<:link:986648044525199390> Roblox Information", color=discord.Color.nitro_pink())
             embed1.description = "Welcome to the verification process to link your Roblox account with Sally! This will only take five minutes.\nPlease provide me your **Roblox username**, not your display name.\n\n<:info:881973831974154250> All data stored is public information about your Roblox account. You can delete it at any time by using </verify:1183583727473917962> in a channel."
+            embed1.timestamp = datetime.datetime.now(datetime.UTC)
             embed1.set_author(
                 name=f"Hello there, {interaction.user.display_name}!", icon_url=interaction.user.display_avatar.url)
             embed1.set_footer(text="This prompt will expire in 10 minutes",
                               icon_url=interaction.guild.icon.url)
 
             WEBHOOK_MESSAGE, LOG_EMBED = await webhook_manager.update_log(WEBHOOK_MESSAGE, ["Sent initial DM"], "pending", LOG_EMBED)
-            await interaction.user.send(embed=embed1)
-            await interaction.followup.send(embed=discord.Embed(description="<:box:987447660510334976> I have sent you a private message! We will continue the process there.", color=discord.Color.nitro_pink()), ephemeral=True)
+            msg = await interaction.user.send(embed=embed1)
+            await interaction.followup.send(embed=discord.Embed(description=f"<:sally:1225256761154600971> I have sent you a direct message! Please head to our chat: https://discord.com/channels/@me/{msg.channel.id}/{msg.id}", color=discord.Color.nitro_pink()), ephemeral=True)
         except:
             WEBHOOK_MESSAGE, LOG_EMBED = await webhook_manager.update_log(WEBHOOK_MESSAGE, ["Failed to send a DM"], "error", LOG_EMBED)
             interaction.client.user_prompts.remove(interaction.user.id)
@@ -299,7 +302,8 @@ class VerifyView(discord.ui.View):
 
         embed2 = discord.Embed(
             title="<:user:988229844301131776> Identity confirmation", color=discord.Color.nitro_pink())
-        embed2.description = f"Thank you, {interaction.user.display_name}! We will need to confirm you indeed own **{roblox_username}**, Please select one of the verification methods I am providing you below."
+        embed2.description = f"Thank you, {interaction.user.display_name}! We will need to confirm you indeed own **{roblox_username}**, Please select one of the verification methods I am providing you below.\n\n<:rightarrow:1173350998388002888> **Code Verification**: I will provide you a code to paste in your Roblox profile.\n<:rightarrow:1173350998388002888> **Game Verification**: I will provide you a game to join and complete the verification process."
+        embed2.timestamp = datetime.datetime.now(datetime.UTC)
         embed2.set_thumbnail(url=avatar_url)
         embed2.set_author(
             name=f"Hello there, {roblox_username}!", icon_url=avatar_url)
