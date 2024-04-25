@@ -8,6 +8,4 @@ datetime
 dnspython
 psutil
 jishaku
-gunicorn
-flask[async]
 googletrans>=4.0.0-rc1
