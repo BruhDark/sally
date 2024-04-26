@@ -67,10 +67,10 @@ class Vip(commands.Cog):
         vip_role = after.guild.get_role(1179032931457581107)
         booster_role = after.guild.get_role(1177467255802564698)
         if booster_role in after.roles and booster_role not in before.roles:
-            await after.add_roles(vip_role, "User is a server booster.")
+            await after.add_roles(vip_role, reason="User is a server booster.")
 
         elif booster_role not in after.roles and booster_role in before.roles:
-            await after.remove_roles(vip_role, "User is no longer a server booster.")
+            await after.remove_roles(vip_role, reason="User is no longer a server booster.")
 
     @commands.command(name="vipsell")
     @commands.is_owner()
