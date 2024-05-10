@@ -36,7 +36,6 @@ class EditEventModal(discord.ui.Modal):
             await self.original_message.edit(embed=embed)
 
         if time and not date:
-            date = date.split("-")
             day, month = str(self.event.start_time.day), str(
                 self.event.start_time.month)
             day = f"0{day}" if len(day) == 1 else day
