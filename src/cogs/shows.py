@@ -16,9 +16,9 @@ class EditEventModal(discord.ui.Modal):
         self.add_item(discord.ui.InputText(style=discord.InputTextStyle.short, label="Date",
                       placeholder="DD-MM", value=None, required=False))
         self.add_item(discord.ui.InputText(style=discord.InputTextStyle.short,
-                      label="Time", placeholder="HH:MM", value=None, required=False))
+                      label="Time (UTC Timezone)", placeholder="HH:MM", value=None, required=False))
         self.add_item(discord.ui.InputText(style=discord.InputTextStyle.long,
-                      label="Banner URL", placeholder="Banner URL", required=False))
+                      label="Banner URL", placeholder="Banner URL - Provide 'None' to remove it.", required=False))
 
     async def callback(self, interaction: discord.Interaction):
         show_number = self.children[0].value
@@ -73,7 +73,11 @@ class EditEventModal(discord.ui.Modal):
 
         if banner:
             embed = self.original_message.embeds[0]
-            embed.set_image(url=banner)
+            if banner.lower() == "none":
+                embed.remove_image()
+            else:
+                embed.set_image(url=banner)
+
             await self.original_message.edit(embed=embed)
 
         await interaction.response.send_message("<:checked:1173356058387951626> Successfully updated the event.", ephemeral=True)
@@ -227,7 +231,7 @@ class Show(commands.Cog):
         # For testing: 1057393912588800100 - INKIGAYO: 1172515246615830609
         location = ctx.guild.get_channel(
             1178468708293808220) if ctx.guild.id == 1170821546038800464 else ctx.guild.get_channel(1057393912588800100)
-        event = await ctx.guild.create_scheduled_event(name=f"INKIGAYO #{show_number}", description=f"INKIGAYO presents the week #{show_number} show. Watch your favorite artists perform, vote for them and give them a chance to win.", start_time=start_time, location=location, image=event_image, reason=f"Created by: {ctx.author.display_name}")
+        event = await ctx.guild.create_scheduled_event(name=f"INKIGAYO #{show_number}", description=f"INKIGAYO presents a new show for this season! Join our Roblox game, watch your favorite artists perform, vote for them and give them a chance to win.", start_time=start_time, location=location, image=event_image, reason=f"Created by: {ctx.author.display_name}")
         message = await announcements_channel.send(content=f"@everyone [New INKIGAYO show!]({event.url})", embed=embed, view=ShowView())
         await add_show(message.id, event.id)
         await ctx.respond(content="<:checked:1173356058387951626> Successfully created this show.")
