@@ -17,7 +17,7 @@ class EditEventModal(discord.ui.Modal):
                       placeholder="DD-MM", value=None, required=False))
         self.add_item(discord.ui.InputText(style=discord.InputTextStyle.short,
                       label="Time", placeholder="HH:MM", value=None, required=False))
-        self.add_item(discord.ui.InputText(style=discord.InputTextStyle.short,
+        self.add_item(discord.ui.InputText(style=discord.InputTextStyle.long,
                       label="Banner URL", placeholder="Banner URL", required=False))
 
     async def callback(self, interaction: discord.Interaction):
@@ -31,10 +31,13 @@ class EditEventModal(discord.ui.Modal):
 
         if show_number:
             await self.event.edit(name=f"INKIGAYO #{show_number}", reason=f"Updated by: {interaction.user.display_name}")
+            embed = self.original_message.embeds[0]
+            embed.title = f"INKIGAYO #{show_number}"
+            await self.original_message.edit(embed=embed)
 
         if time and not date:
             date = date.split("-")
-            day, month = date[0], date[1]
+            day, month = self.event.start_time.day, self.event.start_time.month
             start_time = datetime.datetime.fromisoformat(
                 f"2024-{month}-{day} {time}+00")
             await self.event.edit(start_time=start_time, reason=f"Updated by: {interaction.user.display_name}")
