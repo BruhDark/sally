@@ -21,10 +21,10 @@ class EditEventModal(discord.ui.Modal):
                       label="Banner URL", placeholder="Banner URL", required=False))
 
     async def callback(self, interaction: discord.Interaction):
-        show_number = self.values[0]
-        date = self.values[1]
-        time = self.values[2]
-        banner = self.values[3]
+        show_number = self.children[0].value
+        date = self.children[1].value
+        time = self.children[2].value
+        banner = self.children[3].value
 
         if not show_number and not date and not banner and not time:
             return await interaction.response.send_message("<:x_:1174507495914471464> You did not provide any information to update.", ephemeral=True)
