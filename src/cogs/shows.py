@@ -37,7 +37,8 @@ class EditEventModal(discord.ui.Modal):
 
         if time and not date:
             date = date.split("-")
-            day, month = self.event.start_time.day, self.event.start_time.month
+            day, month = str(self.event.start_time.day), str(
+                self.event.start_time.month)
             day = f"0{day}" if len(day) == 1 else day
             month = f"0{month}" if len(month) == 1 else month
 
