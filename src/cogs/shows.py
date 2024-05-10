@@ -6,6 +6,73 @@ import datetime
 from resources.database import add_show, delete_show, get_show
 
 
+class EditEventModal(discord.ui.Modal):
+    def __init__(self, event: discord.ScheduledEvent, original_message: discord.Message):
+        super().__init__(timeout=None)
+        self.event = event
+        self.original_message = original_message
+        self.add_item(discord.ui.InputText(style=discord.InputTextStyle.short, label="Show Number",
+                      placeholder="Show Number", value=None, required=False))
+        self.add_item(discord.ui.InputText(style=discord.InputTextStyle.short, label="Date",
+                      placeholder="DD-MM", value=None, required=False))
+        self.add_item(discord.ui.InputText(style=discord.InputTextStyle.short,
+                      label="Time", placeholder="HH:MM", value=None, required=False))
+        self.add_item(discord.ui.InputText(style=discord.InputTextStyle.short,
+                      label="Banner URL", placeholder="Banner URL", required=False))
+
+    async def callback(self, interaction: discord.Interaction):
+        show_number = self.values[0]
+        date = self.values[1]
+        time = self.values[2]
+        banner = self.values[3]
+
+        if not show_number and not date and not banner and not time:
+            return await interaction.response.send_message("<:x_:1174507495914471464> You did not provide any information to update.", ephemeral=True)
+
+        if show_number:
+            await self.event.edit(name=f"INKIGAYO #{show_number}", reason=f"Updated by: {interaction.user.display_name}")
+
+        if time and not date:
+            date = date.split("-")
+            day, month = date[0], date[1]
+            start_time = datetime.datetime.fromisoformat(
+                f"2024-{month}-{day} {time}+00")
+            await self.event.edit(start_time=start_time, reason=f"Updated by: {interaction.user.display_name}")
+            embed = self.original_message.embeds[0]
+            embed.set_field_at(0, name="<:time:987836664355373096> Date",
+                               value=f"{format_dt(start_time, 'F')} ({format_dt(start_time, 'R')})")
+            await self.original_message.edit(embed=embed)
+
+        if date and not time:
+            date = date.split("-")
+            day, month = date[0], date[1]
+            start_time = datetime.datetime.fromisoformat(
+                f"2024-{month}-{day} {self.event.start_time.strftime('%H:%M:%S')}+00")
+            await self.event.edit(start_time=start_time, reason=f"Updated by: {interaction.user.display_name}")
+            embed = self.original_message.embeds[0]
+            embed.set_field_at(0, name="<:time:987836664355373096> Date",
+                               value=f"{format_dt(start_time, 'F')} ({format_dt(start_time, 'R')})")
+            await self.original_message.edit(embed=embed)
+
+        if date and time:
+            date = date.split("-")
+            day, month = date[0], date[1]
+            start_time = datetime.datetime.fromisoformat(
+                f"2024-{month}-{day} {time}+00")
+            await self.event.edit(start_time=start_time, reason=f"Updated by: {interaction.user.display_name}")
+            embed = self.original_message.embeds[0]
+            embed.set_field_at(0, name="<:time:987836664355373096> Date",
+                               value=f"{format_dt(start_time, 'F')} ({format_dt(start_time, 'R')})")
+            await self.original_message.edit(embed=embed)
+
+        if banner:
+            embed = self.original_message.embeds[0]
+            embed.set_image(url=banner)
+            await self.original_message.edit(embed=embed)
+
+        await interaction.response.send_message("<:checked:1173356058387951626> Successfully updated the event.", ephemeral=True)
+
+
 class ManageView(discord.ui.View):
     def __init__(self, message: discord.Message, event: discord.ScheduledEvent):
         super().__init__(timeout=None)
@@ -65,6 +132,10 @@ class ManageView(discord.ui.View):
         await delete_show(self.original_message.id)
         await interaction.edit_original_response(content="<:checked:1173356058387951626> Successfully ended the event.", view=None)
 
+    @discord.ui.button(label="Edit Event", style=discord.ButtonStyle.gray)
+    async def edit_event(self, button, interaction: discord.Interaction):
+        await interaction.response.send_modal(EditEventModal(self.event, self.original_message))
+
 
 class ShowView(discord.ui.View):
     def __init__(self):
@@ -109,7 +180,7 @@ class Show(commands.Cog):
         self.bot.add_view(ShowView())
 
     @commands.slash_command(description="Schedule and annonunce a show")
-    async def show(self, ctx: discord.ApplicationContext, show_number: discord.Option(str, "The show number"), date: discord.Option(str, "The date of the show. FORMAT: DD-MM"), time: discord.Option(str, "The time of the show in UTC TIME. FORMAT: HH:MM"), banner: discord.Option(str, "The banner of the show. Must be a link to an image.", default=None, required=False)):
+    async def show(self, ctx: discord.ApplicationContext, channel: discord.TextChannel, show_number: discord.Option(str, "The show number"), date: discord.Option(str, "The date of the show. FORMAT: DD-MM"), time: discord.Option(str, "The time of the show in UTC TIME. FORMAT: HH:MM"), banner: discord.Option(str, "The banner of the show. Must be a link to an image.", default=None, required=False)):  # type: ignore
         if not ctx.author.guild_permissions.manage_messages:
             return await ctx.respond("<:padlock:987837727741464666> You are not allowed to use this command.", ephemeral=True)
 
@@ -142,7 +213,7 @@ class Show(commands.Cog):
                 pass
 
         # For testing: 1015249782211616799 - INKIGAYO: 1178391939490517134
-        announcements_channel = ctx.guild.get_channel(1178391939490517134)
+        announcements_channel = channel
 
         with open("src/resources/images/INKIGAYO-COVER.jpg", "rb") as image:
             event_image = image.read()
