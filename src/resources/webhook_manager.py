@@ -11,9 +11,9 @@ url = os.getenv("WEBHOOK_URL")
 roblox_log_url = os.getenv("ROBLOX_LOG_WEBHOOK_URL")
 
 
-async def send(*args, **kwargs):
+async def send(webhook_url=url, *args, **kwargs):
     async with aiohttp.ClientSession() as session:
-        webhook = discord.Webhook.from_url(url, session=session)
+        webhook = discord.Webhook.from_url(webhook_url, session=session)
         return await webhook.send(*args, **kwargs)
 
 
