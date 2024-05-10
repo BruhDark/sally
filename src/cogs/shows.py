@@ -8,7 +8,7 @@ from resources.database import add_show, delete_show, get_show
 
 class EditEventModal(discord.ui.Modal):
     def __init__(self, event: discord.ScheduledEvent, original_message: discord.Message):
-        super().__init__(timeout=None)
+        super().__init__(timeout=None, title="Edit Event")
         self.event = event
         self.original_message = original_message
         self.add_item(discord.ui.InputText(style=discord.InputTextStyle.short, label="Show Number",
