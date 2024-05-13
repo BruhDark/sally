@@ -22,9 +22,7 @@ class OnMemberJoin(commands.Cog):
                          icon_url=member.guild.icon.url)
 
         embed.set_thumbnail(url=member.guild.icon.url)
-        f = discord.File("src\resources\images\S4-BANNER.jpg",
-                         filename="S4-BANNER.jpg")
-        embed.set_image(url="attachment://S4-BANNER.jpg")
+        embed.set_image(url="https://micro.sylo.digital/i/VAxYkr")
         embed.timestamp = discord.utils.utcnow()
 
         try:
