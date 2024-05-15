@@ -9,3 +9,4 @@ dnspython
 psutil
 jishaku
 googletrans>=4.0.0-rc1
+tweepy
