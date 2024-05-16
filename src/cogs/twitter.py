@@ -14,6 +14,11 @@ BEARER_TOKEN = fr"{os.getenv('X_BEARER_TOKEN')}"
 ACCESS_TOKEN = os.getenv("X_ACCESS_TOKEN")
 ACCESS_TOKEN_SECRET = os.getenv("X_ACCESS_TOKEN_SECRET")
 
+client = tweepy.Client(BEARER_TOKEN, API_KEY, API_SECRET,
+                       ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+auth = tweepy.OAuth1UserHandler(API_KEY, API_SECRET)
+api = tweepy.API(auth)
+
 
 class Lyric:
     def __init__(self, data: dict):
@@ -22,13 +27,7 @@ class Lyric:
         self.album = data["album"]
 
     def __str__(self):
-        return self.quote.lower()
-
-
-client = tweepy.Client(BEARER_TOKEN, API_KEY, API_SECRET,
-                       ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
-auth = tweepy.OAuth1UserHandler(API_KEY, API_SECRET)
-api = tweepy.API(auth)
+        return self.quote
 
 
 class TwitterBot(commands.Cog):
@@ -41,7 +40,7 @@ class TwitterBot(commands.Cog):
     async def tweet_lyric(self):
         lyric = Lyric(random.choice(lyrics))
         tweet: tweepy.Response = self.client.create_tweet(text=str(lyric))
-        print(tweet)
+        print(f"Tweeted: {tweet.data}")
 
 
 def setup(bot):

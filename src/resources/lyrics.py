@@ -1364,4 +1364,55 @@ allQuotes = [
         "quote": "They say that if it's right, you know",
         "song": "Hits Differents",
         "album": "Midnights",
-    }]
+    },
+    {
+        "quote": "I feel so high school\nEvery time I look at you",
+        "song": "So High School",
+        "album": "The Tortured Poets Department"
+    },
+    {
+        "quote": "No one's ever had me\nNot like you ...",
+        "song": "So High School",
+        "album": "The Tortured Poets Department"
+    },
+    {
+        "quote": "I'm so depressed I act like it's my birthday",
+        "song": "I can do it with a broken heart",
+        "album": "The Tortured Poets Department"
+    },
+    {
+        "quote": "Cause I'm a real tough kid\nI can handle my shit",
+        "song": "I Can Do It With a Broken Heart",
+        "album": "The Tortured Poets Department"
+    },
+    {
+        "quote": "Who the fuck was that guy?",
+        "song": "The Smallest Man Who Ever Lived",
+        "album": "The Tortured Poets Department"
+    },
+    {
+        "quote": "This town is fake but\nYou are the real thing",
+        "song": "",
+        "album": ""
+    },
+    {
+        "quote": "What if he's written 'mine' on my upper tigh\nOnly in my mind?",
+        "song": "Guilty as Sin?",
+        "album": "The Tortured Poets Department"
+    },
+    {
+        "quote": "You needed me but you needed drugs more\nAnd I couldn't watch it happen",
+        "song": "Chloe or Sam or Sophia or Marcus",
+        "album": "The Tortured Poets Department"
+    },
+    {
+        "quote": "She is the death you chose\nYou're in terrible danger",
+        "song": "The Albatross",
+        "album": "The Tortured Poets Department"
+    },
+    {
+        "quote": '"Wild Winds are death to the candle"',
+        "song": "The Albatross",
+        "album": "The Tortured Poets Department"
+    }
+]
