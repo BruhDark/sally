@@ -22,7 +22,7 @@ class Lyric:
         self.album = data["album"]
 
     def __str__(self):
-        return f"{self.quote.lower()}\n\n{self.song} ({self.album})"
+        return self.quote.lower()
 
 
 client = tweepy.Client(BEARER_TOKEN, API_KEY, API_SECRET,
