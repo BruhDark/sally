@@ -19,6 +19,20 @@ class Misc(commands.Cog):
 
         await ctx.reply(embed=embed, mention_author=False)
 
+    @commands.command()
+    @commands.is_owner()
+    async def say(self, ctx: discord.ApplicationContext, *, text: str):
+        try:
+            await ctx.message.delete()
+        except discord.HTTPException:
+            return
+
+        message = ctx.message.reference.message_id if ctx.message.reference is not None else None
+        message = self.bot.get_message(
+            message) if message is not None else None
+
+        await message.reply(text) if message is not None else await ctx.send(text)
+
 
 def setup(bot):
     bot.add_cog(Misc(bot))
