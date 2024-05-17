@@ -1,22 +1,21 @@
+import aiohttp
+import asyncio
+import datetime
 import discord
 from discord.ext import commands
 from discord.interactions import Interaction
-from resources.database import add_roblox_info, get_roblox_info, delete_roblox_info, blacklist_roblox_user, remove_blacklist_roblox, update_roblox_info, get_roblox_info_by_rbxid
-from resources import webhook_manager
-import asyncio
-import aiohttp
-import random
-import datetime
 import os
-from resources import webhook_manager
 from pymongo import results
+from resources import database as db
+from resources import webhook_manager
+import random
 
-words = ("INK", "GAYO", "ROBLOX", "SHOW", "POP",
-         "MUSIC", "DRESS", "DANCE", "BEE", "CAT")
+
+words = ("ARTISTS", "SONGS", "ROBLOX", "SHOW", "POP",
+         "MUSIC", "LIGHTS", "DANCE", "BEE", "CAT")
 
 ROBLOX_USERS_ENDPOINT = "https://users.roblox.com/v1/users/"
 ROBLOX_USERNAMES_ENDPOINT = "https://users.roblox.com/v1/usernames/users"
-api_key = os.getenv("ROBLOX_API_KEY")
 
 
 class VerificationMethodsView(discord.ui.View):
@@ -88,7 +87,7 @@ class VerificationMethodsView(discord.ui.View):
         errors = []
 
         self.roblox_data["avatar"] = self.avatar_url
-        await add_roblox_info(interaction.user.id, self.roblox_data["id"], self.roblox_data)
+        await db.add_roblox_info(interaction.user.id, self.roblox_data["id"], self.roblox_data)
 
         try:
             nickname = f"{self.roblox_data['displayName']} (@{self.roblox_data['name']})"
@@ -172,7 +171,7 @@ class VerificationMethodsView(discord.ui.View):
         errors = []
 
         self.roblox_data["avatar"] = self.avatar_url
-        await add_roblox_info(interaction.user.id, self.roblox_data["id"], self.roblox_data)
+        await db.add_roblox_info(interaction.user.id, self.roblox_data["id"], self.roblox_data)
 
         try:
             nickname = f"{self.roblox_data['displayName']} (@{self.roblox_data['name']})"
@@ -344,12 +343,12 @@ class ManageRobloxAccountView(discord.ui.View):
 
     @discord.ui.button(label="Delete Account", emoji="<:delete:1055494235111034890>", style=discord.ButtonStyle.red)
     async def delete_callback(self, button, interaction: discord.Interaction):
-        roblox_data = await get_roblox_info(str(self.user_id))
+        roblox_data = await db.get_roblox_info(str(self.user_id))
         if not self.managed:
             if roblox_data["blacklisted"]:
                 return await interaction.response.send_message(embed=discord.Embed(description="<:x_:1174507495914471464> You can't delete your Roblox data while being blacklisted. Please contact Dark if you wish to delete your data.", color=discord.Color.red()), ephemeral=True)
 
-        await delete_roblox_info(str(self.user_id))
+        await db.delete_roblox_info(str(self.user_id))
         member = interaction.guild.get_member(int(roblox_data["user_id"]))
         await webhook_manager.send_log(member, ["Deleted Roblox data"], "warning")
         try:
@@ -379,7 +378,7 @@ class ManageRobloxAccountView(discord.ui.View):
                 avatar_url = response["data"][0]["imageUrl"]
 
         data["avatar"] = avatar_url
-        roblox_data = await update_roblox_info(self.user_id, self.roblox_id, data)
+        roblox_data = await db.update_roblox_info(self.user_id, self.roblox_id, data)
         member = interaction.guild.get_member(int(roblox_data["user_id"]))
         await webhook_manager.send_log(member, ["Refreshed Roblox data"], "warning")
         try:
@@ -428,7 +427,7 @@ class VerifyViewPersistent(discord.ui.View):
     @discord.ui.button(label="Verify", emoji="<:link:986648044525199390>", custom_id="verifypersistent")
     async def verify_persistent_callback(self, button, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
-        roblox_data = await get_roblox_info(interaction.user.id)
+        roblox_data = await db.get_roblox_info(interaction.user.id)
         if roblox_data:
             username = roblox_data["data"]["name"]
             avatar_url = roblox_data["data"]["avatar"]
@@ -479,7 +478,7 @@ class Verification(commands.Cog):
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
         if member.guild.id == 1170821546038800464:
-            result: results.DeleteResult = await delete_roblox_info(member.id)
+            result: results.DeleteResult = await db.delete_roblox_info(member.id)
             if result.deleted_count != 0:
                 await webhook_manager.send_log(member, ["User left the guild", "Deleted Roblox data"], "warning")
 
@@ -488,7 +487,7 @@ class Verification(commands.Cog):
     async def verify(self, ctx: discord.ApplicationContext):
         await ctx.defer()
 
-        roblox_data = await get_roblox_info(ctx.author.id)
+        roblox_data = await db.get_roblox_info(ctx.author.id)
 
         if roblox_data:
             username = roblox_data["data"]["name"]
@@ -539,9 +538,9 @@ class Verification(commands.Cog):
         await ctx.defer()
 
         if user:
-            roblox_data = await get_roblox_info(user.id)
+            roblox_data = await db.get_roblox_info(user.id)
         elif roblox_id:
-            roblox_data = await get_roblox_info_by_rbxid(roblox_id)
+            roblox_data = await db.get_roblox_info_by_rbxid(roblox_id)
         else:
             return await ctx.respond(embed=await ctx.respond(embed=discord.Embed(description="<:x_:1174507495914471464> Something went wrong while choosing how to fetch the data. Try again.", color=discord.Color.red())))
 
@@ -590,14 +589,14 @@ class Verification(commands.Cog):
     @commands.slash_command(description="Blacklist or unblacklist a user")
     async def blacklist(self, ctx: discord.ApplicationContext, user: discord.Option(discord.Member, "The user to blacklist/unblacklist"), reason: discord.Option(str, "The reason of the blacklist", default="Blacklisted")):  # type: ignore
         await ctx.defer()
-        roblox_data = await get_roblox_info(user.id)
+        roblox_data = await db.get_roblox_info(user.id)
         if roblox_data:
             if not roblox_data["blacklisted"]:
-                await blacklist_roblox_user(user.id, reason)
+                await db.blacklist_roblox_user(user.id, reason)
                 await ctx.respond(embed=discord.Embed(description=f"<:checked:1173356058387951626> Successfully **blacklisted** {user.mention} with Roblox account `{roblox_data['data']['name']}`. They will not be able to join INKIGAYO on Roblox.", color=discord.Color.green()))
 
             else:
-                await remove_blacklist_roblox(user.id)
+                await db.remove_blacklist_roblox(user.id)
                 await ctx.respond(embed=discord.Embed(description=f"<:checked:1173356058387951626> Successfully **unblacklisted** {user.mention} with Roblox account `{roblox_data['data']['name']}`. They will be able to join INKIGAYO on Roblox.", color=discord.Color.green()))
 
         else:
@@ -621,7 +620,7 @@ class Verification(commands.Cog):
                 avatar_url = response["data"][0]["imageUrl"]
 
         data["avatar"] = avatar_url
-        await add_roblox_info(user_id, roblox_id, data)
+        await db.add_roblox_info(user_id, roblox_id, data)
         member = ctx.guild.get_member(int(user_id))
         try:
             nickname = f"{data['displayName']} (@{data['name']})"
@@ -647,7 +646,7 @@ class Verification(commands.Cog):
     async def force_unverify(self, ctx: commands.Context, user_id: str):
         member = ctx.guild.get_member(int(user_id))
 
-        await delete_roblox_info(user_id)
+        await db.delete_roblox_info(user_id)
 
         try:
             await member.edit(nick=None)

@@ -2,11 +2,9 @@ import discord
 from discord.ext import commands, pages
 from discord.interactions import Interaction
 from resources.utility_views import ConfirmActionView
-import datetime
+from resources import database as db
 import time
-
-from resources.database import create_poll, get_poll, add_vote, remove_vote, delete_poll
-a = "▰▱"
+# ▰▱
 
 
 class PollSelect(discord.ui.Select):
@@ -47,7 +45,7 @@ class PollSelect(discord.ui.Select):
             return await interaction.followup.send(content="<:x_:1174507495914471464> Your account is too young. You are not allowed to vote.", ephemeral=True)
 
         original_message = await interaction.original_response() if interaction.message is None else interaction.message
-        poll = await get_poll(original_message.id)
+        poll = await db.get_poll(original_message.id)
         user_choice = self.values[0]
 
         if poll is None:
@@ -56,7 +54,7 @@ class PollSelect(discord.ui.Select):
 
         try:
             if interaction.user.id in poll[f"{user_choice}_MEMBERS"]:
-                new_data = await remove_vote(original_message.id, interaction.user.id, user_choice)
+                new_data = await db.remove_vote(original_message.id, interaction.user.id, user_choice)
                 new_embed = await self.return_new_embed(original_message, new_data)
                 await original_message.edit(embed=new_embed)
 
@@ -67,14 +65,14 @@ class PollSelect(discord.ui.Select):
                     if interaction.user.id in poll[f"{choice}_MEMBERS"] and choice != user_choice:
                         return await interaction.followup.send(f"<:padlock:987837727741464666> You already voted for **{choice}**! You must remove your vote first if you want to vote for **{user_choice}**.", ephemeral=True)
 
-                new_data = await add_vote(original_message.id, interaction.user.id, user_choice)
+                new_data = await db.add_vote(original_message.id, interaction.user.id, user_choice)
                 new_embed = await self.return_new_embed(original_message, new_data)
                 await original_message.edit(embed=new_embed)
 
                 await interaction.followup.send(f"<:thunderbolt:987447657104560229> Your vote for **{user_choice}** was added successfully!", ephemeral=True)
 
         except Exception as ex:
-            await interaction.followup.send("<:x_:1174507495914471464> Something went wrong while processing your vote. Please contact a staff member.")
+            await interaction.followup.send("<:x_:1174507495914471464> Something went wrong while processing your vote. Please try again or contact a staff member.", ephemeral=True)
             raise ex
 
 
@@ -98,9 +96,9 @@ class PollView(discord.ui.View):
             return
 
         original_message = await interaction.original_response() if interaction.message is None else interaction.message
-        poll = await get_poll(original_message.id)
+        poll = await db.get_poll(original_message.id)
         if poll == None:
-            return await interaction.followup.send("<:x_:1174507495914471464> This voting is invalid or something went wrong.")
+            return await interaction.followup.send("<:x_:1174507495914471464> This voting is invalid or something went wrong.", ephemeral=True)
 
         if poll["total_votes"] == 0:
             embed = original_message.embeds[0]
@@ -114,7 +112,7 @@ class PollView(discord.ui.View):
                             value=f"The total votes count was 0")
 
             await original_message.edit(embed=embed, view=None)
-            await delete_poll(original_message.id)
+            await db.delete_poll(original_message.id)
 
             await interaction.followup.send("<:checked:1173356058387951626> Ended the voting and posted results.", ephemeral=True)
             return
@@ -147,7 +145,7 @@ class PollView(discord.ui.View):
                             value=f"**{may}** wins with **{may_n}** votes!")
 
         await original_message.edit(embed=embed, view=None)
-        await delete_poll(original_message.id)
+        await db.delete_poll(original_message.id)
 
         await interaction.followup.send("<:checked:1173356058387951626> Ended poll and posted results.", ephemeral=True)
 
@@ -189,7 +187,7 @@ class Polls(commands.Cog):
 
         poll_view = PollView(select_options)
         poll_message = await channel.send(content="@everyone", embed=poll_embed, view=poll_view)
-        await create_poll(poll_message.id, groups_parsed)
+        await db.create_poll(poll_message.id, groups_parsed)
 
         await ctx.respond("<:checked:1173356058387951626> Sent voting to channel.")
 
@@ -199,7 +197,7 @@ class Polls(commands.Cog):
             return await ctx.repond("<:padlock:987837727741464666> You are not allowed to use this command.", ephemeral=True)
 
         try:
-            poll = await get_poll(int(vote_id))
+            poll = await db.get_poll(int(vote_id))
         except ValueError:
             return await ctx.respond("<:x_:1174507495914471464> Invalid voting ID.", ephemeral=True)
 
