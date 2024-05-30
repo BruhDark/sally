@@ -15,9 +15,9 @@ routes = web.RouteTableDef()
 
 
 def missing_auth(request: web.Request):
-    if request.headers.get("Authorization") != os.getenv("API_AUTHORIZATION_CODE") or request.rel_url.query.get("auth") != os.getenv("API_AUTHORIZATION_CODE_OVERRIDE"):
-        return True
-    return False
+    if request.headers.get("Authorization") == os.getenv("API_AUTHORIZATION_CODE") or request.rel_url.query.get("auth") == os.getenv("API_AUTHORIZATION_CODE_OVERRIDE"):
+        return False
+    return True
 
 
 class App(commands.Cog):
