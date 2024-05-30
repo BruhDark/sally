@@ -37,7 +37,7 @@ class BuyVipView(discord.ui.View):
             async with session.get(g_url) as response:
                 resp = await response.json()
                 if not resp:
-                    await interaction.followup.send(embed=discord.Embed(description="<:x_:1174507495914471464> You do not own the gamepass, you **must** buy the gamepass before trying to claim the role.", color=discord.Color.red()), ephemeral=True)
+                    await interaction.followup.send(embed=discord.Embed(description="<:x_:1174507495914471464> You do not own the gamepass, you **must** [buy the gamepass](https://www.roblox.com/game-pass/664364469/VIP) before trying to claim the role.", color=discord.Color.red()), ephemeral=True)
                     return
 
         vip_role = interaction.guild.get_role(1179032931457581107)
