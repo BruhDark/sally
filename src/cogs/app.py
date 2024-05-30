@@ -14,6 +14,12 @@ app = web.Application()
 routes = web.RouteTableDef()
 
 
+def missing_auth(request: web.Request):
+    if request.headers.get("Authorization") != os.getenv("API_AUTHORIZATION_CODE") or request.rel_url.query.get("auth") != os.getenv("API_AUTHORIZATION_CODE_OVERRIDE"):
+        return True
+    return False
+
+
 class App(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -46,59 +52,11 @@ class App(commands.Cog):
 
     # ROBLOX ENDPOINTS
 
-    @routes.get("/roblox/is-blacklisted")
-    async def is_blacklisted(request: web.Request):
-        roblox_id = request.rel_url.query.get("roblox_id", None)
-        if not roblox_id:
-            return web.json_response({'blacklisted': True, 'message': 'Improper request made'}, status=404)
-
-        roblox_data = await get_roblox_info_by_rbxid(roblox_id)
-
-        if not roblox_data:
-            message = "User is not verified with Sally"
-            resp = {'discord_id': None,
-                    'blacklisted': True, 'message': message}
-
-        elif roblox_data["blacklisted"]:
-            message = roblox_data["message"]
-            resp = {'discord_id': roblox_data["user_id"],
-                    'blacklisted': True, 'message': message}
-
-        else:
-            resp = {'discord_id': roblox_data["user_id"],
-                    'blacklisted': False, 'message': "User is not blacklisted"}
-
-        return web.json_response(resp)
-
-    @routes.get("/roblox/is-booster")
-    async def is_booster(request: web.Request):
-        roblox_id = request.rel_url.query.get("roblox_id", None)
-        if not roblox_id:
-            return web.json_response({'booster': False, 'message': 'Improper request made'}, status=404)
-
-        roblox_data = await get_roblox_info_by_rbxid(roblox_id)
-        if roblox_data == None:
-            resp = {"booster": False}
-
-        else:
-            inkigayo: discord.Guild = app.bot.get_guild(1170821546038800464)
-            server_booster = inkigayo.get_role(1177467255802564698)
-            vip_role = discord.utils.get(inkigayo.roles, name="VIPS")
-            member = inkigayo.get_member(int(roblox_data["user_id"]))
-
-            if not inkigayo or not member:
-                resp = {"booster": False}
-
-            elif server_booster in member.roles or vip_role in member.roles:
-                resp = {"booster": True}
-
-            else:
-                resp = {"booster": False}
-
-        return web.json_response(resp)
-
     @routes.get("/roblox/get-info")
     async def get_info(request: web.Request):
+        if missing_auth(request):
+            return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
+
         roblox_id = request.rel_url.query.get("roblox_id", None)
         if not roblox_id:
             return web.json_response({'success': False, 'message': 'Improper request made'}, status=404)
@@ -110,6 +68,9 @@ class App(commands.Cog):
 
     @routes.post("/roblox/join")
     async def roblox_join(request: web.Request):
+        if missing_auth(request):
+            return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
+
         roblox_id = await request.json()
         roblox_id = roblox_id["roblox_id"]
 
@@ -133,27 +94,13 @@ class App(commands.Cog):
         await webhook_manager.send_join_log(embed)
         return web.json_response({"success": True}, status=201)
 
-    @routes.get("/roblox/test-join")
-    async def roblox_join(request: web.Request):
-        roblox_id = request.rel_url.query.get("roblox_id")
-
-        roblox_data = await get_roblox_info_by_rbxid(roblox_id)
-        embed = discord.Embed(
-            color=discord.Color.nitro_pink(), title="<:user:988229844301131776> User Join Triggered", timestamp=datetime.datetime.now())
-        embed.add_field(name="Discord Account",
-                        value=f"<@{roblox_data['user_id']}> ({roblox_data['user_id']})")
-        embed.add_field(name="Roblox Account",
-                        value=f"{roblox_data['data']['name']} ({roblox_data['data']['id']})")
-        embed.set_thumbnail(url=roblox_data["data"]["avatar"])
-
-        logs = app.bot.get_channel(1183581233821790279)  # 1183581233821790279
-        await logs.send(embed=embed)
-        return web.json_response({"success": True})
-
     # ROBLOX VERIFICATION ENDPOINTS
 
     @routes.get("/verification/check")
     async def check_verication(request: web.Request):
+        if missing_auth(request):
+            return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
+
         roblox_id = request.rel_url.query.get("roblox_id")
         if roblox_id == None:
             return web.json_response({"success": False, "message": "Improper request made"})
@@ -168,6 +115,9 @@ class App(commands.Cog):
 
     @routes.post("/verification/complete")
     async def complete_verification(request: web.Request):
+        if missing_auth(request):
+            return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
+
         data = await request.json()
         roblox_id = int(data["roblox_id"])
         discord_id = int(data["discord_id"])
@@ -186,6 +136,9 @@ class App(commands.Cog):
 
     @routes.get("/lock/check-user")
     async def check_user(request: web.Request):
+        if missing_auth(request):
+            return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
+
         roblox_id = request.rel_url.query.get("roblox_id")
         if roblox_id == None:
             return web.json_response({"success": False, "message": "Improper request made"})
@@ -203,7 +156,8 @@ class App(commands.Cog):
         artists_role = inkigayo.get_role(1224881164569808927)
         vip_role = inkigayo.get_role(1179032931457581107)
 
-        data = {"success": True, "staff": False, "artist": False, "vip": False}
+        data = {"success": True, "discord_id": None, "blacklisted": True,
+                "message": "User is not verified with Sally", "staff": False, "artist": False, "vip": False}
 
         if staff_role in member.roles:
             data["staff"] = True
@@ -211,6 +165,20 @@ class App(commands.Cog):
             data["artist"] = True
         if vip_role in member.roles:
             data["vip"] = True
+
+        roblox_data = await get_roblox_info_by_rbxid(roblox_id)
+
+        if not roblox_data:
+            pass
+
+        elif roblox_data["blacklisted"]:
+            message = roblox_data["message"]
+            data["message"] = message
+
+        else:
+            data["discord_id"] = roblox_data["user_id"]
+            data["blacklisted"] = False
+            data["message"] = None
 
         return web.json_response(data)
 
