@@ -14,6 +14,11 @@ database: motor_tornado.MotorDatabase = client["sally"]
 # GENERIC FUNCTIONS
 
 
+async def find(col: str, data: dict):
+    collection = database[col]
+    return await collection.find(data).to_list(None)
+
+
 async def find_one(col: str, data: dict):
     collection = database[col]
     return await collection.find_one(data)
@@ -37,11 +42,7 @@ async def delete_one(col: str, data: dict) -> results.DeleteResult:
 async def return_all(col: str, filter: dict = {}):
     collection = database[col]
     find = collection.find(filter)
-    docs = []
-    for doc in await find.to_list(None):
-        docs.append(doc)
-
-    return docs
+    return find.to_list(None)
 
 
 # VERIFICATION
