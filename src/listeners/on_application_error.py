@@ -15,13 +15,16 @@ class OnApplicationCommandError(commands.Cog):
         base_embed.description = "<:x_:1174507495914471464> "
 
         if isinstance(error, commands.NoPrivateMessage):
-            base_embed.description += "This command is only available in a guild."
+            base_embed.description += "You can only use this command in a server."
 
         elif isinstance(error, commands.MissingPermissions):
             base_embed.description += f"I am missing the following permissions: `{', '.join(error.missing_permissions)}`"
 
         elif isinstance(error, commands.CheckFailure):
             base_embed.description += str(error)
+
+        elif isinstance(error, commands.NotOwner):
+            base_embed.description += "You are not allowed to use this command."
 
         else:
             base_embed.description += f"Something went wrong.\n\n```py\n{error}\n```"
