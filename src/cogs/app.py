@@ -143,21 +143,33 @@ class App(commands.Cog):
         if roblox_id == None:
             return web.json_response({"success": False, "message": "Improper request made"})
 
-        user = await get_roblox_info_by_rbxid(roblox_id)
-        if user == None:
-            return web.json_response({"success": False, "message": "User not found"}, status=404)
+        # Base response is assuming the user is not verified with Sally and "blacklisted"
+        data = {"success": True, "discord_id": None, "blacklisted": True,
+                "message": "User is not verified with Sally", "staff": False, "artist": False, "vip": False}
+
+        roblox_data = await get_roblox_info_by_rbxid(roblox_id)
+
+        if not roblox_data:
+            # User is not verified with Sally, base response
+            return web.json_response(data)
+
+        elif roblox_data["blacklisted"]:
+            message = roblox_data["message"]
+            data["message"] = message
+            # User is blacklisted, just edit the message sent
+            return web.json_response(data)
 
         inkigayo = app.bot.get_guild(1170821546038800464)
-        member = inkigayo.get_member(int(user["user_id"]))
-        if member == None:
+        member: discord.Member = inkigayo.get_member(
+            int(roblox_data["user_id"]))
+
+        if not member:
+            # Could not resolve a member object
             return web.json_response({"success": False, "message": "User not found"})
 
         staff_role = inkigayo.get_role(1224881097146372226)
         artists_role = inkigayo.get_role(1224881164569808927)
         vip_role = inkigayo.get_role(1179032931457581107)
-
-        data = {"success": True, "discord_id": None, "blacklisted": True,
-                "message": "User is not verified with Sally", "staff": False, "artist": False, "vip": False}
 
         if staff_role in member.roles:
             data["staff"] = True
@@ -166,21 +178,11 @@ class App(commands.Cog):
         if vip_role in member.roles:
             data["vip"] = True
 
-        roblox_data = await get_roblox_info_by_rbxid(roblox_id)
+        data["discord_id"] = roblox_data["user_id"]
+        data["blacklisted"] = False
+        data["message"] = None
 
-        if not roblox_data:
-            pass
-
-        elif roblox_data["blacklisted"]:
-            message = roblox_data["message"]
-            data["message"] = message
-
-        else:
-            data["discord_id"] = roblox_data["user_id"]
-            data["blacklisted"] = False
-            data["message"] = None
-
-        return web.json_response(data)
+        return web.json_response(data)  # User is verified and not blacklisted
 
 
 def setup(bot):
