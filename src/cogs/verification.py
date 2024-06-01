@@ -274,7 +274,7 @@ class VerifyView(discord.ui.View):
         except asyncio.TimeoutError:
             WEBHOOK_MESSAGE, LOG_EMBED = await webhook_manager.update_log(WEBHOOK_MESSAGE, ["Roblox username prompt timed out"], "error", LOG_EMBED)
             interaction.client.user_prompts.remove(interaction.user.id)
-            return await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> Your prompt timed out.", color=discord.Color.red()))
+            return await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> You took too long to provide me your Roblox username. Please run `/verify` in the server again.", color=discord.Color.red()))
 
         roblox_username = roblox_username.content
 
@@ -283,6 +283,12 @@ class VerifyView(discord.ui.View):
             WEBHOOK_MESSAGE, LOG_EMBED = await webhook_manager.update_log(WEBHOOK_MESSAGE, ["Invalid Roblox username"], "error", LOG_EMBED)
             interaction.client.user_prompts.remove(interaction.user.id)
             return await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> The Roblox username you provided does not exist. Please rerun the verify command in the server.", color=discord.Color.red()))
+
+        temp_roblox_data = await db.get_roblox_info_by_rbxid(roblox_id)
+        if temp_roblox_data:
+            WEBHOOK_MESSAGE, LOG_EMBED = await webhook_manager.update_log(WEBHOOK_MESSAGE, ["Roblox ID already linked"], "error", LOG_EMBED)
+            interaction.client.user_prompts.remove(interaction.user.id)
+            return await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> This Roblox account is already linked with another Discord account. You must unlink your Roblox account from the other Discord account if you wish to verify as this account.", color=discord.Color.red()))
 
         async with aiohttp.ClientSession() as session:
             async with session.get(f"https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds={roblox_id}&size=420x420&format=Png&isCircular=false") as resp:
@@ -316,7 +322,7 @@ class VerifyView(discord.ui.View):
         if await verifyMethodView.wait():
             WEBHOOK_MESSAGE, LOG_EMBED = await webhook_manager.update_log(WEBHOOK_MESSAGE, ["Method selection timed out"], "error", LOG_EMBED)
             interaction.client.user_prompts.remove(interaction.user.id)
-            await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> You took too long to select a verification method, please run `/verify` in the server again.", color=discord.Color.red()))
+            await interaction.user.send(embed=discord.Embed(description="<:x_:1174507495914471464> You took too long to select a verification method. Please run `/verify` in the server again.", color=discord.Color.red()))
 
     async def on_error(self, error: Exception, item, interaction: discord.Interaction) -> None:
         await interaction.user.send(embed=discord.Embed(description=f"<:x_:1174507495914471464> Something went wrong, please contact Dark and send him the text below:\n\n```\n{error}```", color=discord.Color.red()))
@@ -575,6 +581,7 @@ class Verification(commands.Cog):
                                 value=str(roblox_data["message"]))
 
             embed.description = "Description:\n" + description
+
             if self.bot.is_owner(ctx.author):
                 view = ManageRobloxAccountView(
                     ctx.author, roblox_data["user_id"], roblox_id, managed=True)
@@ -587,6 +594,7 @@ class Verification(commands.Cog):
             await ctx.respond(embed=discord.Embed(description="<:x_:1174507495914471464> This user is not linked with Sally.", color=discord.Color.red()))
 
     @commands.slash_command(description="Blacklist or unblacklist a user")
+    @commands.is_owner()
     async def blacklist(self, ctx: discord.ApplicationContext, user: discord.Option(discord.Member, "The user to blacklist/unblacklist"), reason: discord.Option(str, "The reason of the blacklist", default="Blacklisted")):  # type: ignore
         await ctx.defer()
         roblox_data = await db.get_roblox_info(user.id)
@@ -601,6 +609,25 @@ class Verification(commands.Cog):
 
         else:
             await ctx.respond(embed=discord.Embed(description="<:x_:1174507495914471464> This user is not linked with Sally."))
+
+    @commands.command(name="checkalts")
+    @commands.is_owner()
+    async def check_alts(self, ctx: commands.Context, roblox_id: str):
+        roblox_data_list = await db.find("roblox_verifications", {"roblox_id": roblox_id})
+        if len(roblox_data_list) > 1:
+            discord_ids = [roblox_data["user_id"]
+                           for roblox_data in roblox_data_list]
+            return await ctx.reply(embed=discord.Embed(description=f"<:checked:1173356058387951626> Found more than one account linked to {roblox_id}: `{', '.join(discord_ids)}`", color=discord.Color.nitro_pink()), mention_author=False)
+        return await ctx.reply(embed=discord.Embed(description=f"<:checked:1173356058387951626> Did not find more than one account linked to {roblox_id}.", color=discord.Color.green()), mention_author=False)
+
+    @commands.command(name="checklock")
+    @commands.is_owner()
+    async def check_lock(self, ctx: commands.Context, roblox_id: str):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"http://sally.darks.tech/lock/check-user?roblox_id={roblox_id}", headers={"Authorization": os.getenv("API_AUTHORIZATION_CODE")}) as resp:
+                response = await resp.text()
+
+        await ctx.reply(embed=discord.Embed(description=f"```json\n{response}\n```", color=discord.Color.nitro_pink()), mention_author=False)
 
     @commands.command(name="forceverify")
     @commands.is_owner()
