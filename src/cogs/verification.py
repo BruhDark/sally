@@ -72,7 +72,7 @@ class VerificationMethodsView(discord.ui.View):
         embed3.description = "You will now be able to attend to the shows hosted by **INKIGAYO**!\n\n<:thunderbolt:987447657104560229> Want more benefits? You can purchase the VIP pass! Check <#1179028774545784943> for more information."
         embed3.set_thumbnail(url=self.avatar_url)
 
-        errors = await verification.update_discord_profile(interaction, self.roblox_data)
+        errors = await verification.update_discord_profile(self.guild, interaction.user.id, self.roblox_data)
         if len(errors) > 0:
             errors_parsed = ", ".join(errors)
             self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, errors, "pending", self.LOG_EMBED)
@@ -162,7 +162,7 @@ class VerificationMethodsView(discord.ui.View):
         embed3.description = f"You will now be able to attend events hosted by **WePeak**!\n\n{aesthetic.Emojis.thunderbolt} Want more benefits? You can purchase the VIP pass and claim the role on your profile settings when using `/verify`"
         embed3.set_thumbnail(url=self.avatar_url)
 
-        errors = await verification.update_discord_profile(interaction, self.roblox_data)
+        errors = await verification.update_discord_profile(self.guild, interaction.user.id, self.roblox_data)
         if len(errors) > 0:
             errors_parsed = ", ".join(errors)
             self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, errors, "pending", self.LOG_EMBED)
@@ -398,7 +398,7 @@ class Verification(commands.Cog):
             updated = await verification.attempt_avatar_refresh(roblox_data)
             if updated:
                 roblox_data = await db.update_roblox_info(ctx.author.id, roblox_data["roblox_id"], updated)
-                await verification.update_discord_profile(ctx, roblox_data["data"])
+                await verification.update_discord_profile(ctx.guild, ctx.author.id, roblox_data["data"])
 
             embed = await verification.Embeds.profile_embed(roblox_data)
             return await ctx.respond(embed=embed, view=ManageRobloxAccountView(ctx.author, ctx.author.id, roblox_data["roblox_id"]))

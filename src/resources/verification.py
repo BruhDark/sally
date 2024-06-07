@@ -86,9 +86,9 @@ async def fetch_roblox_description(roblox_id: str) -> str | None:
     return roblox_data["description"]
 
 
-async def update_discord_profile(interaction: discord.Interaction, roblox_data: dict) -> list[str] | None:
+async def update_discord_profile(guild: discord.Guild, user_id: int, roblox_data: dict) -> list[str] | None:
     errors = []
-    member = interaction.guild.get_member(interaction.user.id)
+    member = guild.get_member(user_id)
     try:
         nickname = roblox_data["name"] if len(
             nickname) > 32 or roblox_data["displayName"] == roblox_data["name"] else f"{roblox_data['displayName']} (@{roblox_data['name']})"
