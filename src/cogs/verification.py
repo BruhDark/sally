@@ -308,7 +308,7 @@ class ManageRobloxAccountView(discord.ui.View):
                 label="You are able to manage this account", emoji=aesthetic.Emojis.info, disabled=True, row=1))
 
     async def interaction_check(self, interaction: Interaction) -> bool:
-        if interaction.user == self.author:
+        if interaction.user == self.view_owner:
             return True
         await interaction.response.send_message(content="This button is not for you!", ephemeral=True)
         return False
