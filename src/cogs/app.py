@@ -159,17 +159,17 @@ class App(commands.Cog):
             # User is blacklisted, just edit the message sent
             return web.json_response(data)
 
-        inkigayo = app.bot.get_guild(1170821546038800464)
-        member: discord.Member = inkigayo.get_member(
+        wepeak = app.bot.get_guild(1240592168754745414)
+        member: discord.Member = wepeak.get_member(
             int(roblox_data["user_id"]))
 
         if not member:
             # Could not resolve a member object
             return web.json_response({"success": False, "message": "User not found"})
 
-        staff_role = inkigayo.get_role(1224881097146372226)
-        artists_role = inkigayo.get_role(1224881164569808927)
-        vip_role = inkigayo.get_role(1179032931457581107)
+        staff_role = wepeak.get_role(1243320002002550804)
+        artists_role = wepeak.get_role(1224881164569808927)
+        vip_role = wepeak.get_role(1241530191725989928)
 
         if staff_role in member.roles:
             data["staff"] = True
