@@ -428,11 +428,11 @@ class Verification(commands.Cog):
         else:
             return await ctx.respond(embed=await ctx.respond(embed=discord.Embed(description=f"{aesthetic.Emojis.error} Something went wrong while choosing how to fetch the data. Try again.", color=aesthetic.Colors.error)))
 
-        managed = self.bot.is_owner(ctx.author)
+        managed = await self.bot.is_owner(ctx.author)
         if roblox_data:
             embed = await verification.Embeds.profile_embed(roblox_data, managed)
 
-            if self.bot.is_owner(ctx.author):
+            if managed:
                 view = ManageRobloxAccountView(
                     ctx.author, roblox_data["user_id"], roblox_id, managed)
             else:
