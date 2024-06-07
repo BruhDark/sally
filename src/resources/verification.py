@@ -55,7 +55,7 @@ async def attempt_avatar_refresh(roblox_data: dict):
     return await fetch_roblox_data(roblox_data["roblox_id"])
 
 
-async def fetch_roblox_data(roblox_id: str) -> dict | None:
+async def fetch_roblox_data(roblox_id: str) -> dict:
     async with aiohttp.ClientSession() as session:
         async with session.get(f"https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds={roblox_id}&size=420x420&format=Png&isCircular=false") as resp:
             if resp.status != 200:
@@ -79,7 +79,7 @@ async def fetch_roblox_description(roblox_id: str) -> str | None:
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status == 404:
-                return
+                raise errors.RobloxDataFetchFailed
             roblox_data = await response.json()
 
     return roblox_data["description"]

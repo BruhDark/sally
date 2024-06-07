@@ -412,7 +412,7 @@ class Verification(commands.Cog):
         if user and roblox_id:
             return await ctx.respond(embed=discord.Embed(description=f"{aesthetic.Emojis.error} You have to either provide a `user` **or** `roblox_id`.", color=aesthetic.Colors.error))
         elif not user and not roblox_id:
-            user = ctx.author
+            user: discord.Member = ctx.author
 
         await ctx.defer()
 
@@ -429,7 +429,7 @@ class Verification(commands.Cog):
 
             if managed:
                 view = ManageRobloxAccountView(
-                    ctx.author, roblox_data["user_id"], str(roblox_id), managed)
+                    ctx.author, roblox_data["user_id"], roblox_data["roblox_id"], managed)
             else:
                 view = None
 
