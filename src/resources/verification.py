@@ -1,7 +1,7 @@
 import discord
 import aiohttp
 import datetime
-from resources import aesthetic
+from resources import aesthetic, errors
 
 ROBLOX_USERS_ENDPOINT = "https://users.roblox.com/v1/users/"
 ROBLOX_USERNAMES_ENDPOINT = "https://users.roblox.com/v1/usernames/users"
@@ -59,8 +59,7 @@ async def fetch_roblox_data(roblox_id: str) -> dict | None:
     async with aiohttp.ClientSession() as session:
         async with session.get(f"https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds={roblox_id}&size=420x420&format=Png&isCircular=false") as resp:
             if resp.status != 200:
-                return
-
+                raise errors.RobloxDataFetchFailed
             response = await resp.json()
             avatar_url = response["data"][0]["imageUrl"]
 
@@ -68,7 +67,7 @@ async def fetch_roblox_data(roblox_id: str) -> dict | None:
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status == 404:
-                return
+                raise errors.RobloxDataFetchFailed
             roblox_data = await response.json()
             roblox_data["avatar_url"] = avatar_url
 

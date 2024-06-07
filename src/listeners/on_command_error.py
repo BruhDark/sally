@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from resources import webhook_manager, aesthetic
+from resources import webhook_manager, aesthetic, errors
 
 
 class OnCommandError(commands.Cog):
@@ -14,6 +14,9 @@ class OnCommandError(commands.Cog):
 
         elif isinstance(error, commands.CommandNotFound):
             pass
+
+        elif isinstance(error, errors.RobloxDataFetchFailed):
+            base_embed.description += "Failed to fetch Roblox data. If the issue persists, contact the developer."
 
         else:
             base_embed.description += f"Something went wrong.\n\n```py\n{error}\n```"
