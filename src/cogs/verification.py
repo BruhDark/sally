@@ -339,20 +339,11 @@ class ManageRobloxAccountView(discord.ui.View):
     async def refresh_callback(self, button, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
 
-        data = await verification.fetch_roblox_data(self.roblox_id)
-        roblox_data = await db.update_roblox_info(self.user_id, self.roblox_id, data)
-        member = interaction.guild.get_member(int(roblox_data["user_id"]))
-        await webhook_manager.send_log(member, ["Refreshed Roblox data"], "warning")
-        try:
-            nickname = f"{data['displayName']} (@{data['name']})"
-            if len(nickname) > 32:
-                nickname = f"{data['name']}"
+        new_data = await verification.fetch_roblox_data(self.roblox_id)
+        roblox_data = await db.update_roblox_info(self.user_id, self.roblox_id, new_data)
+        await verification.update_discord_profile(interaction.guild, int(self.user_id), roblox_data)
 
-            await member.edit(nick=nickname)
-        except:
-            pass
-
-        embed = await verification.Embeds.profile_embed(data, self.managed)
+        embed = await verification.Embeds.profile_embed(roblox_data, self.managed)
         await interaction.edit_original_response(embed=embed)
         await interaction.followup.send(embed=discord.Embed(description=f"{aesthetic.Emojis.success} Successfully refreshed the Roblox data.", color=aesthetic.Colors.success), ephemeral=True)
 
