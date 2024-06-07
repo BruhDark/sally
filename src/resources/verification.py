@@ -70,7 +70,7 @@ async def fetch_roblox_data(roblox_id: str) -> dict | None:
             if response.status == 404:
                 return
             roblox_data = await response.json()
-            roblox_data["avatar_url"] = avatar_url
+            roblox_data["avatar"] = avatar_url
 
     return roblox_data
 
