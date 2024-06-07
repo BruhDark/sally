@@ -25,8 +25,8 @@ class Embeds:
             title=f":wave: Hello there, {username}!", color=aesthetic.Colors.main)
         embed.set_thumbnail(url=avatar_url)
 
-        embed.add_ield(name="Discord Account",
-                       value=f"<@{roblox_data['user_id']}> (`{roblox_data['user_id']}`)")
+        embed.add_field(name="Discord Account",
+                        value=f"<@{roblox_data['user_id']}> (`{roblox_data['user_id']}`)")
         embed.add_field(name="Username & Display Name",
                         value=f"{username} (@{display_name})")
         embed.add_field(name="Roblox ID", value=roblox_id)
