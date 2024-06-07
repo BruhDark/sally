@@ -5,7 +5,7 @@ import os
 import dotenv
 import traceback
 from datetime import datetime
-import aesthetic
+from resources import aesthetic
 
 dotenv.load_dotenv()
 url = os.getenv("WEBHOOK_URL")

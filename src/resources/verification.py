@@ -2,7 +2,7 @@ import discord
 import aiohttp
 import database
 import datetime
-import aesthetic
+from resources import aesthetic
 
 ROBLOX_USERS_ENDPOINT = "https://users.roblox.com/v1/users/"
 ROBLOX_USERNAMES_ENDPOINT = "https://users.roblox.com/v1/usernames/users"

@@ -1,5 +1,5 @@
 import discord
-import aesthetic
+from resources import aesthetic
 
 
 class ConfirmActionView(discord.ui.View):
