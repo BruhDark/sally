@@ -59,7 +59,7 @@ class VerificationMethodsView(discord.ui.View):
         except asyncio.TimeoutError:
             pass
 
-        description = await verification.get_roblox_description(self.roblox_id)
+        description = await verification.fetch_roblox_description(self.roblox_id)
 
         if code not in description:
             self.WEBHOOK_MESSAGE, self.LOG_EMBED = await webhook_manager.update_log(self.WEBHOOK_MESSAGE, ["No code found in description"], "error", self.LOG_EMBED)
