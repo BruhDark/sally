@@ -293,14 +293,14 @@ class VerifyView(discord.ui.View):
 
 
 class ManageRobloxAccountView(discord.ui.View):
-    def __init__(self, author: discord.Member, user_id: str, roblox_id: str, managed: bool = False):
+    def __init__(self, view_owner: discord.Member, user_id: str, roblox_id: str, managed: bool = False):
         super().__init__(disable_on_timeout=True)
-        self.author = author
+        self.view_owner = view_owner
         self.user_id = user_id
         self.roblox_id = roblox_id
         self.managed = managed
 
-        if verification.VIP_ROLE_ID in [role.id for role in author.roles] or self.managed:
+        if self.managed or verification.VIP_ROLE_ID in [role.id for role in view_owner.roles]:
             self.children[2].disabled = True
 
         if self.managed:
@@ -339,7 +339,7 @@ class ManageRobloxAccountView(discord.ui.View):
     async def refresh_callback(self, button, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
 
-        new_data = await verification.fetch_roblox_data(self.roblox_id)
+        new_data = await verification.fetch_roblox_data(str(self.roblox_id))
         roblox_data = await db.update_roblox_info(self.user_id, self.roblox_id, new_data)
         await verification.update_discord_profile(interaction.guild, int(self.user_id), roblox_data)
 
@@ -402,7 +402,7 @@ class Verification(commands.Cog):
                 await verification.update_discord_profile(ctx.guild, ctx.author.id, roblox_data["data"])
 
             embed = await verification.Embeds.profile_embed(roblox_data)
-            return await ctx.respond(embed=embed, view=ManageRobloxAccountView(ctx.author, ctx.author.id, roblox_data["roblox_id"]))
+            return await ctx.respond(embed=embed, view=ManageRobloxAccountView(ctx.author, str(ctx.author.id), roblox_data["roblox_id"]))
 
         await ctx.respond(content=":wave: To verify click the button below and follow the steps.", view=VerifyView(ctx.author))
 
@@ -429,7 +429,7 @@ class Verification(commands.Cog):
 
             if managed:
                 view = ManageRobloxAccountView(
-                    ctx.author, roblox_data["user_id"], roblox_id, managed)
+                    ctx.author, roblox_data["user_id"], str(roblox_id), managed)
             else:
                 view = None
 
