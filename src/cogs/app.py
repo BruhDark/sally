@@ -167,8 +167,8 @@ class App(commands.Cog):
             # Could not resolve a member object
             return web.json_response({"success": False, "message": "User not found"})
 
-        staff_role = wepeak.get_role(1243320002002550804)
-        artists_role = wepeak.get_role(1224881164569808927)
+        staff_role = wepeak.get_role(1248770684612640910)
+        artists_role = wepeak.get_role(1243320082957074473)
         vip_role = wepeak.get_role(1241530191725989928)
 
         if staff_role in member.roles:

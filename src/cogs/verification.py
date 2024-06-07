@@ -372,8 +372,11 @@ class ManageRobloxAccountView(discord.ui.View):
                     view = discord.ui.View(link_button)
                     await interaction.followup.send(embed=discord.Embed(description=f"{aesthetic.Emojis.sally} Please buy the gamepass before claiming the Discord role!", color=aesthetic.Colors.secondary), view=view, ephemeral=True)
                     return
+        try:
+            await interaction.user.add_roles(discord.Object(id=verification.VIP_ROLE_ID), reason=f"Bought VIP for Roblox account: {user_id}")
+        except:
+            return await interaction.followup.send(embed=discord.Embed(description=f"{aesthetic.Emojis.error} Something went wrong while assigning the role. Please contact a staff member.", color=aesthetic.Colors.error), ephemeral=True)
 
-        await interaction.user.add_roles(discord.Object(id=verification.VIP_ROLE_ID), reason=f"Bought VIP for Roblox account: {user_id}")
         embed3 = discord.Embed(
             title=f"{aesthetic.Emojis.thunderbolt} Thank you for purchasing the **WePeak Pass**, {interaction.user.display_name}!", color=aesthetic.Colors.main)
         embed3.description = f"I have assigned your roles and you are now part of the **WePeak Pass Members**! Enjoy these benefits for **all** of the events hosted by **WePeak** and thank you for supporting us!\n{aesthetic.Emojis.sally} If you do not see the VIP role in your server profile, please contact a staff member."
