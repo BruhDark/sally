@@ -6,7 +6,7 @@ from resources import aesthetic
 ROBLOX_USERS_ENDPOINT = "https://users.roblox.com/v1/users/"
 ROBLOX_USERNAMES_ENDPOINT = "https://users.roblox.com/v1/usernames/users"
 
-VERIFIED_ROLE_ID = 1245844059373961248
+VERIFIED_ROLE_ID = 1248773405923217428
 VIP_ROLE_ID = 1241530191725989928
 
 
@@ -14,7 +14,7 @@ class Embeds:
     @staticmethod
     async def profile_embed(roblox_data: dict, managed: bool = False) -> discord.Embed:
         username = roblox_data["data"]["name"]
-        avatar_url = roblox_data["data"]["avatar"]
+        avatar_url = roblox_data["data"]["avatar_url"]
         display_name = roblox_data["data"]["displayName"]
         roblox_id = roblox_data["roblox_id"]
         created = roblox_data["data"]["created"]
@@ -48,7 +48,7 @@ class Embeds:
 
 async def attempt_avatar_refresh(roblox_data: dict):
     async with aiohttp.ClientSession() as session:
-        async with session.get(roblox_data["data"]["avatar"]) as resp:
+        async with session.get(roblox_data["data"]["avatar_url"]) as resp:
             if resp.status == 200:
                 return
 
@@ -70,7 +70,7 @@ async def fetch_roblox_data(roblox_id: str) -> dict | None:
             if response.status == 404:
                 return
             roblox_data = await response.json()
-            roblox_data["avatar"] = avatar_url
+            roblox_data["avatar_url"] = avatar_url
 
     return roblox_data
 
@@ -90,8 +90,9 @@ async def update_discord_profile(guild: discord.Guild, user_id: int, roblox_data
     errors = []
     member = guild.get_member(user_id)
     try:
+        l_nickname = f"{roblox_data['displayName']} (@{roblox_data['name']})"
         nickname = roblox_data["name"] if len(
-            nickname) > 32 or roblox_data["displayName"] == roblox_data["name"] else f"{roblox_data['displayName']} (@{roblox_data['name']})"
+            l_nickname) > 32 or roblox_data["displayName"] == roblox_data["name"] else l_nickname
         await member.edit(nick=nickname)
     except:
         errors.append("edit your nickname")

@@ -303,6 +303,10 @@ class ManageRobloxAccountView(discord.ui.View):
         if verification.VIP_ROLE_ID in [role.id for role in author.roles] or self.managed:
             self.children[2].disabled = True
 
+        if self.managed:
+            self.add_item(discord.ui.Button(
+                label="You are account able to manage this account", emoji=aesthetic.Emojis.info, disabled=True))
+
     async def interaction_check(self, interaction: Interaction) -> bool:
         if interaction.user == self.author:
             return True
