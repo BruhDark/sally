@@ -5,6 +5,7 @@ import os
 import dotenv
 import traceback
 from datetime import datetime
+import aesthetic
 
 dotenv.load_dotenv()
 url = os.getenv("WEBHOOK_URL")
@@ -19,15 +20,15 @@ async def send(webhook_url=url, *args, **kwargs):
 
 def parse_status(status: str) -> tuple[str, discord.Color]:
     if status == "success":
-        return "<:Operational:882404710148083724>", discord.Color.green()
+        return "<:Operational:882404710148083724>", aesthetic.Colors.success
     elif status == "error":
-        return "<:MajorOutage:882404641286000681>", discord.Color.red()
+        return "<:MajorOutage:882404641286000681>", aesthetic.Colors.error
     elif status == "warning":
         return "<:PartialOutage:882404755949895730>", discord.Color.orange()
     elif status == "pending":
         return "<a:load:881972395626348648>", discord.Color.greyple()
     else:
-        return status, discord.Color.blurple()
+        return status, aesthetic.Colors.secondary
 
 
 async def send_log(user: discord.Member | int, actions: list[str], status: str) -> tuple[int, discord.Embed]:
@@ -93,7 +94,7 @@ async def send_command_error(ctx: commands.Context | discord.ApplicationContext,
         tb = tb + "\n"
 
         embed = discord.Embed(
-            title=f"<:x_:1174507495914471464> Something went wrong", color=discord.Color.red(), timestamp=datetime.utcnow())
+            title=f"{aesthetic.Emojis.error} Something went wrong", color=aesthetic.Colors.error, timestamp=datetime.utcnow())
         embed.description = f"```py\n{tb}```"
 
         embed.add_field(name="Author", value=f"{ctx.author} ({ctx.author.id})")
@@ -115,7 +116,7 @@ async def send_verification_error(interaction: discord.Interaction, error):
         tb = tb[-4050:]
 
         embed = discord.Embed(
-            title=f"<:x_:1174507495914471464> Verification failed", color=discord.Color.red(), timestamp=datetime.utcnow())
+            title=f"{aesthetic.Emojis.error} Verification failed", color=aesthetic.Colors.error, timestamp=datetime.utcnow())
         embed.description = f"```py\n{tb}```"
 
         embed.add_field(

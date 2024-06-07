@@ -1,13 +1,13 @@
 import discord
 from discord.ext import commands
-from resources import webhook_manager
+from resources import webhook_manager, aesthetic
 
 
 class OnCommandError(commands.Cog):
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
-        base_embed = discord.Embed(color=discord.Color.red())
-        base_embed.description = "<:x_:1174507495914471464> "
+        base_embed = discord.Embed(color=aesthetic.Colors.error)
+        base_embed.description = f"{aesthetic.Emojis.error} "
 
         if isinstance(error, commands.NotOwner):
             pass

@@ -16,7 +16,7 @@ class ButtonDelete(discord.ui.View):
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if self.command.author != interaction.user:
 
-            await interaction.response.send_message(content=f"<:x_:1174507495914471464> You can't use this button!", ephemeral=True)
+            await interaction.response.send_message(content=f"aesthetic.Colors.secondary You can't use this button!", ephemeral=True)
             return False
         return True
 
@@ -72,7 +72,7 @@ class Quote(commands.Cog):
 
                         embed = discord.Embed(
                             title=f"Jump to message", url=f"https://discord.com/channels/{server_id}/{channel_id}/{msg_id}",
-                            description=msg.content, color=discord.Color.nitro_pink(), timestamp=msg.created_at)
+                            description=msg.content, color=aesthetic.Colors.main, timestamp=msg.created_at)
                         embed.set_author(
                             name=f"{msg.author} in {msg.channel}", icon_url=msg.author.display_avatar.url)
                         embed.set_footer(

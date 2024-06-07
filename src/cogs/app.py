@@ -76,7 +76,7 @@ class App(commands.Cog):
 
         roblox_data = await get_roblox_info_by_rbxid(roblox_id)
         embed = discord.Embed(
-            color=discord.Color.nitro_pink(), title="<:user:988229844301131776> User Join Triggered", timestamp=datetime.datetime.now())
+            color=aesthetic.Colors.main, title="<:user:988229844301131776> User Join Triggered", timestamp=datetime.datetime.now())
 
         if roblox_data:
             embed.add_field(name="Discord Account",

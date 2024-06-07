@@ -21,7 +21,7 @@ class Translate(commands.Cog):
     async def translate(self, ctx: discord.ApplicationContext, language: discord.Option(str, description="Language to translate to", autocomplete=get_langs), text: discord.Option(str, "The text you want to translate")):  # type: ignore
         if language.lower() not in LANGS:
             languages = ", ".join(LANGS)
-            await ctx.reply(embed=discord.Embed(description=f"<:x_:1174507495914471464> Target language not found. Make sure it is one of these languages: ```{languages}```", color=discord.Color.red()))
+            await ctx.reply(embed=discord.Embed(description=ff"{aesthetic.Emojis.error} Target language not found. Make sure it is one of these languages: ```{languages}```", color=aesthetic.Colors.error))
             return
 
         await ctx.defer()

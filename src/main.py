@@ -55,6 +55,8 @@ class Sally(commands.Bot):
 
 sally = Sally()
 sally.status = discord.Status.idle
+sally.activity = discord.Activity(
+    type=discord.ActivityType.watching, name="the WePeak members")
 
 if __name__ == "__main__":
     sally.run(os.getenv("SALLY_TOKEN"))

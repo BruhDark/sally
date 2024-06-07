@@ -1,4 +1,5 @@
 import discord
+import aesthetic
 
 
 class ConfirmActionView(discord.ui.View):
@@ -7,7 +8,7 @@ class ConfirmActionView(discord.ui.View):
         self.confirmed = False
 
     async def on_timeout(self) -> None:
-        await self.message.edit(content="<:x_:1174507495914471464> This action was automatically cancelled, you took too long to respond.", view=None)
+        await self.message.edit(content=f"{aesthetic.Emojis.error} This action was automatically cancelled, you took too long to respond.", view=None)
 
     @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green)
     async def confirm(self, button: discord.ui.Button, interaction: discord.Interaction):
@@ -17,5 +18,5 @@ class ConfirmActionView(discord.ui.View):
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red)
     async def cancel(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.response.edit_message(content="<:x_:1174507495914471464> You cancelled this action.", view=None)
+        await interaction.response.edit_message(content=f"{aesthetic.Emojis.error} You cancelled this action.", view=None)
         self.stop()

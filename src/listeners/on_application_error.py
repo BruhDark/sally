@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from resources import webhook_manager
+from resources import webhook_manager, aesthetic
 import os
 import aiohttp
 import traceback
@@ -11,8 +11,8 @@ import sys
 class OnApplicationCommandError(commands.Cog):
     @commands.Cog.listener("on_application_command_error")
     async def on_application_command_error(self, ctx, error):
-        base_embed = discord.Embed(color=discord.Color.red())
-        base_embed.description = "<:x_:1174507495914471464> "
+        base_embed = discord.Embed(color=aesthetic.Colors.error)
+        base_embed.description = f"{aesthetic.Emojis.error} "
 
         if isinstance(error, commands.NoPrivateMessage):
             base_embed.description += "You can only use this command in a server."
@@ -41,7 +41,7 @@ class OnApplicationCommandError(commands.Cog):
             tb = tb + "\n" + str(sys.exc_info()[1])
 
             embed = discord.Embed(
-                title=f"Something Went Wrong | Event: {event}", color=discord.Color.red(),
+                title=f"Something Went Wrong | Event: {event}", color=aesthetic.Colors.error,
                 timestamp=datetime.utcnow())
             embed.description = f"```py\n{tb}```"
             await webhook.send(embed=embed)
