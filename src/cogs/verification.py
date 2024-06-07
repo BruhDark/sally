@@ -305,7 +305,7 @@ class ManageRobloxAccountView(discord.ui.View):
 
         if self.managed:
             self.add_item(discord.ui.Button(
-                label="You are account able to manage this account", emoji=aesthetic.Emojis.info, disabled=True))
+                label="You are able to manage this account", emoji=aesthetic.Emojis.info, disabled=True, row=1))
 
     async def interaction_check(self, interaction: Interaction) -> bool:
         if interaction.user == self.author:

@@ -3,7 +3,7 @@ from discord.ext import commands, tasks
 import os
 from aiohttp import web
 from resources.database import get_roblox_info_by_rbxid
-from resources import webhook_manager
+from resources import webhook_manager, verification, aesthetic
 import datetime
 import dotenv
 
@@ -169,7 +169,7 @@ class App(commands.Cog):
 
         staff_role = wepeak.get_role(1248770684612640910)
         artists_role = wepeak.get_role(1243320082957074473)
-        vip_role = wepeak.get_role(1241530191725989928)
+        vip_role = wepeak.get_role(verification.VIP_ROLE_ID)
 
         if staff_role in member.roles:
             data["staff"] = True
