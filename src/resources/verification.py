@@ -1,6 +1,5 @@
 import discord
 import aiohttp
-import database
 import datetime
 from resources import aesthetic
 
