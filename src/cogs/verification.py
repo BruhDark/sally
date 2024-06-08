@@ -50,7 +50,11 @@ class VerificationMethodsView(discord.ui.View):
         embed2.set_footer(text="This prompt will expire in 10 minutes",
                           icon_url=self.guild.icon.url)
 
-        await interaction.response.edit_message(embed=embed2, view=None)
+        link_button = discord.ui.Button(style=discord.ButtonStyle.url, label="Open Roblox profile",
+                                        url=f"https://roblox.com/users/{self.roblox_data['id']}/profile")
+        link_view = discord.ui.View(link_button)
+
+        await interaction.response.edit_message(embed=embed2, view=link_view)
         self.stop()
 
         try:
