@@ -73,7 +73,7 @@ class VerificationMethodsView(discord.ui.View):
 
         embed3 = discord.Embed(
             title=f"{aesthetic.Emojis.link} Thank you for verifying, {self.roblox_data['name']}!", color=aesthetic.Colors.main)
-        embed3.description = f"You will now be able to attend events hosted by **WePeak**!\n\n{aesthetic.Emojis.thunderbolt} **Want more benefits?** You can purchase the **WePeak Pass** and claim the role on your profile settings when using `/verify`"
+        embed3.description = f"You will now be able to attend events hosted by **WePeak**!\n\n{aesthetic.Emojis.thunderbolt} **Want more benefits?** You can purchase the **PeakPass** and claim the role on your profile settings when using `/verify`"
         embed3.set_thumbnail(url=self.avatar_url)
 
         errors = await verification.update_discord_profile(self.guild, interaction.user.id, self.roblox_data)
@@ -163,7 +163,7 @@ class VerificationMethodsView(discord.ui.View):
 
         embed3 = discord.Embed(
             title=f"{aesthetic.Emojis.link} Thank you for verifying, {self.roblox_data['name']}!", color=aesthetic.Colors.main)
-        embed3.description = f"You will now be able to attend events hosted by **WePeak**!\n\n{aesthetic.Emojis.thunderbolt} **Want more benefits?** You can purchase the **WePeak Pass** and claim the role on your profile settings when using `/verify`"
+        embed3.description = f"You will now be able to attend events hosted by **WePeak**!\n\n{aesthetic.Emojis.thunderbolt} **Want more benefits?** You can purchase the **PeakPass** and claim the role on your profile settings when using `/verify`"
         embed3.set_thumbnail(url=self.avatar_url)
 
         errors = await verification.update_discord_profile(self.guild, interaction.user.id, self.roblox_data)
@@ -351,7 +351,7 @@ class ManageRobloxAccountView(discord.ui.View):
         await interaction.edit_original_response(embed=embed)
         await interaction.followup.send(embed=discord.Embed(description=f"{aesthetic.Emojis.success} Successfully refreshed the Roblox data.", color=aesthetic.Colors.success), ephemeral=True)
 
-    @discord.ui.button(label="WePeak Pass", emoji=aesthetic.Emojis.thunderbolt, style=discord.ButtonStyle.blurple)
+    @discord.ui.button(label="PeakPass", emoji=aesthetic.Emojis.thunderbolt, style=discord.ButtonStyle.blurple)
     async def wepeak_pass_callback(self, button, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
 
@@ -367,7 +367,7 @@ class ManageRobloxAccountView(discord.ui.View):
                 resp = await response.json()
                 if not resp:
                     link_button = discord.ui.Button(
-                        style=discord.ButtonStyle.link, label="Buy WePeak Pass", url="https://www.roblox.com/game-pass/815912807")
+                        style=discord.ButtonStyle.link, label="Buy PeakPass", url="https://www.roblox.com/game-pass/815912807")
                     view = discord.ui.View(link_button)
                     await interaction.followup.send(embed=discord.Embed(description=f"{aesthetic.Emojis.sally} Please buy the gamepass before claiming the Discord role!", color=aesthetic.Colors.secondary), view=view, ephemeral=True)
                     return
@@ -377,8 +377,8 @@ class ManageRobloxAccountView(discord.ui.View):
             return await interaction.followup.send(embed=discord.Embed(description=f"{aesthetic.Emojis.error} Something went wrong while assigning the role. Please contact a staff member.", color=aesthetic.Colors.error), ephemeral=True)
 
         embed3 = discord.Embed(
-            title=f"{aesthetic.Emojis.thunderbolt} Thank you for purchasing the **WePeak Pass**, {interaction.user.display_name}!", color=aesthetic.Colors.main)
-        embed3.description = f"I have assigned your roles and you are now part of the **WePeak Pass Members**! Enjoy these benefits for **all** of the events hosted by **WePeak** and thank you for supporting us!\n{aesthetic.Emojis.sally} If you do not see the VIP role in your server profile, please contact a staff member."
+            title=f"{aesthetic.Emojis.thunderbolt} Thank you for purchasing the **PeakPass**, {interaction.user.display_name}!", color=aesthetic.Colors.main)
+        embed3.description = f"I have assigned your roles and you are now part of the **PeakPass Members**! Enjoy these benefits for **all** of the events hosted by **WePeak** and thank you for supporting us!\n{aesthetic.Emojis.sally} If you do not see the VIP role in your server profile, please contact a staff member."
         await interaction.followup.send(embed=embed3, ephemeral=True)
 
 
@@ -484,6 +484,7 @@ class Verification(commands.Cog):
 
         roblox_data = await verification.fetch_roblox_data(roblox_id)
         await db.add_roblox_info(user_id, roblox_id, roblox_data)
+        await verification.update_discord_profile(ctx.guild, user_id, roblox_data)
 
         await ctx.reply(embed=discord.Embed(description=f"{aesthetic.Emojis.success} Successfully forced verification on <@{user_id}> as Roblox account `{roblox_id}`", color=aesthetic.Colors.success), mention_author=False)
 

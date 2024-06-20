@@ -47,10 +47,11 @@ class Embeds:
 
 
 async def attempt_avatar_refresh(roblox_data: dict):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(roblox_data["data"]["avatar_url"]) as resp:
-            if resp.status == 200:
-                return
+    if roblox_data["data"]["avatar_url"]:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(roblox_data["data"]["avatar_url"]) as resp:
+                if resp.status == 200:
+                    return
 
     return await fetch_roblox_data(roblox_data["roblox_id"])
 
