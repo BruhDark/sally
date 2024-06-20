@@ -41,7 +41,7 @@ class Embeds:
                 roblox_data["data"]["description"]
             embed.title = f"<:info:881973831974154250> Roblox Information for {username}"
         else:
-            embed.description = "You are verified! You are able to attend events hosted by **WePeak**.\n\n<:info:881973831974154250> If you wish to **link another account**, first delete your linked account using the `Delete Account` button below and run this command again.\nIf your **Roblox information** is **outdated**, click the `Refresh Data` button.\n\n<:thunderbolt:987447657104560229> Looking to **claim your WePeak Pass role**? Click the `WePeak Pass` button below."
+            embed.description = "You are verified! You are able to attend events hosted by **WePeak**.\n\n<:info:881973831974154250> If you wish to **link another account**, first delete your linked account using the `Delete Account` button below and run this command again.\nIf your **Roblox information** is **outdated**, click the `Refresh Data` button.\n\n<:thunderbolt:987447657104560229> Looking to **claim your PeakPass role**? Click the `PeakPass` button below."
 
         return embed
 
