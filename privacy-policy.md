@@ -5,8 +5,7 @@ This document has the purpose to serve as a Privacy Policy for Sally (collective
 
 ## 📚 How we store and use your data
 
-Your data is stored on a MongoDB Atlas Cloud. All data stored is **public information** available to anyone. The data stored includes, but is not limtied to: your Discord ID, your Roblox username, avatar, description and other publicy available data that any user is able to fetch using Roblox's API.4
-The data stored is only exposed to MongoDB, so their policies 
+Your data is stored on a MongoDB Atlas Cloud. All data stored is **public information** available to anyone. The data stored includes, but is not limtied to: your Discord ID, your Roblox username, avatar, description and other publicy available data that any user is able to fetch using Roblox's API.
 
 The data Sally stores is solely used to fulfill its own purpose, providing a verification system and doing in-game checks. These in-game checks are done with a private API Sally provides, which require authorization and no data is exposed if the user making the request does not provide a valid authorization header.
 
