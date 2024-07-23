@@ -221,7 +221,7 @@ class VerifyView(discord.ui.View):
         try:
             embed1 = discord.Embed(
                 title=f"{aesthetic.Emojis.link} Roblox Information", color=aesthetic.Colors.main)
-            embed1.description = "Welcome to the verification process to link your Roblox account with Sally! This will only take five minutes.\nPlease provide me your **Roblox username**, not your display name.\n\n<:info:881973831974154250> All data stored is public information about your Roblox account. You can delete it at any time by using </verify:1183583727473917962> in a channel."
+            embed1.description = f"Welcome to the verification process to link your Roblox account with Sally! This will only take five minutes.\nPlease provide me your **Roblox username**, not your display name.\n\n{aesthetic.Emojis.info} By verifying you accept our [Terms of Service](<http://sally.darks.tech/terms>) and [Privacy Policy](<http://sally.darks.tech/privacy>)."
             embed1.timestamp = datetime.datetime.now(datetime.UTC)
             embed1.set_author(
                 name=f"Hello there, {interaction.user.display_name}!", icon_url=interaction.user.display_avatar.url)
