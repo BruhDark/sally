@@ -406,9 +406,10 @@ class Verification(commands.Cog):
                 await verification.update_discord_profile(ctx.guild, ctx.author.id, roblox_data["data"])
 
             embed = await verification.Embeds.profile_embed(roblox_data)
-            return await ctx.respond(embed=embed, view=ManageRobloxAccountView(ctx.author, str(ctx.author.id), roblox_data["roblox_id"]))
+            await ctx.respond(embed=embed, view=ManageRobloxAccountView(ctx.author, str(ctx.author.id), roblox_data["roblox_id"]))
+            return await ctx.followup.send(embed=discord.Embed(title=f"{aesthetic.Emojis.warning} Important Message!", description="We have now added a [Terms of Service](http://sally.darks.tech/terms) and [Privacy Policy](http://sally.darks.tech/privacy). By using Sally you accept these. Please make sure to check them.", color=aesthetic.Colors.warning), ephemeral=True)
 
-        await ctx.respond(content=":wave: To verify click the button below and follow the steps.", view=VerifyView(ctx.author))
+        await ctx.respond(content=f":wave: To verify click the button below and follow the steps.\n-# {aesthetic.Emojis.info} By verifying you accept our [Terms of Service](<http://sally.darks.tech/terms>) and [Privacy Policy](<http://sally.darks.tech/privacy>)", view=VerifyView(ctx.author))
 
     @commands.slash_command(description="Get someones Roblox information")
     @commands.guild_only()
