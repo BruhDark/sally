@@ -19,13 +19,13 @@ class Translate(commands.Cog):
         self.translator = googletrans.Translator()
 
     @slash_command(description="Translate text to another language", integration_types={discord.IntegrationType.user_install, discord.IntegrationType.guild_install})
-    async def translate(self, ctx: discord.ApplicationContext, language: discord.Option(str, description="Language to translate to", autocomplete=get_langs), text: discord.Option(str, "The text you want to translate")):  # type: ignore
+    async def translate(self, ctx: discord.ApplicationContext, language: discord.Option(str, description="Language to translate to", autocomplete=get_langs), text: discord.Option(str, "The text you want to translate"), hide: bool = False):  # type: ignore
         if language.lower() not in LANGS:
             languages = ", ".join(LANGS)
-            await ctx.reply(embed=discord.Embed(description=f"{aesthetic.Emojis.error} Target language not found. Make sure it is one of these languages: ```{languages}```", color=aesthetic.Colors.error))
+            await ctx.respond(embed=discord.Embed(description=f"{aesthetic.Emojis.error} Target language not found. Make sure it is one of these languages: ```{languages}```", color=aesthetic.Colors.error), ephemeral=True)
             return
 
-        await ctx.defer()
+        await ctx.defer(ephemeral=hide)
 
         translation = self.translator.translate(text, dest=language)
         translated_text = translation.text
@@ -42,7 +42,7 @@ class Translate(commands.Cog):
         embed.set_footer(
             text=f"{ctx.author}", icon_url=ctx.author.display_avatar.url)
 
-        await ctx.respond(embed=embed)
+        await ctx.respond(embed=embed, ephemeral=hide)
 
     @discord.message_command(name="Translate to English", description="Translate text to English")
     async def translate_english(self, ctx: discord.ApplicationContext, message: discord.Message):

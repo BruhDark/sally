@@ -76,9 +76,9 @@ class Misc(commands.Cog):
     @ commands.slash_command(integration_types={discord.IntegrationType.user_install}, description="Search through documentations")
     @ discord.option("documentation", description="The documentation to search in", choices=[*TARGETS.keys()])
     @ discord.option("query", description="The query to search for", autocomplete=rtfm_autocomplete)
-    async def rtfm(self, ctx: discord.ApplicationContext, documentation: str, query: str):
+    async def rtfm(self, ctx: discord.ApplicationContext, documentation: str, query: str, hide: bool = False):
         if not (results := await self.get_rtfm_results(documentation, query)):
-            return await ctx.respond("Couldn't find any results")
+            return await ctx.respond("Couldn't find any results", ephemeral=True)
 
         if len(results) <= 15:
             embed = discord.Embed(
@@ -104,7 +104,7 @@ class Misc(commands.Cog):
             custom_buttons=create_buttons(),
             use_default_buttons=False,
         )
-        await paginator.respond(ctx.interaction)
+        await paginator.respond(ctx.interaction, ephemeral=hide)
 
 
 def setup(bot):
