@@ -1,3 +1,4 @@
+import aiohttp
 import discord
 from discord.ext import commands
 from discord.utils import format_dt
@@ -26,16 +27,16 @@ class Misc(commands.Cog):
 
     async def build_documentation(self, target: str) -> None:
         url = TARGETS[target]
-        req = await self.bot.http_session.get(
-            OVERRIDES.get(target, url + "/objects.inv")
-        )
-        if req.status != 200:
-            raise discord.ApplicationCommandError(
-                f"Failed to build RTFM cache for {target}"
-            )
-        self.rtfm_cache[target] = SphinxObjectFileReader(
-            await req.read()
-        ).parse_object_inv(url)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(OVERRIDES.get(target, url + "/objects.inv")) as req:
+
+                if req.status != 200:
+                    raise discord.ApplicationCommandError(
+                        f"Failed to build RTFM cache for {target}"
+                    )
+                self.rtfm_cache[target] = SphinxObjectFileReader(
+                    await req.read()
+                ).parse_object_inv(url)
 
     async def get_rtfm_results(self, target: str, query: str) -> list:
         if not (cached := self.rtfm_cache.get(target)):
@@ -47,7 +48,7 @@ class Misc(commands.Cog):
         )
         return results
 
-    @commands.command()
+    @ commands.command()
     async def info(self, ctx: commands.Context):
 
         embed = discord.Embed(
@@ -58,8 +59,8 @@ class Misc(commands.Cog):
 
         await ctx.reply(embed=embed, mention_author=False)
 
-    @commands.command()
-    @commands.is_owner()
+    @ commands.command()
+    @ commands.is_owner()
     async def say(self, ctx: discord.ApplicationContext, *, text: str):
         try:
             await ctx.message.delete()
@@ -72,9 +73,9 @@ class Misc(commands.Cog):
 
         await message.reply(text) if message is not None else await ctx.send(text)
 
-    @commands.slash_command(integration_types={discord.IntegrationType.user_install}, description="Search through documentations")
-    @discord.option("documentation", description="The documentation to search in", choices=[*TARGETS.keys()])
-    @discord.option("query", description="The query to search for", autocomplete=rtfm_autocomplete)
+    @ commands.slash_command(integration_types={discord.IntegrationType.user_install}, description="Search through documentations")
+    @ discord.option("documentation", description="The documentation to search in", choices=[*TARGETS.keys()])
+    @ discord.option("query", description="The query to search for", autocomplete=rtfm_autocomplete)
     async def rtfm(self, ctx: discord.ApplicationContext, documentation: str, query: str):
         if not (results := await self.get_rtfm_results(documentation, query)):
             return await ctx.respond("Couldn't find any results")
