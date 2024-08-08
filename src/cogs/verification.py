@@ -320,9 +320,8 @@ class ManageRobloxAccountView(discord.ui.View):
     @discord.ui.button(label="Delete Account", emoji="<:delete:1055494235111034890>", style=discord.ButtonStyle.red)
     async def delete_callback(self, button, interaction: discord.Interaction):
         roblox_data = await db.get_roblox_info(str(self.user_id))
-        if not self.managed:
-            if roblox_data["blacklisted"]:
-                return await interaction.response.send_message(embed=discord.Embed(description=f"{aesthetic.Emojis.error} You can't delete your Roblox data while being blacklisted. Please contact Dark if you wish to delete your data.", color=aesthetic.Colors.error), ephemeral=True)
+        if not self.managed and roblox_data["blacklisted"]:
+            return await interaction.response.send_message(embed=discord.Embed(description=f"{aesthetic.Emojis.error} You can't delete your Roblox data while being blacklisted. Please contact Dark if you wish to delete your data.", color=aesthetic.Colors.error), ephemeral=True)
 
         await db.delete_roblox_info(str(self.user_id))
         member = interaction.guild.get_member(int(roblox_data["user_id"]))
