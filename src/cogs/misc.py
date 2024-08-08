@@ -8,7 +8,7 @@ from resources.rtfm import OVERRIDES, TARGETS, SphinxObjectFileReader, create_bu
 from discord.ext.pages import Paginator
 
 
-async def rtfm_autocomplete(ctx):
+async def rtfm_autocomplete(ctx: discord.AutocompleteContext):
     assert isinstance(ctx.cog, Misc)
     results = await ctx.cog.get_rtfm_results(ctx.options["documentation"], ctx.value)
     return [key for key, _ in results] if results else []
@@ -24,6 +24,7 @@ class Misc(commands.Cog):
         await self.bot.wait_until_ready()
         for target in TARGETS:
             self.bot.loop.create_task(self.build_documentation((target)))
+        print("RTFM cache built")
 
     async def build_documentation(self, target: str) -> None:
         url = TARGETS[target]
