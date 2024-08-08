@@ -18,7 +18,7 @@ class Translate(commands.Cog):
         self.bot = bot
         self.translator = googletrans.Translator()
 
-    @slash_command(description="Translate text to another language")
+    @slash_command(description="Translate text to another language", integration_types={discord.IntegrationType.user_install, discord.IntegrationType.guild_install})
     async def translate(self, ctx: discord.ApplicationContext, language: discord.Option(str, description="Language to translate to", autocomplete=get_langs), text: discord.Option(str, "The text you want to translate")):  # type: ignore
         if language.lower() not in LANGS:
             languages = ", ".join(LANGS)
