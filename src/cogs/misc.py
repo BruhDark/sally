@@ -2,11 +2,50 @@ import discord
 from discord.ext import commands
 from discord.utils import format_dt
 from discord.interactions import Interaction
+from discord.utils import as_chunks
+from resources.rtfm import OVERRIDES, TARGETS, SphinxObjectFileReader, create_buttons, finder
+from discord.ext.pages import Paginator
+
+
+async def rtfm_autocomplete(ctx):
+    assert isinstance(ctx.cog, Misc)
+    results = await ctx.cog.get_rtfm_results(ctx.options["documentation"], ctx.value)
+    return [key for key, _ in results] if results else []
 
 
 class Misc(commands.Cog):
     def __init__(self, bot: commands.Bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
+        self.rtfm_cache = {}
+        self.bot.loop.create_task(self.build_docs())
+
+    async def build_docs(self) -> None:
+        await self.bot.wait_until_ready()
+        for target in TARGETS:
+            self.bot.loop.create_task(self.build_documentation((target)))
+
+    async def build_documentation(self, target: str) -> None:
+        url = TARGETS[target]
+        req = await self.bot.http_session.get(
+            OVERRIDES.get(target, url + "/objects.inv")
+        )
+        if req.status != 200:
+            raise discord.ApplicationCommandError(
+                f"Failed to build RTFM cache for {target}"
+            )
+        self.rtfm_cache[target] = SphinxObjectFileReader(
+            await req.read()
+        ).parse_object_inv(url)
+
+    async def get_rtfm_results(self, target: str, query: str) -> list:
+        if not (cached := self.rtfm_cache.get(target)):
+            return []
+        results = await finder(
+            query,
+            list(cached.items()),
+            key=lambda x: x[0],
+        )
+        return results
 
     @commands.command()
     async def info(self, ctx: commands.Context):
@@ -32,6 +71,39 @@ class Misc(commands.Cog):
             message) if message is not None else None
 
         await message.reply(text) if message is not None else await ctx.send(text)
+
+    @commands.slash_command(integration_types={discord.IntegrationType.user_install}, description="Search through documentations")
+    @discord.option("documentation", description="The documentation to search in", choices=[*TARGETS.keys()])
+    @discord.option("query", description="The query to search for", autocomplete=rtfm_autocomplete)
+    async def rtfm(self, ctx: discord.ApplicationContext, documentation: str, query: str):
+        if not (results := await self.get_rtfm_results(documentation, query)):
+            return await ctx.respond("Couldn't find any results")
+
+        if len(results) <= 15:
+            embed = discord.Embed(
+                title=f"Searched in {documentation}",
+                description="\n".join(
+                    [f"[`{key}`]({url})" for key, url in results]),
+                color=discord.Color.blurple(),
+            )
+            return await ctx.respond(embed=embed)
+
+        chunks = as_chunks(iter(results), 15)
+        embeds = [
+            discord.Embed(
+                title=f"Searched in {documentation}",
+                description="\n".join(
+                    [f"[`{key}`]({url})" for key, url in chunk]),
+                color=discord.Color.blurple(),
+            )
+            for chunk in chunks
+        ]
+        paginator = Paginator(
+            embeds,  # type: ignore # embeds is compatible
+            custom_buttons=create_buttons(),
+            use_default_buttons=False,
+        )
+        await paginator.respond(ctx.interaction)
 
 
 def setup(bot):
