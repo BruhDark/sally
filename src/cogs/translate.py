@@ -19,7 +19,10 @@ class Translate(commands.Cog):
         self.translator = googletrans.Translator()
 
     @slash_command(description="Translate text to another language", integration_types={discord.IntegrationType.user_install, discord.IntegrationType.guild_install})
-    async def translate(self, ctx: discord.ApplicationContext, language: discord.Option(str, description="Language to translate to", autocomplete=get_langs), text: discord.Option(str, "The text you want to translate"), hide: bool = False):  # type: ignore
+    @discord.option("language", description="Language to translate to", autocomplete=get_langs)
+    @discord.option("text", description="The text you want to translate")
+    @discord.option("hide", description="Hide the response", default=False)
+    async def translate(self, ctx: discord.ApplicationContext, language: str, text: str, hide: bool):  # type: ignore
         if language.lower() not in LANGS:
             languages = ", ".join(LANGS)
             await ctx.respond(embed=discord.Embed(description=f"{aesthetic.Emojis.error} Target language not found. Make sure it is one of these languages: ```{languages}```", color=aesthetic.Colors.error), ephemeral=True)

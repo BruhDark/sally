@@ -77,7 +77,8 @@ class Misc(commands.Cog):
     @commands.slash_command(integration_types={discord.IntegrationType.user_install}, description="Search through documentations")
     @discord.option("documentation", description="The documentation to search in", choices=[*TARGETS.keys()])
     @discord.option("query", description="The query to search for", autocomplete=rtfm_autocomplete)
-    async def rtfm(self, ctx: discord.ApplicationContext, documentation: str, query: str, hide: bool = False):
+    @discord.option("hide", description="Hide the response", default=False)
+    async def rtfm(self, ctx: discord.ApplicationContext, documentation: str, query: str, hide: bool):
         if not (results := await self.get_rtfm_results(documentation, query)):
             return await ctx.respond("Couldn't find any results", ephemeral=True)
 
