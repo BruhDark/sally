@@ -100,9 +100,8 @@ class Misc(commands.Cog):
             )
             for chunk in chunks
         ]
-        paginator = Paginator(
-            embeds  # type: ignore # embeds is compatible
-        )
+        print(len(embeds))
+        paginator = Paginator(embeds, author_check=True, loop_pages=True)
         await paginator.respond(ctx.interaction, ephemeral=hide)
 
 
