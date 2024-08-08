@@ -49,7 +49,7 @@ class Misc(commands.Cog):
         )
         return results
 
-    @ commands.command()
+    @commands.command()
     async def info(self, ctx: commands.Context):
 
         embed = discord.Embed(
@@ -60,8 +60,8 @@ class Misc(commands.Cog):
 
         await ctx.reply(embed=embed, mention_author=False)
 
-    @ commands.command()
-    @ commands.is_owner()
+    @commands.command()
+    @commands.is_owner()
     async def say(self, ctx: discord.ApplicationContext, *, text: str):
         try:
             await ctx.message.delete()
@@ -74,9 +74,9 @@ class Misc(commands.Cog):
 
         await message.reply(text) if message is not None else await ctx.send(text)
 
-    @ commands.slash_command(integration_types={discord.IntegrationType.user_install}, description="Search through documentations")
-    @ discord.option("documentation", description="The documentation to search in", choices=[*TARGETS.keys()])
-    @ discord.option("query", description="The query to search for", autocomplete=rtfm_autocomplete)
+    @commands.slash_command(integration_types={discord.IntegrationType.user_install}, description="Search through documentations")
+    @discord.option("documentation", description="The documentation to search in", choices=[*TARGETS.keys()])
+    @discord.option("query", description="The query to search for", autocomplete=rtfm_autocomplete)
     async def rtfm(self, ctx: discord.ApplicationContext, documentation: str, query: str, hide: bool = False):
         if not (results := await self.get_rtfm_results(documentation, query)):
             return await ctx.respond("Couldn't find any results", ephemeral=True)
@@ -101,9 +101,7 @@ class Misc(commands.Cog):
             for chunk in chunks
         ]
         paginator = Paginator(
-            embeds,  # type: ignore # embeds is compatible
-            custom_buttons=create_buttons(),
-            use_default_buttons=False,
+            embeds  # type: ignore # embeds is compatible
         )
         await paginator.respond(ctx.interaction, ephemeral=hide)
 
