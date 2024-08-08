@@ -89,7 +89,7 @@ class Misc(commands.Cog):
                     [f"[`{key}`]({url})" for key, url in results]),
                 color=discord.Color.blurple(),
             )
-            return await ctx.respond(embed=embed)
+            return await ctx.respond(embed=embed, ephemeral=hide)
 
         chunks = as_chunks(iter(results), 15)
         embeds = [
@@ -101,8 +101,13 @@ class Misc(commands.Cog):
             )
             for chunk in chunks
         ]
-        print(len(embeds))
-        paginator = Paginator(embeds, author_check=True, loop_pages=True)
+
+        paginator = Paginator(
+            embeds,
+            author_check=True,
+            use_default_buttons=False,
+            custom_buttons=create_buttons()
+        )
         await paginator.respond(ctx.interaction, ephemeral=hide)
 
 
