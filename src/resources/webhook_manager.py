@@ -100,8 +100,9 @@ async def send_command_error(ctx: commands.Context | discord.ApplicationContext,
         embed.add_field(name="Author", value=f"{ctx.author} ({ctx.author.id})")
         embed.add_field(
             name="Command", value=f"{ctx.command.qualified_name}")
+
         embed.add_field(
-            name="Guild", value=f"{ctx.guild.name} ({ctx.guild.id})")
+            name="Guild", value=f"{ctx.guild.name} ({ctx.guild.id})" if ctx.guild else "None")
 
         await webhook.send(embed=embed)
 
