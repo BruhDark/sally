@@ -392,7 +392,7 @@ class Verification(commands.Cog):
             if result.deleted_count != 0:
                 await webhook_manager.send_log(member, ["User left the guild", "Deleted Roblox data"], "warning")
 
-    @commands.slash_command(description="Verify or delete your verified account with Sally")
+    @commands.slash_command(description="Verify or delete your verified account with Sally", contexts={discord.InteractionContextType.guild})
     @commands.guild_only()
     async def verify(self, ctx: discord.ApplicationContext):
         await ctx.defer()
@@ -410,9 +410,11 @@ class Verification(commands.Cog):
 
         await ctx.respond(content=f":wave: To verify click the button below and follow the steps.\n-# {aesthetic.Emojis.info} By verifying you accept our [Terms of Service](<http://sally.darks.tech/terms>) and [Privacy Policy](<http://sally.darks.tech/privacy>)", view=VerifyView(ctx.author))
 
-    @commands.slash_command(description="Get someones Roblox information")
+    @commands.slash_command(description="Get someones Roblox information", contexts={discord.InteractionContextType.guild})
     @commands.guild_only()
-    async def getinfo(self, ctx: discord.ApplicationContext, user: discord.Option(discord.Member, "The user to get the info from", default=None), roblox_id: discord.Option(str, "The Roblox ID to look up for", default=None)):  # type: ignore
+    @discord.option("user", "The user to get the info from", default=None)
+    @discord.option("roblox_id", "The Roblox ID to look up for", default=None)
+    async def getinfo(self, ctx: discord.ApplicationContext, user: discord.Member, roblox_id: str):  # type: ignore
         if user and roblox_id:
             return await ctx.respond(embed=discord.Embed(description=f"{aesthetic.Emojis.error} You have to either provide a `user` **or** `roblox_id`.", color=aesthetic.Colors.error))
         elif not user and not roblox_id:
@@ -442,22 +444,21 @@ class Verification(commands.Cog):
         else:
             await ctx.respond(embed=discord.Embed(description=f"{aesthetic.Emojis.error} This user is not linked with Sally.", color=aesthetic.Colors.error))
 
-    @commands.slash_command(description="Blacklist or unblacklist a user")
+    @commands.command(description="Blacklist or unblacklist a user")
     @commands.is_owner()
-    async def blacklist(self, ctx: discord.ApplicationContext, user: discord.Option(discord.Member, "The user to blacklist/unblacklist"), reason: discord.Option(str, "The reason of the blacklist", default="Blacklisted")):  # type: ignore
-        await ctx.defer()
+    async def blacklist(self, ctx: commands.Context, user: discord.Member, reason: str):
         roblox_data = await db.get_roblox_info(user.id)
         if roblox_data:
             if not roblox_data["blacklisted"]:
                 await db.blacklist_roblox_user(user.id, reason)
-                await ctx.respond(embed=discord.Embed(description=f"{aesthetic.Emojis.success} Successfully **blacklisted** {user.mention} with Roblox account `{roblox_data['data']['name']}`.", color=aesthetic.Colors.success))
+                await ctx.reply(embed=discord.Embed(description=f"{aesthetic.Emojis.success} Successfully **blacklisted** {user.mention} with Roblox account `{roblox_data['data']['name']}`.", color=aesthetic.Colors.success))
 
             else:
                 await db.remove_blacklist_roblox(user.id)
-                await ctx.respond(embed=discord.Embed(description=f"{aesthetic.Emojis.success} Successfully **unblacklisted** {user.mention} with Roblox account `{roblox_data['data']['name']}`.", color=aesthetic.Colors.success))
+                await ctx.reply(embed=discord.Embed(description=f"{aesthetic.Emojis.success} Successfully **unblacklisted** {user.mention} with Roblox account `{roblox_data['data']['name']}`.", color=aesthetic.Colors.success))
 
         else:
-            await ctx.respond(embed=discord.Embed(description=f"{aesthetic.Emojis.error} This user is not linked with Sally."))
+            await ctx.reply(embed=discord.Embed(description=f"{aesthetic.Emojis.error} This user is not linked with Sally."))
 
     @commands.command(name="checkalts")
     @commands.is_owner()
