@@ -22,7 +22,7 @@ class Translate(commands.Cog):
     @discord.option("language", description="Language to translate to", autocomplete=get_langs)
     @discord.option("text", description="The text you want to translate")
     @discord.option("hide", description="Hide the response", default=False)
-    async def translate(self, ctx: discord.ApplicationContext, language: str, text: str, hide: bool):  # type: ignore
+    async def translate(self, ctx: discord.ApplicationContext, language: str, text: str, hide: bool):
         if language.lower() not in LANGS:
             languages = ", ".join(LANGS)
             await ctx.respond(embed=discord.Embed(description=f"{aesthetic.Emojis.error} Target language not found. Make sure it is one of these languages: ```{languages}```", color=aesthetic.Colors.error), ephemeral=True)
@@ -66,6 +66,7 @@ class Translate(commands.Cog):
 
         await ctx.respond(embed=embed, ephemeral=True)
 
+    '''
     @discord.message_command(name="Traducir al Español", description="Traduce el mensaje al español")
     async def translate_spanish(self, ctx: discord.ApplicationContext, message: discord.Message):
         translation = self.translator.translate(message.content, dest="es")
@@ -84,6 +85,7 @@ class Translate(commands.Cog):
             text=f"{ctx.author}", icon_url=ctx.author.display_avatar.url)
 
         await ctx.respond(embed=embed, ephemeral=True)
+    '''
 
 
 def setup(bot: commands.Bot):
