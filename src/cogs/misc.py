@@ -78,9 +78,18 @@ class Misc(commands.Cog):
     @discord.option("documentation", description="The documentation to search in", choices=[*TARGETS.keys()])
     @discord.option("query", description="The query to search for", autocomplete=rtfm_autocomplete)
     @discord.option("hide", description="Hide the response", default=False)
-    async def rtfm(self, ctx: discord.ApplicationContext, documentation: str, query: str, hide: bool):
+    @discord.option("show_all", description="Show all results", default=False)
+    async def rtfm(self, ctx: discord.ApplicationContext, documentation: str, query: str, hide: bool, show_all: bool):
         if not (results := await self.get_rtfm_results(documentation, query)):
             return await ctx.respond("Couldn't find any results", ephemeral=True)
+
+        if not show_all:
+            embed = discord.Embed(
+                title=f"Searched in {documentation}",
+                description=f"[`{results[0][0]}`]({results[0][1]})",
+                color=discord.Color.blurple(),
+            )
+            return await ctx.respond(embed=embed, ephemeral=hide)
 
         if len(results) <= 15:
             embed = discord.Embed(
