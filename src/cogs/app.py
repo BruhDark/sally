@@ -93,7 +93,10 @@ class App(commands.Cog):
                             value=f"<@{roblox_data['user_id']}> ({roblox_data['user_id']})")
             embed.add_field(name="Roblox Account",
                             value=f"{roblox_data['data']['name']} ({roblox_data['data']['id']})")
-            embed.set_thumbnail(url=roblox_data["data"]["avatar"])
+            try:
+                embed.set_thumbnail(url=roblox_data["data"]["avatar"])
+            except KeyError:
+                pass
 
         else:
             embed.add_field(name="Discord Account",
