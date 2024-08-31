@@ -412,12 +412,14 @@ class Verification(commands.Cog):
 
     @commands.slash_command(description="Get someones Roblox information", contexts={discord.InteractionContextType.guild})
     @commands.guild_only()
-    @discord.option("user", "The user to get the info from", default=None)
+    @discord.option("user", discord.Member, "The user to get the info from", default=None)
     @discord.option("roblox_id", "The Roblox ID to look up for", default=None)
     async def getinfo(self, ctx: discord.ApplicationContext, user: discord.Member, roblox_id: str):  # type: ignore
         if user and roblox_id:
-            return await ctx.respond(embed=discord.Embed(description=f"{aesthetic.Emojis.error} You have to either provide a `user` **or** `roblox_id`.", color=aesthetic.Colors.error))
-        elif not user and not roblox_id:
+            await ctx.respond(embed=discord.Embed(description=f"{aesthetic.Emojis.error} You have to either provide a `user` **or** `roblox_id`.", color=aesthetic.Colors.error))
+            return
+
+        if not user and not roblox_id:
             user: discord.Member = ctx.author
 
         await ctx.defer()
