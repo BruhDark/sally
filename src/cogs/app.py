@@ -94,7 +94,7 @@ class App(commands.Cog):
             embed.add_field(name="Roblox Account",
                             value=f"{roblox_data['data']['name']} ({roblox_data['data']['id']})")
             try:
-                embed.set_thumbnail(url=roblox_data["data"]["avatar"])
+                embed.set_thumbnail(url=roblox_data["data"]["avatar_url"])
             except KeyError:
                 pass
 
