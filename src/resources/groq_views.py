@@ -14,7 +14,7 @@ class FollowConversationModal(discord.ui.Modal):
                       label="Prompt", placeholder="Enter a prompt", max_length=1024))
 
     async def callback(self, interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=self.hidden)
+        await interaction.response.defer(ephemeral=self.hidden, invisible=False)
         messages = self.messages + \
             [{"role": "user", "content": self.children[0].value}]
         chat_completion = await self.groq_client.chat.completions.create(messages=messages, model="llama3-70b-8192", max_tokens=1024)
@@ -25,7 +25,7 @@ class FollowConversationModal(discord.ui.Modal):
         try:
             await interaction.followup.send(content=formatted_response, view=FollowConversation(self.groq_client, new_messages, self.hidden), ephemeral=self.hidden)
         except Exception as e:
-            await interaction.followup.send(content=f"<:error:1283509705376923648> The response the model returned was somehow too big or something went wrong. You can continue the conversation or start a new one.", view=FollowConversation(self.groq_client, new_messages, self.hidden), ephemeral=self.hidden)
+            await interaction.followup.send(content=f"<:error:1283509705376923648> The response the model returned was somehow too big or something went wrong. You can continue the conversation or start a new one.\n-# <:prompt:1283501054079799419> Prompt: {self.children[0].value} by {interaction.user.name} - Continued from previous conversation ({len(messages)} messages)", view=FollowConversation(self.groq_client, new_messages, self.hidden), ephemeral=self.hidden)
             raise e
 
 
