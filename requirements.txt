@@ -9,4 +9,4 @@ dnspython
 psutil
 jishaku
 googletrans>=4.0.0-rc1
-groq
+groq>=0.11.0
