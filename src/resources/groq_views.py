@@ -16,7 +16,7 @@ class FollowConversationModal(discord.ui.Modal):
         await interaction.response.defer(ephemeral=self.hidden)
         messages = self.messages + \
             [{"role": "user", "content": self.children[0].value}]
-        chat_completion = await self.groq_client.chat.completions.create(messages=messages, model="llama3-8b-8192")
+        chat_completion = await self.groq_client.chat.completions.create(messages=messages, model="llama3-8b-8192", max_tokens=1024)
         response = chat_completion.choices[0].message.content
 
         new_messages = messages + [{"role": "system", "content": response}]
