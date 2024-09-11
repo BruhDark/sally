@@ -2,7 +2,7 @@ import datetime
 import discord
 from discord.ext import commands
 from discord import slash_command
-import googletrans
+# import googletrans
 from resources import aesthetic
 
 LANGS = ["af", "am", "ar", "az", "be", "bg", "bn", "bs", "ca", "ceb", "co", "cs", "cy", "da", "de", "el", "en", "eo", "es", "et", "eu", "fa", "fi", "fr", "fy", "ga", "gd", "gl", "gu", "ha", "haw", "he", "hi", "hmn", "hr", "ht", "hu", "hy", "id", "ig", "is", "it", "iw", "ja", "jw", "ka", "kk", "km", "kn", "ko", "ku", "ky", "la", "lb", "lo",
@@ -16,13 +16,15 @@ def get_langs(ctx: discord.AutocompleteContext):
 class Translate(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.translator = googletrans.Translator()
+        self.translator = None  # googletrans.Translator()
 
     @slash_command(description="Translate text to another language", integration_types={discord.IntegrationType.user_install, discord.IntegrationType.guild_install})
     @discord.option("language", description="Language to translate to", autocomplete=get_langs)
     @discord.option("text", description="The text you want to translate")
     @discord.option("hide", description="Hide the response", default=False)
     async def translate(self, ctx: discord.ApplicationContext, language: str, text: str, hide: bool):
+        return await ctx.respond(embed=discord.Embed(description=f"{aesthetic.Emojis.error} This command is disabled due to the Google Translate API being disabled.", color=aesthetic.Colors.error), ephemeral=True)
+
         if language.lower() not in LANGS:
             languages = ", ".join(LANGS)
             await ctx.respond(embed=discord.Embed(description=f"{aesthetic.Emojis.error} Target language not found. Make sure it is one of these languages: ```{languages}```", color=aesthetic.Colors.error), ephemeral=True)
@@ -49,6 +51,8 @@ class Translate(commands.Cog):
 
     @discord.message_command(name="Translate to English", description="Translate text to English")
     async def translate_english(self, ctx: discord.ApplicationContext, message: discord.Message):
+        return await ctx.respond(embed=discord.Embed(description=f"{aesthetic.Emojis.error} This command is disabled due to the Google Translate API being disabled.", color=aesthetic.Colors.error), ephemeral=True)
+
         translation = self.translator.translate(message.content)
         translated_text = translation.text
         detected_source_lang = translation.src
