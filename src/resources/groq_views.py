@@ -20,7 +20,7 @@ class FollowConversationModal(discord.ui.Modal):
         response = chat_completion.choices[0].message.content
 
         new_messages = messages + [{"role": "system", "content": response}]
-        await interaction.followup.send(response, view=FollowConversation(new_messages), ephemeral=self.hidden)
+        await interaction.followup.send(response, view=FollowConversation(self.groq_client, new_messages, self.hidden), ephemeral=self.hidden)
 
 
 class FollowConversation(discord.ui.View):
