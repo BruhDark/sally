@@ -22,7 +22,11 @@ class FollowConversationModal(discord.ui.Modal):
 
         new_messages = messages + [{"role": "system", "content": response}]
         formatted_response = f"<:response:1283501616800075816> {response}\n-# <:prompt:1283501054079799419> Prompt: {self.children[0].value} by {interaction.user.name} - Continued from previous conversation ({len(messages)} messages)"
-        await interaction.followup.send(content=formatted_response, view=FollowConversation(self.groq_client, new_messages, self.hidden), ephemeral=self.hidden)
+        try:
+            await interaction.followup.send(content=formatted_response, view=FollowConversation(self.groq_client, new_messages, self.hidden), ephemeral=self.hidden)
+        except Exception as e:
+            await interaction.followup.send(content=f"<:error:1283509705376923648> The response the model returned was somehow too big or something went wrong. You can continue the conversation or start a new one.", view=FollowConversation(self.groq_client, new_messages, self.hidden), ephemeral=self.hidden)
+            raise e
 
 
 class FollowConversation(discord.ui.View):
