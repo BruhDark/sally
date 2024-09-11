@@ -5,7 +5,7 @@ from groq import AsyncGroq
 
 class FollowConversationModal(discord.ui.Modal):
     def __init__(self, messages: list[dict], hidden: bool, *args, **kwargs):
-        super().__init__(title="", timeout=None, *args, **kwargs)
+        super().__init__(title="Continue Conversation", timeout=None, *args, **kwargs)
         self.messages = messages
         self.hidden = hidden
         self.add_item(InputText(style=discord.InputTextStyle.long,
@@ -31,5 +31,7 @@ class FollowConversation(discord.ui.View):
 
     @discord.ui.button(label="Continue Conversation")
     async def callback(self, button, interaction: discord.Interaction):
+        button.disabled = True
         modal = FollowConversationModal(self.messages, self.hidden)
         await interaction.response.send_modal(modal)
+        await interaction.edit_original_response(view=self)
