@@ -6,6 +6,8 @@ from discord.interactions import Interaction
 from discord.utils import as_chunks
 from resources.rtfm import OVERRIDES, TARGETS, SphinxObjectFileReader, create_buttons, finder
 from discord.ext.pages import Paginator
+from groq import AsyncGroq
+from resources.groq_views import FollowConversation
 
 
 async def rtfm_autocomplete(ctx: discord.AutocompleteContext):
@@ -19,6 +21,7 @@ class Misc(commands.Cog):
         self.bot: commands.Bot = bot
         self.rtfm_cache = {}
         self.bot.loop.create_task(self.build_docs())
+        self.groq = AsyncGroq()
 
     async def build_docs(self) -> None:
         await self.bot.wait_until_ready()
@@ -118,6 +121,19 @@ class Misc(commands.Cog):
             custom_buttons=create_buttons()
         )
         await paginator.respond(ctx.interaction, ephemeral=hide)
+
+    @commands.slash_command(description="Ask AI a prompt.", integration_types={discord.IntegrationType.user_install})
+    @discord.option("prompt", description="The prompt to ask AI")
+    @discord.option("hide", description="Hide the response", default=False)
+    async def ask(self, ctx: discord.ApplicationContext, prompt: str, hide: bool):
+        await ctx.defer(ephemeral=hide)
+        messages = [{"role": "user", "content": prompt}]
+        chat_completion = await self.groq.chat.completions.create(messages=messages, model="llama3-8b-8192")
+        response = chat_completion.choices[0].message.content
+
+        new_messages = messages + [{"role": "system", "content": response}]
+
+        await ctx.respond(content=response, view=FollowConversation(new_messages, hide), ephemeral=hide)
 
 
 def setup(bot):
