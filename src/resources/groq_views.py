@@ -17,7 +17,7 @@ class FollowConversationModal(discord.ui.Modal):
         await interaction.response.defer(ephemeral=self.hidden)
         messages = self.messages + \
             [{"role": "user", "content": self.children[0].value}]
-        chat_completion = await self.groq_client.chat.completions.create(messages=messages, model="llama3-8b-8192", max_tokens=1024)
+        chat_completion = await self.groq_client.chat.completions.create(messages=messages, model="llama3-70b-8192", max_tokens=1024)
         response = chat_completion.choices[0].message.content
 
         new_messages = messages + [{"role": "system", "content": response}]
@@ -32,9 +32,10 @@ class FollowConversation(discord.ui.View):
         self.hidden = hidden
         self.groq_client = groq_client
 
-    @discord.ui.button(label="Continue Conversation", style=discord.ButtonStyle.primary, emoji="<:prompt:1283501054079799419>")
+    @discord.ui.button(label="Continue Conversation", style=discord.ButtonStyle.grey, emoji="<:response:1283501616800075816>")
     async def callback(self, button, interaction: discord.Interaction):
         button.disabled = True
+        button.label = f"Continued by {interaction.user.name}"
         modal = FollowConversationModal(
             self.groq_client, self.messages, self.hidden)
         await interaction.response.send_modal(modal)
