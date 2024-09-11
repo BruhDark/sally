@@ -21,7 +21,7 @@ class FollowConversationModal(discord.ui.Modal):
         response = chat_completion.choices[0].message.content
 
         new_messages = messages + [{"role": "system", "content": response}]
-        formatted_response = f"{Emojis.user}: {self.children[0].value}\n{Emojis.sally}: {response}"
+        formatted_response = f"<:user:1283499833075962010> {self.children[0].value}\n\n<:Sally:1283499062389117068> {response}"
         await interaction.followup.send(content=formatted_response, view=FollowConversation(self.groq_client, new_messages, self.hidden), ephemeral=self.hidden)
 
 
