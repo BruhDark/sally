@@ -132,8 +132,9 @@ class Misc(commands.Cog):
         response = chat_completion.choices[0].message.content
 
         new_messages = messages + [{"role": "system", "content": response}]
+        formatted_response = f"<:response:1283501616800075816> {response}\n-# <:prompt:1283501054079799419> Prompt: {prompt}"
 
-        await ctx.respond(content=response, view=FollowConversation(self.groq_client, new_messages, hide), ephemeral=hide)
+        await ctx.respond(content=formatted_response, view=FollowConversation(self.groq_client, new_messages, hide), ephemeral=hide)
 
 
 def setup(bot):

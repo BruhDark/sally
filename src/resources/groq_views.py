@@ -11,7 +11,7 @@ class FollowConversationModal(discord.ui.Modal):
         self.hidden = hidden
         self.groq_client: groq.AsyncGroq = groq_client
         self.add_item(InputText(style=discord.InputTextStyle.long,
-                      label="Prompt", placeholder="Enter a prompt"))
+                      label="Prompt", placeholder="Enter a prompt", max_length=1024))
 
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=self.hidden)
@@ -21,7 +21,7 @@ class FollowConversationModal(discord.ui.Modal):
         response = chat_completion.choices[0].message.content
 
         new_messages = messages + [{"role": "system", "content": response}]
-        formatted_response = f"<:user:1283499833075962010> {self.children[0].value}\n\n<:Sally:1283499062389117068> {response}"
+        formatted_response = f"<:response:1283501616800075816> {response}\n-# <:prompt:1283501054079799419> Prompt: {self.children[0].value} - Continued from previous conversation"
         await interaction.followup.send(content=formatted_response, view=FollowConversation(self.groq_client, new_messages, self.hidden), ephemeral=self.hidden)
 
 
