@@ -1,6 +1,7 @@
 import discord
 from discord.ui.input_text import InputText
 import groq
+from resources.aesthetic import Emojis
 
 
 class FollowConversationModal(discord.ui.Modal):
@@ -20,7 +21,8 @@ class FollowConversationModal(discord.ui.Modal):
         response = chat_completion.choices[0].message.content
 
         new_messages = messages + [{"role": "system", "content": response}]
-        await interaction.followup.send(response, view=FollowConversation(self.groq_client, new_messages, self.hidden), ephemeral=self.hidden)
+        formatted_response = f"{Emojis.user}: {self.children[0].value}\n{Emojis.sally}: {response}"
+        await interaction.followup.send(content=formatted_response, view=FollowConversation(self.groq_client, new_messages, self.hidden), ephemeral=self.hidden)
 
 
 class FollowConversation(discord.ui.View):
