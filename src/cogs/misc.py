@@ -6,6 +6,7 @@ from discord.interactions import Interaction
 from discord.utils import as_chunks
 from resources.rtfm import OVERRIDES, TARGETS, SphinxObjectFileReader, create_buttons, finder
 from discord.ext.pages import Paginator
+import groq
 from groq import AsyncGroq
 from resources.groq_views import FollowConversation
 
@@ -123,18 +124,38 @@ class Misc(commands.Cog):
         await paginator.respond(ctx.interaction, ephemeral=hide)
 
     @commands.slash_command(description="Ask AI a prompt.", integration_types={discord.IntegrationType.user_install})
-    @discord.option("prompt", description="The prompt to ask AI")
+    @discord.option("prompt", description="The prompt to ask AI", max_lenght=400)
     @discord.option("hide", description="Hide the response", default=False)
     async def ask(self, ctx: discord.ApplicationContext, prompt: str, hide: bool):
         await ctx.defer(ephemeral=hide)
-        messages = [{"role": "user", "content": prompt}]
-        chat_completion = await self.groq_client.chat.completions.create(messages=messages, model="llama3-70b-8192", max_tokens=900)
+        messages = [{"role": "system", "content": "You are an AI assistant, you are part of a feature integration in a Discord bot where users can submit a command to ask you a question (prompt). Your answers should remain in a short or medium lenght almost all the time, there is nothing wrong with a large lenght answer, BUT, there is a limit of 2000 characters for messages, you should avoid hitting that limit, so your responses should be at max 1600 or 1700 characters because the final formatted response with your responses to prompts has aditional characters."}, {
+            "role": "user", "content": prompt}]
+        chat_completion = await self.groq_client.chat.completions.create(messages=messages, model="llama3-70b-8192", max_tokens=350)
         response = chat_completion.choices[0].message.content
 
         new_messages = messages + [{"role": "system", "content": response}]
         formatted_response = f"<:response:1283501616800075816> {response}\n-# <:prompt:1283501054079799419> Prompt: {prompt}"
 
-        await ctx.respond(content=formatted_response, view=FollowConversation(self.groq_client, new_messages, hide), ephemeral=hide)
+        try:
+            await ctx.respond(content=formatted_response, view=FollowConversation(self.groq_client, new_messages, hide), ephemeral=hide)
+        except discord.HTTPException as e:
+            await ctx.respond(content=f"<:error:1283509705376923648> The response the model returned was somehow too big or something went wrong. The response was saved to the chat completion, you can continue the conversation and ask it to make its last response shorter or start a new one.\n-# <:prompt:1283501054079799419> Prompt: {prompt}", view=FollowConversation(self.groq_client, new_messages, hide, "Make your last answer shorter"), ephemeral=hide)
+
+    @ask.error
+    async def ask_error(self, ctx: discord.ApplicationContext, error: commands.CommandError):
+        error = getattr(error, "original", error)
+        if isinstance(error, groq.APIConnectionError):
+            return await ctx.respond(content=f"<:error:1283509705376923648> The server to generate the response could not be reached. Please try again in a few minutes.", ephemeral=True)
+
+        elif isinstance(error, groq.RateLimitError):
+            return await ctx.respond(content=f"<:error:1283509705376923648> You are being ratelimited! Slow down and try again in a few minutes.", ephemeral=True)
+
+        elif isinstance(error, groq.APIStatusError):
+            return await ctx.respond(content=f"<:error:1283509705376923648> The server to generate the response returned an error. Please try again.", ephemeral=True)
+
+        else:
+            await ctx.respond(content=f"<:error:1283509705376923648> Something went wrong while generating the response. Please try again.")
+        raise error
 
 
 def setup(bot):
