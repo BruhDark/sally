@@ -4,6 +4,26 @@ import groq
 from resources.aesthetic import Emojis
 
 
+class DestroyConversation(discord.ui.View):
+    def __init__(self, conversation_id: str):
+        super().__init__(timeout=None)
+        self.conversation_id = conversation_id
+
+    @discord.ui.button(label="Stop Conversation", style=discord.ButtonStyle.grey, emoji="<:notalking:1283950338193489930>")
+    async def callback(self, button: discord.ui.Button, interaction: discord.Interaction):
+        button.disabled = True
+        await interaction.response.edit_message(view=self)
+
+        if self.conversation_id in interaction.client.ai_conversations.keys():
+            interaction.client.ai_conversations.pop(self.conversation_id)
+            return await interaction.followup.send(content=f"<:sad:1283952161109049355> The active conversation on this channel was stopped by {interaction.user}. No more messages will be prompted to the AI.")
+
+        else:
+            button.disabled = False
+            await interaction.edit_original_response(view=self)
+            return await interaction.followup.send(content=f"<:confused:1283952994710458390> Something went wrong while trying to stop the conversation on this channel. There is no conversation with this ID?", ephemeral=True)
+
+
 class FollowConversationModal(discord.ui.Modal):
     def __init__(self, groq_client, messages: list[dict], hidden: bool, prefill: str = None, *args, **kwargs):
         super().__init__(title="Continue Conversation", timeout=None, *args, **kwargs)
