@@ -3,6 +3,7 @@ from discord.ext import commands
 import groq
 from groq import AsyncGroq
 from resources.groq_views import FollowConversation, DestroyConversation
+import asyncio
 
 
 class AICog(commands.Cog):
@@ -19,20 +20,36 @@ class AICog(commands.Cog):
         if str(message.channel.id) in self.bot.ai_conversations.keys():
             await message.add_reaction("<:thinking:1283958575571538020>")
 
-            messages = self.bot.ai_conversations[str(message.channel.id)]
+            messages = self.bot.ai_conversations[str(
+                message.channel.id)]["messages"]
             messages.append({"role": "user", "name": message.author.global_name,
                             "content": f"[[{message.author.global_name}]] " + message.content})
 
-            chat_completion = await self.groq.chat.completions.create(messages=messages, model="llama3-70b-8192", max_tokens=400)
+            try:
+                chat_completion = await self.groq.chat.completions.create(messages=messages, model="llama3-70b-8192", max_tokens=400)
+
+            except groq.RateLimitError:
+                re = await message.reply(content=f"<:error:1283509705376923648> We are being ratelimited! Slow down and continue the conversation in a few minutes. Applying a 5 minutes cooldown to this conversation.")
+                await re.add_reaction("<:cooldown:1283965653048627291>")
+                await asyncio.sleep(60 * 5)
+                await re.remove_reaction("<:cooldown:1283965653048627291>", message.guild.me)
+                return
+
+            except Exception as e:
+                await message.reply(content=f"<:error:1283509705376923648> Failed to generate a response! Please try again in a few minutes.")
+                raise e
+
             response = chat_completion.choices[0].message.content
 
             new_messages = messages + [{"role": "system", "content": response}]
-            formatted_response = f"<:response:1283501616800075816> {response}\n-# <:chatting:1283951977675358218> Conversation ID: {message.channel.id} - Refer to the initial command to stop the conversation - Live conversation ({len(messages)} total messages)"
+            jump_url = self.bot.ai_conversations[str(
+                message.channel.id)]["original_message_url"]
+            formatted_response = f"<:response:1283501616800075816> {response}\n-# <:sad:1283952161109049355> [Stop conversation]({jump_url}) - Live conversation ({len(messages)} total messages)"
 
             try:
                 await message.reply(content=formatted_response, mention_author=False)
             except discord.HTTPException as e:
-                await message.channel.send(content=f"<:error:1283509705376923648> The response the model returned was somehow too big or something went wrong. The response was saved to the chat completion, you can continue the conversation and ask it to make its last response shorter or start a new one.\n -# <:chatting:1283951977675358218> Conversation ID: {message.channel.id} - Refer to the initial command to stop the conversation - Live conversation ({len(messages)} total messages")
+                await message.channel.send(content=f"<:error:1283509705376923648> The response the model returned was somehow too big or something went wrong. The response was saved to the chat completion, you can continue the conversation and ask it to make its last response shorter or start a new one.\n -# <:sad:1283952161109049355> [Stop conversation]({jump_url}) - Live conversation ({len(messages)} total messages)")
 
             await message.remove_reaction("<:thinking:1283958575571538020>", message.guild.me)
             self.bot.ai_conversations[str(message.channel.id)] = new_messages
@@ -45,9 +62,12 @@ class AICog(commands.Cog):
             ai_context += " Here is aditional behaviour for you to follow on this conversation: " + behaviour
 
         messages = [{"role": "system", "content": ai_context}]
-        self.bot.ai_conversations[str(ctx.channel.id)] = messages
+        self.bot.ai_conversations[str(ctx.channel.id)] = {
+            "messages": messages, "original_message_url": None}
 
-        await ctx.respond(content=f"<:prompt:1283501054079799419> You started an AI chat on this channel! Send any initial message for AI to respond. Any user who sends a message in this channel will be considered as a user talking to AI.\n-# <:notalking:1283950338193489930> You can stop the conversation at any time using the button below.", view=DestroyConversation(str(ctx.channel.id)))
+        or_response = await ctx.respond(content=f"<:prompt:1283501054079799419> You started an AI chat on this channel! Send any initial message for AI to respond. Any user who sends a message in this channel will be considered as a user talking to AI.\n-# <:notalking:1283950338193489930> You can stop the conversation at any time using the button below.", view=DestroyConversation(str(ctx.channel.id)))
+        self.bot.ai_conversations[str(
+            ctx.channel.id)]["original_message_url"] = or_response.jump_url
 
     @ commands.slash_command(description="Ask AI a prompt.", integration_types={discord.IntegrationType.user_install})
     @ discord.option("prompt", description="The prompt to ask AI", max_lenght=400)
