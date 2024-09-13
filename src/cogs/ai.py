@@ -65,7 +65,8 @@ class AICog(commands.Cog):
         self.bot.ai_conversations[str(ctx.channel.id)] = {
             "messages": messages, "original_message_url": None}
 
-        or_response = await ctx.respond(content=f"<:prompt:1283501054079799419> You started an AI chat on this channel! Send any initial message for AI to respond. Any user who sends a message in this channel will be considered as a user talking to AI.\n-# <:notalking:1283950338193489930> You can stop the conversation at any time using the button below.", view=DestroyConversation(str(ctx.channel.id)))
+        await ctx.respond(content=f"<:prompt:1283501054079799419> You started an AI chat on this channel! Send any initial message for AI to respond. Any user who sends a message in this channel will be considered as a user talking to AI.\n-# <:notalking:1283950338193489930> You can stop the conversation at any time using the button below.", view=DestroyConversation(str(ctx.channel.id)))
+        or_response = await ctx.interaction.original_response()
         self.bot.ai_conversations[str(
             ctx.channel.id)]["original_message_url"] = or_response.jump_url
 
