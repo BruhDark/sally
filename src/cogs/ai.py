@@ -17,6 +17,8 @@ class AICog(commands.Cog):
             return
 
         if str(message.channel.id) in self.bot.ai_conversations.keys():
+            await message.add_reaction("<:thinking:1283958575571538020>")
+
             messages = self.bot.ai_conversations[str(message.channel.id)]
             messages.append({"role": "user", "name": message.author.global_name,
                             "content": f"[[{message.author.global_name}]] " + message.content})
@@ -32,6 +34,7 @@ class AICog(commands.Cog):
             except discord.HTTPException as e:
                 await message.channel.send(content=f"<:error:1283509705376923648> The response the model returned was somehow too big or something went wrong. The response was saved to the chat completion, you can continue the conversation and ask it to make its last response shorter or start a new one.\n -# <:chatting:1283951977675358218> Conversation ID: {message.channel.id} - Refer to the initial command to stop the conversation - Live conversation ({len(messages)} total messages")
 
+            await message.remove_reaction("<:thinking:1283958575571538020>", message.guild.me)
             self.bot.ai_conversations[str(message.channel.id)] = new_messages
 
     @commands.slash_command(name="chat", description="Begin a chat with AI in this channel.", integration_types={discord.IntegrationType.guild_install})
