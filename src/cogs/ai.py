@@ -18,28 +18,27 @@ class AICog(commands.Cog):
             return
 
         if str(message.channel.id) in self.bot.ai_conversations.keys():
-            await message.add_reaction("<:thinking:1283958575571538020>")
+            async with message.channel.typing():
+                messages = self.bot.ai_conversations[str(
+                    message.channel.id)]["messages"]
+                messages.append({"role": "user", "name": message.author.global_name,
+                                "content": f"[{message.author.global_name}] " + message.content})
 
-            messages = self.bot.ai_conversations[str(
-                message.channel.id)]["messages"]
-            messages.append({"role": "user", "name": message.author.global_name,
-                            "content": f"[{message.author.global_name}] " + message.content})
+                try:
+                    chat_completion = await self.groq.chat.completions.create(messages=messages, model="llama3-70b-8192", max_tokens=400)
 
-            try:
-                chat_completion = await self.groq.chat.completions.create(messages=messages, model="llama3-70b-8192", max_tokens=400)
+                except groq.RateLimitError:
+                    re = await message.reply(content=f"<:error:1283509705376923648> We are being ratelimited! Slow down and continue the conversation in a few minutes. Applying a 5 minutes cooldown to this conversation.")
+                    await re.add_reaction("<:cooldown:1283965653048627291>")
+                    await asyncio.sleep(60 * 5)
+                    await re.remove_reaction("<:cooldown:1283965653048627291>", message.guild.me)
+                    return
 
-            except groq.RateLimitError:
-                re = await message.reply(content=f"<:error:1283509705376923648> We are being ratelimited! Slow down and continue the conversation in a few minutes. Applying a 5 minutes cooldown to this conversation.")
-                await re.add_reaction("<:cooldown:1283965653048627291>")
-                await asyncio.sleep(60 * 5)
-                await re.remove_reaction("<:cooldown:1283965653048627291>", message.guild.me)
-                return
+                except Exception as e:
+                    await message.reply(content=f"<:error:1283509705376923648> Failed to generate a response! Please try again in a few minutes.")
+                    raise e
 
-            except Exception as e:
-                await message.reply(content=f"<:error:1283509705376923648> Failed to generate a response! Please try again in a few minutes.")
-                raise e
-
-            response = chat_completion.choices[0].message.content
+                response = chat_completion.choices[0].message.content
 
             new_messages = messages + [{"role": "system", "content": response}]
             jump_url = self.bot.ai_conversations[str(
@@ -51,7 +50,6 @@ class AICog(commands.Cog):
             except discord.HTTPException as e:
                 await message.channel.send(content=f"<:error:1283509705376923648> The response the model returned was somehow too big or something went wrong. The response was saved to the chat completion, you can continue the conversation and ask it to make its last response shorter or start a new one.\n -# <:sad:1283952161109049355> [Stop conversation]({jump_url}) - Live conversation ({len(messages)} total messages)")
 
-            await message.remove_reaction("<:thinking:1283958575571538020>", message.guild.me)
             self.bot.ai_conversations[str(
                 message.channel.id)]["messages"] = new_messages
 
