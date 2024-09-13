@@ -38,7 +38,7 @@ class AICog(commands.Cog):
             self.bot.ai_conversations[str(message.channel.id)] = new_messages
 
     @commands.slash_command(name="chat", description="Begin a chat with AI in this channel.", integration_types={discord.IntegrationType.guild_install})
-    @ discord.option("behaviour", description="A small description of how you want AI to behave. eg. 'You are a famous singer and we are fans asking you questions.'", max_lenght=200, default=None)
+    @ discord.option("behaviour", description="A small description of how you want AI to behave. eg. 'You are a famous singer and we are fans.'", max_lenght=200, default=None)
     async def chat_ai(self, ctx: discord.ApplicationContext, behaviour: str = None):
         ai_context = "Your name is Sally. You are an AI assistant in a Discord channel. Multiple users can talk to you at the same time, the name of the users will be displayed in the content inside double square brackets, for example: '[[John]] Who is Taylor Swift?', this is for you to know who is speaking to you if multiple users are interacting. Your answers should remain in a short or medium lenght almost all the time, there is nothing wrong with a large lenght answer, BUT, there is a limit of 2000 characters for messages, you should avoid hitting that limit, so your responses should be at max 1800 characters because the final formatted response with your responses to prompts has aditional characters."
         if behaviour:
