@@ -23,7 +23,7 @@ class AICog(commands.Cog):
             messages = self.bot.ai_conversations[str(
                 message.channel.id)]["messages"]
             messages.append({"role": "user", "name": message.author.global_name,
-                            "content": f"[[{message.author.global_name}]] " + message.content})
+                            "content": f"[{message.author.global_name}] " + message.content})
 
             try:
                 chat_completion = await self.groq.chat.completions.create(messages=messages, model="llama3-70b-8192", max_tokens=400)
