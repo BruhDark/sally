@@ -82,3 +82,7 @@ class AICog(commands.Cog):
         else:
             await ctx.respond(content=f"<:error:1283509705376923648> Something went wrong while generating the response. Please try again.")
         raise error
+
+
+def setup(bot: commands.Bot):
+    bot.add_cog(AICog(bot))
