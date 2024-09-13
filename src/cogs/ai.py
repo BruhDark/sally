@@ -52,7 +52,8 @@ class AICog(commands.Cog):
                 await message.channel.send(content=f"<:error:1283509705376923648> The response the model returned was somehow too big or something went wrong. The response was saved to the chat completion, you can continue the conversation and ask it to make its last response shorter or start a new one.\n -# <:sad:1283952161109049355> [Stop conversation]({jump_url}) - Live conversation ({len(messages)} total messages)")
 
             await message.remove_reaction("<:thinking:1283958575571538020>", message.guild.me)
-            self.bot.ai_conversations[str(message.channel.id)] = new_messages
+            self.bot.ai_conversations[str(
+                message.channel.id)]["messages"] = new_messages
 
     @commands.slash_command(name="chat", description="Begin a chat with AI in this channel.", integration_types={discord.IntegrationType.guild_install})
     @ discord.option("behaviour", description="A small description of how you want AI to behave. eg. 'You are a famous singer and we are fans.'", max_lenght=200, default=None)
