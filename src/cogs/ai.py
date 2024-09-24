@@ -83,7 +83,7 @@ class AICog(commands.Cog):
         formatted_response = f"<:response:1283501616800075816> {response}\n-# <:prompt:1283501054079799419> Prompt: {prompt}"
 
         try:
-            await ctx.respond(content=formatted_response, view=FollowConversation(self.groq_client, new_messages, hide), ephemeral=hide)
+            await ctx.respond(content=formatted_response, view=FollowConversation(self.groq, new_messages, hide), ephemeral=hide)
         except discord.HTTPException as e:
             await ctx.respond(content=f"<:error:1283509705376923648> The response the model returned was somehow too big or something went wrong. The response was saved to the chat completion, you can continue the conversation and ask it to make its last response shorter or start a new one.\n-# <:prompt:1283501054079799419> Prompt: {prompt}", view=FollowConversation(self.groq_client, new_messages, hide, "Make your last answer shorter"), ephemeral=hide)
 

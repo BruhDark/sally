@@ -34,10 +34,9 @@ class Misc(commands.Cog):
         url = TARGETS[target]
         async with aiohttp.ClientSession() as session:
             async with session.get(OVERRIDES.get(target, url + "/objects.inv")) as req:
-
                 if req.status != 200:
-                    raise discord.ApplicationCommandError(
-                        f"Failed to build RTFM cache for {target}"
+                    return print(
+                        f"WARNING: Failed to build RTFM cache for {target}"
                     )
                 self.rtfm_cache[target] = SphinxObjectFileReader(
                     await req.read()
