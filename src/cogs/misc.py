@@ -35,9 +35,10 @@ class Misc(commands.Cog):
         async with aiohttp.ClientSession() as session:
             async with session.get(OVERRIDES.get(target, url + "/objects.inv")) as req:
                 if req.status != 200:
-                    return print(
-                        f"WARNING: Failed to build RTFM cache for {target}"
+                    print(
+                        f"WARNING: Failed to build RTFM cache for {target} due to {req.status}"
                     )
+                    return
                 self.rtfm_cache[target] = SphinxObjectFileReader(
                     await req.read()
                 ).parse_object_inv(url)
