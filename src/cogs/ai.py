@@ -76,7 +76,7 @@ class AICog(commands.Cog):
         await ctx.defer(ephemeral=hide)
         messages = [{"role": "system", "content": "You are an AI assistant, you are part of a feature integration in a Discord bot where users can submit a command to ask you a question (prompt). Your answers should remain in a short or medium lenght almost all the time, there is nothing wrong with a large lenght answer, BUT, there is a limit of 2000 characters for messages, you should avoid hitting that limit, so your responses should be at max 1600 or 1700 characters because the final formatted response with your responses to prompts has aditional characters."}, {
             "role": "user", "content": prompt}]
-        chat_completion = await self.groq_client.chat.completions.create(messages=messages, model="llama3-70b-8192", max_tokens=350)
+        chat_completion = await self.groq.chat.completions.create(messages=messages, model="llama3-70b-8192", max_tokens=350)
         response = chat_completion.choices[0].message.content
 
         new_messages = messages + [{"role": "system", "content": response}]
