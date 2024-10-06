@@ -478,9 +478,9 @@ class Music(commands.Cog):
                 await voice.disconnect(force=True)
                 self.client.active_players = []
 
-    @slash_command(description="Play some music")
+    @slash_command(description="Play some music. View the queue if no search is provided.")
     @commands.cooldown(1, 5, commands.BucketType.user)
-    @discord.option(name="search", description="Music query or URL", required=False, type=Option.STRING)
+    @discord.option(name="search", input_type=str, description="Music query or URL", required=False)
     async def music(self, ctx: discord.ApplicationContext,
                     search: str):
         try:
