@@ -11,3 +11,4 @@ jishaku
 groq>=0.11.0
 lavalink
 spotipy
+PyNaCl
