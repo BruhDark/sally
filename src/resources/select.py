@@ -4,7 +4,7 @@ import lavalink
 
 class RemoveSongButton(discord.ui.Button):
     def __init__(self):
-        super().__init__(emoji="<:delete:1055494235111034890>",
+        super().__init__(emoji="<:trashcan:1292287390777610273>",
                          label="Remove Song", style=discord.ButtonStyle.gray, row=2)
 
     async def callback(self, interaction: discord.Interaction):
@@ -54,7 +54,7 @@ class SongRemove(discord.ui.Select):
 
 class SongRemoveFromLast(discord.ui.Button):
     def __init__(self):
-        super().__init__(label="Newest to oldest", emoji="<:repeat:1005256716050518216>")
+        super().__init__(label="Newest to oldest", emoji="<:repeat:1292287340320133160>")
 
     async def callback(self, interaction: discord.Interaction):
         player = interaction.client.lavalink.player_manager.get(
@@ -71,7 +71,7 @@ class SongRemoveFromLast(discord.ui.Button):
 
         for index, song in enumerate(songlist):
             options.append(discord.SelectOption(
-                label=song.title, description=f"By {song.author}", value=str(index), emoji="<:playlist:1005265606821548163>"))
+                label=song.title, description=f"By {song.author}", value=str(index), emoji="<:playlist:1292287363732471828>"))
 
         view = discord.ui.View(timeout=None)
         view.add_item(SongRemove(options, True))

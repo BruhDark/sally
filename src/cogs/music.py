@@ -243,7 +243,7 @@ class Buttons(discord.ui.View):
             lengths.append(int(song.duration / 1000))
         return titles, lengths
 
-    @discord.ui.button(emoji="<:play:1005256629064827003>", label="Play", style=discord.ButtonStyle.gray, row=1)
+    @discord.ui.button(emoji="<:play:1292287312184479884>", label="Play", style=discord.ButtonStyle.gray, row=1)
     async def button_play(self, button: discord.ui.Button, interaction: discord.Interaction):
         player = self.controller(interaction)
         embed = create_embed(guild=interaction.guild,
@@ -256,7 +256,7 @@ class Buttons(discord.ui.View):
             await interaction.followup.send(f"<:Sally:1283499062389117068> {interaction.user.mention} resumed the player!",
                                             delete_after=10.0, allowed_mentions=discord.AllowedMentions(users=False))
 
-    @discord.ui.button(emoji="<:pause:1005256663000961205>", label="Pause", style=discord.ButtonStyle.gray, row=1)
+    @discord.ui.button(emoji="<:pause:1292287300046164079>", label="Pause", style=discord.ButtonStyle.gray, row=1)
     async def button_pause(self, button: discord.ui.Button, interaction: discord.Interaction):
         player = self.controller(interaction)
         embed = create_embed(guild=interaction.guild,
@@ -269,7 +269,7 @@ class Buttons(discord.ui.View):
             await interaction.followup.send(f"<:Sally:1283499062389117068> {interaction.user.mention} paused the player!",
                                             delete_after=10.0, allowed_mentions=discord.AllowedMentions(users=False))
 
-    @discord.ui.button(emoji="<:skip:1005260620989481021>", label="Skip", style=discord.ButtonStyle.gray, row=1)
+    @discord.ui.button(emoji="<:next:1292287288751165550>", label="Skip", style=discord.ButtonStyle.gray, row=1)
     async def button_forward(self, button: discord.ui.Button, interaction: discord.Interaction):
         player = self.controller(interaction)
         await interaction.response.edit_message()
@@ -277,7 +277,7 @@ class Buttons(discord.ui.View):
                                         delete_after=10.0, allowed_mentions=discord.AllowedMentions(users=False))
         await player.skip()
 
-    @discord.ui.button(emoji="<:stop:1005261869113675800>", label="Stop", style=discord.ButtonStyle.gray, row=1)
+    @discord.ui.button(emoji="<:stop:1292287277434798090>", label="Stop", style=discord.ButtonStyle.gray, row=1)
     async def button_stop(self, button: discord.ui.Button, interaction: discord.Interaction):
         if not interaction.user.guild_permissions.manage_messages:
             await interaction.response.send_message(f"<:cross:1292282031216136254> You are not allowed to stop the player.",
@@ -290,7 +290,7 @@ class Buttons(discord.ui.View):
 
         await cleanup(player)
 
-    @discord.ui.button(emoji="<:shuffle:1005261849199128576>", label="Shuffle", style=discord.ButtonStyle.gray, row=2)
+    @discord.ui.button(emoji="<:shuffle:1292287378509267076>", label="Shuffle", style=discord.ButtonStyle.gray, row=2)
     async def button_shuffle(self, button: discord.ui.Button, interaction: discord.Interaction):
         player = self.controller(interaction)
         embed = create_embed(guild=interaction.guild,
@@ -303,7 +303,7 @@ class Buttons(discord.ui.View):
             player.set_shuffle(shuffle=False)
             await interaction.followup.send(f"<:checked:1292282692536373318> No longer shuffling the queue!", delete_after=10.0)
 
-    @discord.ui.button(emoji="<:repeat:1005256716050518216>", label="Repeat", style=discord.ButtonStyle.gray, row=2)
+    @discord.ui.button(emoji="<:repeat:1292287340320133160>", label="Repeat", style=discord.ButtonStyle.gray, row=2)
     async def button_loop(self, button: discord.ui.Button, interaction: discord.Interaction):
         player = self.controller(interaction)
         embed = create_embed(guild=interaction.guild,
@@ -316,7 +316,7 @@ class Buttons(discord.ui.View):
             player.set_repeat(repeat=False)
             await interaction.channel.send(f"<:checked:1292282692536373318> No longer looping the queue!", delete_after=10.0)
 
-    @discord.ui.button(emoji="<:queue:1005256368112029696>", label="Queue", style=discord.ButtonStyle.gray, row=2)
+    @discord.ui.button(emoji="<:queue:1292287327418454016>", label="Queue", style=discord.ButtonStyle.gray, row=2)
     async def button_queue(self, button: discord.ui.Button, interaction: discord.Interaction):
         player = self.controller(interaction)
         queue, length = self.compilequeue(player.queue)
@@ -336,7 +336,7 @@ class Buttons(discord.ui.View):
         view.disable_all_items(exclusions=ex)
         await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
-    @discord.ui.button(emoji="<:lyrics:1007803511028863066>", label="Lyrics", style=discord.ButtonStyle.gray, row=2)
+    @discord.ui.button(emoji="<:microphone:1292288244712738838>", label="Lyrics", style=discord.ButtonStyle.gray, row=2)
     async def button_lyrics(self, button: discord.ui.Button, interaction: discord.Interaction):
         player: lavalink.DefaultPlayer = self.controller(interaction)
 
