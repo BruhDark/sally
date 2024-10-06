@@ -71,7 +71,7 @@ class SongRemoveFromLast(discord.ui.Button):
 
         for index, song in enumerate(songlist):
             options.append(discord.SelectOption(
-                label=song.title, description=f"By {song.author}", value=str(index), emoji="<:playlist:1292287363732471828>"))
+                label=song.title, description=f"By {song.author}", value=str(index), emoji="<:disc:1292289835637411931>"))
 
         view = discord.ui.View(timeout=None)
         view.add_item(SongRemove(options, True))

@@ -45,7 +45,7 @@ def create_embed(guild: discord.Guild, track: lavalink.AudioTrack, position: int
 
     requester: discord.Member = guild.get_member(track.requester)
     embed = discord.Embed(
-        title=f"<a:music:1005254786486124625> Now Playing", description=f"**{track.title}** by {track.author}",
+        title=f"<:disc:1292289835637411931> Now Playing", description=f"**{track.title}** by {track.author}",
         color=Colors.main)
     embed.add_field(name="Ends", value=f"<t:{endsat}:R>", inline=True)
     embed.add_field(name="Video URL",
@@ -174,7 +174,7 @@ class Queue(discord.ui.View):
         for song in self.queue[page:page + 10]:
             songlist.append(f"**{count + page}:** `{song}`")
             count += 1
-        embed = discord.Embed(title="<:queue:1005256368112029696> Upcoming Songs", description=f"\n".join(
+        embed = discord.Embed(title="<:playlist:1292287363732471828> Upcoming Songs", description=f"\n".join(
             songlist), color=discord.Color.blurple())
         embed.set_footer(
             text=f"{(10 * self.position - 1) + count} of {len(self.queue)} songs - {self.length}")
