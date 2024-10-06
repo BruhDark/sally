@@ -1,6 +1,5 @@
 import discord
 import lavalink
-from config import emotes
 
 
 class RemoveSongButton(discord.ui.Button):
