@@ -109,7 +109,7 @@ class SongSelect(discord.ui.Select):
         options = []
         for track in self.tracks:
             options.append(discord.SelectOption(
-                label=f"{track.title}", description=f"By {track.author}", emoji="<:playlist:1005265606821548163>",
+                label=f"{track.title}", description=f"By {track.author}", emoji="<:playlist:1292287363732471828>",
                 value=track.identifier))
             self.keys[f'{track.identifier}'] = track
         super().__init__(placeholder="Select a song",
