@@ -3,7 +3,7 @@ from discord.ext import commands, tasks
 import os
 from aiohttp import web
 from resources.database import get_roblox_info_by_rbxid
-from resources import webhook_manager, verification, aesthetic
+from resources import webhook_manager, verification, aesthetic, database
 import datetime
 import dotenv
 
@@ -196,6 +196,36 @@ class App(commands.Cog):
         data["message"] = None
 
         return web.json_response(data)  # User is verified and not blacklisted
+
+    # POLLS ENDPOINTS
+    @routes.get("/polls/active")
+    async def active_polls(request: web.Request):
+        if missing_auth(request):
+            return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
+
+        active_poll = await database.get_active_polls()
+        if not active_poll:
+            return web.json_response({"success": False, "message": "No active polls found"}, status=404)
+
+        parsed_response = {
+            "poll_id": active_poll["_id"], "groups": active_poll["choices"], "status": active_poll["status"]}
+        return web.json_response(parsed_response)
+
+    @routes.post("/polls/vote")
+    async def vote_poll(request: web.Request):
+        if missing_auth(request):
+            return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
+
+        data = await request.json()
+        poll_id = data["poll_id"]
+        choice = data["choice"]
+        discord_id = data["discord_id"]
+
+        if not poll_id or not choice or not discord_id:
+            return web.json_response({"success": False, "message": "Improper request made"})
+
+        if await database.add_vote(poll_id, discord_id, choice):
+            return web.json_response({"success": True}, status=201)
 
 
 def setup(bot):

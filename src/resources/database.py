@@ -111,36 +111,46 @@ async def delete_show(message_id: int):
 # POLL FUNCTIONS
 
 
-async def create_poll(message_id: int, choices: list):
+async def create_poll(poll_id: int, choices: list):
     collection = database["polls"]
-    data = {"_id": message_id, "total_votes": 0, "choices": choices}
+    data = {"_id": poll_id, "status": "INACTIVE",
+            "total_votes": 0, "choices": choices, "users": []}
 
     for choice in choices:
         data[choice] = 0
-        data[f"{choice}_MEMBERS"] = []
 
     return await collection.insert_one(data)
 
 
-async def get_poll(message_id: int):
+async def get_poll(poll_id: int):
     collection = database["polls"]
-    return await collection.find_one({"_id": message_id})
+    return await collection.find_one({"_id": poll_id})
 
 
-async def add_vote(message_id: int, voter_id: int, choice: str):
+async def add_vote(poll_id: int, voter_id: int, choice: str):
     collection = database["polls"]
-    new_data = {"$addToSet": {f"{choice}_MEMBERS": voter_id},
+    new_data = {"$addToSet": {f"users": voter_id},
                 "$inc": {"total_votes": 1, choice: 1}}
 
-    return await collection.find_one_and_update({"_id": message_id}, new_data, return_document=ReturnDocument.AFTER)
+    return await collection.find_one_and_update({"_id": poll_id}, new_data, return_document=ReturnDocument.AFTER)
 
 
-async def remove_vote(message_id: int, voter_id: int, choice: str):
+async def remove_vote(poll_id: int, voter_id: int, choice: str):
     collection = database["polls"]
-    new_data = {"$pull": {f"{choice}_MEMBERS": voter_id},
+    new_data = {"$pull": {f"users": voter_id},
                 "$inc": {"total_votes": -1, choice: -1}}
 
-    return await collection.find_one_and_update({"_id": message_id}, new_data, return_document=ReturnDocument.AFTER)
+    return await collection.find_one_and_update({"_id": poll_id}, new_data, return_document=ReturnDocument.AFTER)
+
+
+async def change_poll_status(poll_id: int, status: str | None):
+    collection = database["polls"]
+    return await collection.find_one_and_update({"_id": poll_id}, {"$set": {"PID": status}}, return_document=ReturnDocument.AFTER)
+
+
+async def get_active_poll():
+    collection = database["polls"]
+    return await collection.find_one({"status": "ACTIVE"})
 
 
 async def delete_poll(message_id: int):
