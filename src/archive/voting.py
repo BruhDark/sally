@@ -162,7 +162,8 @@ class Polls(commands.Cog):
         name="voting", description="Commands to create and manage votings")
 
     @voting.command(description="Create a voting poll")
-    async def send(self, ctx: discord.ApplicationContext, channel: discord.Option(discord.TextChannel, "The channel to send the voting"), group_1: discord.Option(str, "First group to add to the vote"), group_2: discord.Option(str, "Second group to add to the vote"), group_3: discord.Option(str, "Third group to add to the vote", default=None), group_4: discord.Option(str, "Fourth group to add to the vote", default=None), group_5: discord.Option(str, "Fifth group to add to the vote", default=None), group_6: discord.Option(str, "Sixth group to add to the vote", default=None)):  # type: ignore
+    @discord.default_permissions(manage_server=True)
+    async def create(self, ctx: discord.ApplicationContext, poll_id: discord.Option(str, "A unique ID for this poll"), group_1: discord.Option(str, "First group to add to the vote"), group_2: discord.Option(str, "Second group to add to the vote"), group_3: discord.Option(str, "Third group to add to the vote", default=None), group_4: discord.Option(str, "Fourth group to add to the vote", default=None), group_5: discord.Option(str, "Fifth group to add to the vote", default=None), group_6: discord.Option(str, "Sixth group to add to the vote", default=None)):  # type: ignore
         if not ctx.author.guild_permissions.manage_messages:
             return await ctx.repond("<:padlock:987837727741464666> You are not allowed to use this command.", ephemeral=True)
 
@@ -170,45 +171,61 @@ class Polls(commands.Cog):
         groups = (group_1, group_2, group_3, group_4, group_5, group_6)
         groups_parsed = [group for group in groups if group != None]
 
+        if await db.get_poll(poll_id) != None:
+            return await ctx.respond("<:x_:1174507495914471464> A voting with this ID already exists.", ephemeral=True)
+
         poll_embed = discord.Embed(
-            color=discord.Color.nitro_pink(), title="<:notification:990034677836427295> Voting Time!")
-        poll_embed.description = "**INKIGAYO** presents this week group. Vote for your favorite group.\n\n<:info:881973831974154250> Only one vote is allowed per user."
+            color=discord.Color.nitro_pink(), title="Successfully created this voting poll!")
 
-        select_options = []
-        for n, group in enumerate(groups_parsed):
-            poll_embed.add_field(
-                name=f"<:lyrics:1007803511028863066> Group #{n+1}: {group}", value="▱"*10 + " (0%)", inline=False)
+        poll_embed.description = "The poll is created as inactive. You can activate it by using the `/voting status` command. Otherwise it will not be visible on the game."
 
-            select_options.append(discord.SelectOption(
-                label=group, value=group, description=f"Select this option to vote for {group} or to remove the vote.", emoji="<:lyrics:1007803511028863066>"))
+        poll_embed.add_field(name="Poll ID", value=poll_id)
+        poll_embed.add_field(name="Poll status", value="Inactive")
+        poll_embed.add_field(name="Groups", value=", ".join(groups_parsed))
 
-        poll_embed.set_footer(
-            text="Remove your vote by selecting the same option · INKIGAYO ROBLOX.", icon_url=ctx.guild.icon.url)
+        await db.create_poll(poll_id, groups_parsed)
+        await ctx.respond(embed=poll_embed)
 
-        poll_view = PollView(select_options)
-        poll_message = await channel.send(content="@everyone", embed=poll_embed, view=poll_view)
-        await db.create_poll(poll_message.id, groups_parsed)
+    @voting.command(description="Change the status of a poll")
+    @discord.default_permissions(manage_server=True)
+    @discord.option(name="poll_id", description="The poll ID", type=str)
+    @discord.option(name="status", description="The status to set", type=str, choices=["active", "inactive"])
+    async def status(self, ctx, poll_id: str, status: str):
+        if not ctx.author.guild_permissions.manage_messages:
+            return await ctx.repond("<:padlock:987837727741464666> You are not allowed to use this command.", ephemeral=True)
 
-        await ctx.respond("<:checked:1173356058387951626> Sent voting to channel.")
+        poll = await db.get_poll(poll_id)
+        if poll == None:
+            return await ctx.respond("<:x_:1174507495914471464> No voting found with this ID.", ephemeral=True)
+
+        a_poll = await db.get_active_poll()
+        if a_poll != None:
+            return await ctx.respond(f"<:x_:1174507495914471464> There is already an active voting (`{poll['_id']}`). You must change its status first.", ephemeral=True)
+
+        if status == "active":
+            await db.change_poll_status(poll_id, "ACTIVE")
+            await ctx.respond(f"<:checked:1173356058387951626> Voting `{poll_id}` is now active.")
+
+        elif status == "inactive":
+            await db.change_poll_status(poll_id, "INACTIVE")
+            await ctx.respond(f"<:checked:1173356058387951626> Voting `{poll_id}` is now inactive.")
 
     @voting.command(description="View the stats for a voting poll")
-    async def view(self, ctx: discord.ApplicationContext, vote_id: discord.Option(str, "The ID of the vote. (Message ID)")):  # type: ignore
+    @discord.default_permissions(manage_server=True)
+    async def view(self, ctx: discord.ApplicationContext, vote_id: discord.Option(str, "The poll ID")):  # type: ignore
         if not ctx.author.guild_permissions.manage_messages:
             return await ctx.repond("<:padlock:987837727741464666> You are not allowed to use this command.", ephemeral=True)
 
         try:
-            poll = await db.get_poll(int(vote_id))
+            poll = await db.get_poll(vote_id)
         except ValueError:
             return await ctx.respond("<:x_:1174507495914471464> Invalid voting ID.", ephemeral=True)
 
         if poll == None:
             return await ctx.respond("<:x_:1174507495914471464> No voting found with this ID.", ephemeral=True)
 
-        embeds = []
         main_embed = discord.Embed(
             color=discord.Color.nitro_pink(), title="<:elections:1173351008655642756> Voting Stats")
-        main_embed.add_field(
-            name="<:rightarrow:1173350998388002888> Message", value=f"https://discord.com/channels/1170821546038800464/1171604109720297512/{vote_id}", inline=False)
 
         main_embed.add_field(
             name="<:rightarrow:1173350998388002888> Total Votes", value=str(poll["total_votes"]), inline=False)
@@ -216,24 +233,7 @@ class Polls(commands.Cog):
             main_embed.add_field(
                 name=f"<:vinyl:1173351007263133756> {choice} votes", value=str(poll[choice]))
 
-            users = [await self.bot.get_or_fetch_user(user)
-                     for user in poll[choice+"_MEMBERS"]]
-            choice_embed = discord.Embed(color=discord.Color.purple(
-            ), title=f"<:elections:1173351008655642756> Users that voted for {choice}")
-
-            users_parsed = [
-                f"{user.mention} ({user.display_name})" for user in users]
-            choice_embed.description = "\n".join(users_parsed)
-            choice_embed.set_footer(
-                text=f"{poll[choice]} total votes for {choice}", icon_url=ctx.guild.icon.url)
-
-            embeds.append(choice_embed)
-
-        embeds[0:0] += [main_embed]
-
-        paginator = pages.Paginator(
-            pages=embeds, show_disabled=False, author_check=True, disable_on_timeout=True)
-        await paginator.respond(ctx.interaction)
+        await ctx.respond(embed=main_embed)
 
 
 def setup(bot):
