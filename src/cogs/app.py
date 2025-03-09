@@ -9,15 +9,17 @@ import dotenv
 
 dotenv.load_dotenv()
 
-# app = Flask(__name__)
 app = web.Application()
 routes = web.RouteTableDef()
 
 
-def missing_auth(request: web.Request):
-    if request.headers.get("Authorization") == os.getenv("API_AUTHORIZATION_CODE") or request.rel_url.query.get("auth") == os.getenv("API_AUTHORIZATION_CODE_OVERRIDE"):
-        return False
-    return True
+def missing_auth(request: web.Request) -> bool:
+    auth_code = os.getenv("API_AUTHORIZATION_CODE")
+    auth_override = os.getenv("API_AUTHORIZATION_CODE_OVERRIDE")
+    if not auth_code or not auth_override:
+        raise ValueError(
+            "Authorization codes are not set in environment variables.")
+    return request.headers.get("Authorization") != auth_code and request.rel_url.query.get("auth") != auth_override
 
 
 class App(commands.Cog):
@@ -25,7 +27,6 @@ class App(commands.Cog):
         self.bot = bot
         self.web_server.start()
         app.bot = bot
-
         app.add_routes(routes)
 
     @tasks.loop(count=1)
@@ -34,13 +35,12 @@ class App(commands.Cog):
         await runner.setup()
         port = os.getenv("PORT")
         host = os.getenv("HOST", "0.0.0.0")
-        if port == None:
+        if not port:
             print("No port found. Did not start web server.")
             return
 
         try:
-            site = web.TCPSite(
-                runner, host=str(host), port=int(port))
+            site = web.TCPSite(runner, host=str(host), port=int(port))
             await site.start()
             print("[API Server] Started!")
         except Exception as e:
@@ -53,63 +53,62 @@ class App(commands.Cog):
         await self.bot.wait_until_ready()
 
     @routes.get("/")
-    async def index(request: web.Request):
+    async def index(request: web.Request) -> web.Response:
         resp = {'success': True, 'message': "Server is live"}
         return web.json_response(resp)
 
     @routes.get("/privacy")
-    async def privacy(request: web.Request):
+    async def privacy(request: web.Request) -> web.Response:
         raise web.HTTPFound(
             "https://github.com/BruhDark/sally-tickets/blob/main/privacy-policy.md")
 
     @routes.get("/terms")
-    async def terms(request: web.Request):
+    async def terms(request: web.Request) -> web.Response:
         raise web.HTTPFound(
             "https://github.com/BruhDark/sally-tickets/blob/main/terms.md")
 
     # ROBLOX ENDPOINTS
 
     @routes.get("/roblox/get-info")
-    async def get_info(request: web.Request):
+    async def get_info(request: web.Request) -> web.Response:
         if missing_auth(request):
             return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
 
-        roblox_id = request.rel_url.query.get("roblox_id", None)
+        roblox_id = request.rel_url.query.get("roblox_id")
         if not roblox_id:
-            return web.json_response({'success': False, 'message': 'Improper request made'}, status=404)
+            return web.json_response({'success': False, 'message': 'Improper request made'}, status=400)
         roblox_data = await get_roblox_info_by_rbxid(roblox_id)
-        roblox_data["_id"] = "."
         if not roblox_data:
             return web.json_response({'success': False, 'message': 'User is not verified with Sally'}, status=404)
+        roblox_data["_id"] = "."
         return web.json_response(roblox_data)
 
     @routes.post("/roblox/join")
-    async def roblox_join(request: web.Request):
+    async def roblox_join(request: web.Request) -> web.Response:
         if missing_auth(request):
             return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
 
-        roblox_id = await request.json()
-        roblox_id = roblox_id["roblox_id"]
+        data = await request.json()
+        roblox_id = data.get("roblox_id")
+        if not roblox_id:
+            return web.json_response({"success": False, "message": "Improper request made"}, status=400)
 
         roblox_data = await get_roblox_info_by_rbxid(roblox_id)
         embed = discord.Embed(
             color=aesthetic.Colors.main, title="<:user:988229844301131776> User Join Triggered", timestamp=datetime.datetime.now())
 
         if roblox_data:
-            embed.add_field(name="Discord Account",
-                            value=f"<@{roblox_data['user_id']}> ({roblox_data['user_id']})")
-            embed.add_field(name="Roblox Account",
-                            value=f"{roblox_data['data']['name']} ({roblox_data['data']['id']})")
+            embed.add_field(
+                name="Discord Account", value=f"<@{roblox_data['user_id']}> ({roblox_data['user_id']})")
+            embed.add_field(
+                name="Roblox Account", value=f"{roblox_data['data']['name']} ({roblox_data['data']['id']})")
             try:
                 embed.set_thumbnail(url=roblox_data["data"]["avatar_url"])
             except KeyError:
                 pass
-
         else:
-            embed.add_field(name="Discord Account",
-                            value=f"Unknown")
-            embed.add_field(name="Roblox Account",
-                            value=str(roblox_id))
+            embed.add_field(name="Discord Account", value="Unknown")
+            embed.add_field(name="Roblox Account", value=str(roblox_id))
 
         await webhook_manager.send_join_log(embed)
         return web.json_response({"success": True}, status=201)
@@ -117,32 +116,32 @@ class App(commands.Cog):
     # ROBLOX VERIFICATION ENDPOINTS
 
     @routes.get("/verification/check")
-    async def check_verication(request: web.Request):
+    async def check_verification(request: web.Request) -> web.Response:
         if missing_auth(request):
             return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
 
         roblox_id = request.rel_url.query.get("roblox_id")
-        if roblox_id == None:
-            return web.json_response({"success": False, "message": "Improper request made"})
+        if not roblox_id:
+            return web.json_response({"success": False, "message": "Improper request made"}, status=400)
 
         discord_member = app.bot.pending_verifications.get(roblox_id)
-        if discord_member == None:
-            return web.json_response({"success": False, "message": "Could not find pending verication"})
+        if not discord_member:
+            return web.json_response({"success": False, "message": "Could not find pending verification"}, status=404)
 
         response = {"success": True,
                     "username": discord_member["username"], "id": discord_member["id"]}
         return web.json_response(response)
 
     @routes.post("/verification/complete")
-    async def complete_verification(request: web.Request):
+    async def complete_verification(request: web.Request) -> web.Response:
         if missing_auth(request):
             return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
 
         data = await request.json()
-        roblox_id = int(data["roblox_id"])
-        discord_id = int(data["discord_id"])
-        if roblox_id is None or discord_id is None:
-            return web.json_response({"success": False, "message": "Improper request made"})
+        roblox_id = data.get("roblox_id")
+        discord_id = data.get("discord_id")
+        if not roblox_id or not discord_id:
+            return web.json_response({"success": False, "message": "Improper request made"}, status=400)
 
         try:
             app.bot.dispatch("verification_completed", roblox_id, discord_id)
@@ -150,42 +149,35 @@ class App(commands.Cog):
             return web.json_response({"success": True}, status=201)
         except Exception as e:
             print(e)
-            return web.json_response({"success": False, "message": "An error occured"}, status=409)
+            return web.json_response({"success": False, "message": "An error occurred"}, status=409)
 
     # ROBLOX LOCK ENDPOINTS
 
     @routes.get("/lock/check-user")
-    async def check_user(request: web.Request):
+    async def check_user(request: web.Request) -> web.Response:
         if missing_auth(request):
             return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
 
         roblox_id = request.rel_url.query.get("roblox_id")
-        if roblox_id == None:
-            return web.json_response({"success": False, "message": "Improper request made"})
+        if not roblox_id:
+            return web.json_response({"success": False, "message": "Improper request made"}, status=400)
 
-        # Base response is assuming the user is not verified with Sally and "blacklisted"
         data = {"success": True, "discord_id": None, "blacklisted": True,
                 "message": "User is not verified with Sally", "staff": False, "artist": False, "vip": False}
-
         roblox_data = await get_roblox_info_by_rbxid(roblox_id)
 
         if not roblox_data:
-            # User is not verified with Sally, base response
             return web.json_response(data)
 
-        elif roblox_data["blacklisted"]:
-            message = roblox_data["message"]
-            data["message"] = message
-            # User is blacklisted, just edit the message sent
+        if roblox_data["blacklisted"]:
+            data["message"] = roblox_data["message"]
             return web.json_response(data)
 
         wepeak = app.bot.get_guild(1240592168754745414)
-        member: discord.Member = wepeak.get_member(
-            int(roblox_data["user_id"]))
+        member: discord.Member = wepeak.get_member(int(roblox_data["user_id"]))
 
         if not member:
-            # Could not resolve a member object
-            return web.json_response({"success": False, "message": "User not found"})
+            return web.json_response({"success": False, "message": "User not found"}, status=404)
 
         staff_role = wepeak.get_role(1248770684612640910)
         artists_role = wepeak.get_role(1243320082957074473)
@@ -202,15 +194,16 @@ class App(commands.Cog):
         data["blacklisted"] = False
         data["message"] = None
 
-        return web.json_response(data)  # User is verified and not blacklisted
+        return web.json_response(data)
 
     # POLLS ENDPOINTS
+
     @routes.get("/polls/active")
-    async def active_polls(request: web.Request):
+    async def active_polls(request: web.Request) -> web.Response:
         if missing_auth(request):
             return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
 
-        active_poll = await database.get_active_polls()
+        active_poll = await database.get_active_poll()
         if not active_poll:
             return web.json_response({"success": False, "message": "No active polls found"}, status=404)
 
@@ -219,21 +212,21 @@ class App(commands.Cog):
         return web.json_response(parsed_response)
 
     @routes.post("/polls/vote")
-    async def vote_poll(request: web.Request):
+    async def vote_poll(request: web.Request) -> web.Response:
         if missing_auth(request):
             return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
 
         data = await request.json()
-        poll_id = data["poll_id"]
-        choice = data["choice"]
-        discord_id = data["discord_id"]
+        poll_id = data.get("poll_id")
+        choice = data.get("choice")
+        discord_id = data.get("discord_id")
 
         if not poll_id or not choice or not discord_id:
-            return web.json_response({"success": False, "message": "Improper request made"})
+            return web.json_response({"success": False, "message": "Improper request made"}, status=400)
 
         if await database.add_vote(poll_id, discord_id, choice):
             return web.json_response({"success": True}, status=201)
 
 
-def setup(bot):
+def setup(bot: commands.Bot):
     bot.add_cog(App(bot))
