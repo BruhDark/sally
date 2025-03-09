@@ -33,11 +33,12 @@ class App(commands.Cog):
         runner = web.AppRunner(app)
         await runner.setup()
         port = os.getenv("PORT")
+        host = os.getenv("HOST", "0.0.0.0")
         if port == None:
             print("No port found. Did not start web server.")
             return
         site = web.TCPSite(
-            runner, port=int(port))
+            runner, host=str(host), port=int(port))
         await site.start()
         print("[API Server] Started!")
 
@@ -62,7 +63,7 @@ class App(commands.Cog):
 
     # ROBLOX ENDPOINTS
 
-    @ routes.get("/roblox/get-info")
+    @routes.get("/roblox/get-info")
     async def get_info(request: web.Request):
         if missing_auth(request):
             return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
@@ -76,7 +77,7 @@ class App(commands.Cog):
             return web.json_response({'success': False, 'message': 'User is not verified with Sally'}, status=404)
         return web.json_response(roblox_data)
 
-    @ routes.post("/roblox/join")
+    @routes.post("/roblox/join")
     async def roblox_join(request: web.Request):
         if missing_auth(request):
             return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
@@ -109,7 +110,7 @@ class App(commands.Cog):
 
     # ROBLOX VERIFICATION ENDPOINTS
 
-    @ routes.get("/verification/check")
+    @routes.get("/verification/check")
     async def check_verication(request: web.Request):
         if missing_auth(request):
             return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
@@ -126,7 +127,7 @@ class App(commands.Cog):
                     "username": discord_member["username"], "id": discord_member["id"]}
         return web.json_response(response)
 
-    @ routes.post("/verification/complete")
+    @routes.post("/verification/complete")
     async def complete_verification(request: web.Request):
         if missing_auth(request):
             return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
@@ -147,7 +148,7 @@ class App(commands.Cog):
 
     # ROBLOX LOCK ENDPOINTS
 
-    @ routes.get("/lock/check-user")
+    @routes.get("/lock/check-user")
     async def check_user(request: web.Request):
         if missing_auth(request):
             return web.json_response({"success": False, "message": "Unauthorized"}, status=401)
