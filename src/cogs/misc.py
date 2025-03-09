@@ -61,7 +61,7 @@ class Misc(commands.Cog):
         embed.add_field(name="Latency", value=str(
             round(self.bot.latency * 1000)) + "ms")
         embed.add_field(
-            name="Uptime", value=f"{format_dt(self.bot.uptime, 'd')} {format_dt(self.bot.uptime, 'T')} ({format_dt(self.bot.uptime, 'R')})")
+            name="Uptime", value=f'{format_dt(self.bot.uptime, "d")} {format_dt(self.bot.uptime, "T")} ({format_dt(self.bot.uptime, "R")})')
 
         await ctx.reply(embed=embed, mention_author=False)
 

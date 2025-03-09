@@ -37,10 +37,16 @@ class App(commands.Cog):
         if port == None:
             print("No port found. Did not start web server.")
             return
-        site = web.TCPSite(
-            runner, host=str(host), port=int(port))
-        await site.start()
-        print("[API Server] Started!")
+
+        try:
+            site = web.TCPSite(
+                runner, host=str(host), port=int(port))
+            await site.start()
+            print("[API Server] Started!")
+        except Exception as e:
+            print(e)
+            print("Failed to start web server.")
+            raise e
 
     @web_server.before_loop
     async def web_server_before_loop(self):
