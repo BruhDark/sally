@@ -8,8 +8,8 @@ from pymongo import results
 dotenv.load_dotenv()
 
 client: motor_tornado.MotorClient = motor_tornado.MotorClient(
-    os.getenv("MONGO_URI"))
-database: motor_tornado.MotorDatabase = client["sally"]
+    os.getenv("MONGO_URI"))  # type: ignore
+database: motor_tornado.MotorDatabase = client["sally"]  # type: ignore
 
 # GENERIC FUNCTIONS
 
@@ -41,7 +41,7 @@ async def delete_one(col: str, data: dict) -> results.DeleteResult:
 
 async def return_all(col: str, filter: dict = {}):
     collection = database[col]
-    find = collection.find(filter)
+    find = await collection.find(filter)
     return find.to_list(None)
 
 
