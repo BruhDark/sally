@@ -41,11 +41,10 @@ async def delete_one(col: str, data: dict) -> results.DeleteResult:
 
 async def return_all(col: str, filter: dict = {}):
     collection = database[col]
-    find = await collection.find(filter)
-    return find.to_list(None)
-
+    return await collection.find(filter).to_list(None)
 
 # VERIFICATION
+
 
 async def add_roblox_info(user_id: str, roblox_id: str, data: dict):
     collection = database["roblox_verifications"]
@@ -95,7 +94,6 @@ async def remove_blacklist_roblox(user_id: str):
 async def add_show(message_id: int, event_id: int):
     collection = database["shows"]
     data = {"_id": message_id, "event_id": event_id}
-
     return await collection.insert_one(data)
 
 
@@ -115,10 +113,8 @@ async def create_poll(poll_id: int, choices: list):
     collection = database["polls"]
     data = {"_id": poll_id, "status": "INACTIVE",
             "total_votes": 0, "choices": choices, "users": []}
-
     for choice in choices:
         data[choice] = 0
-
     return await collection.insert_one(data)
 
 
@@ -129,23 +125,21 @@ async def get_poll(poll_id: int):
 
 async def add_vote(poll_id: int, voter_id: int, choice: str):
     collection = database["polls"]
-    new_data = {"$addToSet": {f"users": voter_id},
+    new_data = {"$addToSet": {"users": voter_id},
                 "$inc": {"total_votes": 1, choice: 1}}
-
     return await collection.find_one_and_update({"_id": poll_id}, new_data, return_document=ReturnDocument.AFTER)
 
 
 async def remove_vote(poll_id: int, voter_id: int, choice: str):
     collection = database["polls"]
-    new_data = {"$pull": {f"users": voter_id},
+    new_data = {"$pull": {"users": voter_id},
                 "$inc": {"total_votes": -1, choice: -1}}
-
     return await collection.find_one_and_update({"_id": poll_id}, new_data, return_document=ReturnDocument.AFTER)
 
 
 async def change_poll_status(poll_id: int, status: str | None):
     collection = database["polls"]
-    return await collection.find_one_and_update({"_id": poll_id}, {"$set": {"PID": status}}, return_document=ReturnDocument.AFTER)
+    return await collection.find_one_and_update({"_id": poll_id}, {"$set": {"status": status}}, return_document=ReturnDocument.AFTER)
 
 
 async def get_active_poll():
@@ -155,15 +149,12 @@ async def get_active_poll():
 
 async def delete_poll(message_id: int):
     collection = database["polls"]
-
     return await collection.delete_one({"_id": message_id})
 
 # DATES FUNCTIONS
 
 
-async def add_date(guild_id: int, date_id: str, date: str, tickets_amount: str,
-                   role: int):
-
+async def add_date(guild_id: int, date_id: str, date: str, tickets_amount: str, role: int):
     collection: motor_tornado.MotorCollection = database["dates"]
     data = {
         "guild_id": guild_id,
@@ -174,15 +165,12 @@ async def add_date(guild_id: int, date_id: str, date: str, tickets_amount: str,
         "tickets_sold": 0,
         "tickets_available": tickets_amount
     }
-
     return await collection.insert_one(data)
 
 
 async def edit_date(date_id: str, new_data: dict):
-
     collection = database["dates"]
-    return collection.find_one_and_update({"date_id": date_id},
-                                          {"$set": new_data})
+    return await collection.find_one_and_update({"date_id": date_id}, {"$set": new_data})
 
 
 async def get_date(date_id: str):
@@ -191,13 +179,11 @@ async def get_date(date_id: str):
 
 
 async def return_dates(guild_id: int):
-
     collection = database["dates"]
     find = collection.find({"guild_id": guild_id})
     dates = []
     for date in await find.to_list(None):
         dates.append(date)
-
     return dates
 
 
@@ -209,14 +195,12 @@ async def delete_date(date_id: str):
 async def add_queue(queue_id: int, id: int, channel: int):
     collection: motor_tornado.MotorCollection = database["queues"]
     data = {"queue_id": queue_id, "message": id, "channel": channel}
-
     return await collection.insert_one(data)
 
 
 async def get_queue_message(queue_id: int):
     collection: motor_tornado.MotorCollection = database["queues"]
     data = {"queue_id": queue_id}
-
     queue = await collection.find_one(data)
     if queue:
         return queue["message"], queue["channel"]
