@@ -409,7 +409,7 @@ class Verification(commands.Cog):
             # await ctx.followup.send(embed=discord.Embed(title=f"{aesthetic.Emojis.warning} Important Message!", description="We have now added a [Terms of Service](http://sally.darks.tech/terms) and [Privacy Policy](http://sally.darks.tech/privacy). By using Sally you accept these. Please make sure to check them.", color=aesthetic.Colors.warning), ephemeral=True)
             return
 
-        await ctx.respond(content=f":wave: To verify click the button below and follow the steps.\n-# {aesthetic.Emojis.info} By verifying you accept our [Terms of Service](<https://sally-tickets-82ca1ba8fdc3.herokuapp.com/terms>) and [Privacy Policy](<https://sally-tickets-82ca1ba8fdc3.herokuapp.com/privacy>)", view=VerifyView(ctx.author))
+        await ctx.respond(content=f":wave: To verify click the button below and follow the steps.\n-# {aesthetic.Emojis.info} By verifying you accept our [Terms of Service](<https://api.dark.is-a.dev/terms>) and [Privacy Policy](<https://api.dark.is-a.dev/privacy>)", view=VerifyView(ctx.author))
 
     @commands.slash_command(description="Get someones Roblox information", contexts={discord.InteractionContextType.guild})
     @commands.guild_only()
@@ -477,7 +477,7 @@ class Verification(commands.Cog):
     @commands.is_owner()
     async def check_lock(self, ctx: commands.Context, roblox_id: str):
         async with aiohttp.ClientSession() as session:
-            async with session.get(f"https://sally-tickets-82ca1ba8fdc3.herokuapp.com/lock/check-user?roblox_id={roblox_id}", headers={"Authorization": os.getenv("API_AUTHORIZATION_CODE")}) as resp:
+            async with session.get(f"https://api.dark.is-a.dev/lock/check-user?roblox_id={roblox_id}", headers={"Authorization": os.getenv("API_AUTHORIZATION_CODE")}) as resp:
                 response = await resp.text()
 
         await ctx.reply(embed=discord.Embed(description=f"```json\n{response}\n```", color=aesthetic.Colors.main), mention_author=False)
