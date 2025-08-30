@@ -1,22 +1,20 @@
 import discord
 import dotenv
 import os
-from motor import motor_tornado
-from pymongo import ReturnDocument
-from pymongo import results
+import pymongo as pm
 
 dotenv.load_dotenv()
 
-client: motor_tornado.MotorClient = motor_tornado.MotorClient(
+client = pm.AsyncMongoClient(
     os.getenv("MONGO_URI"))  # type: ignore
-database: motor_tornado.MotorDatabase = client["sally"]  # type: ignore
+database = client["sally"]  # type: ignore
 
 # GENERIC FUNCTIONS
 
 
 async def find(col: str, data: dict):
     collection = database[col]
-    return await collection.find(data).to_list(None)
+    return await collection.find(data).to_list(0)
 
 
 async def find_one(col: str, data: dict):
@@ -31,17 +29,17 @@ async def insert_one(col: str, data: dict):
 
 async def update_one(col: str, check: dict, data: dict):
     collection = database[col]
-    return await collection.find_one_and_update(check, {"$set": data}, return_document=ReturnDocument.AFTER)
+    return await collection.find_one_and_update(check, {"$set": data}, return_document=pm.ReturnDocument.AFTER)
 
 
-async def delete_one(col: str, data: dict) -> results.DeleteResult:
+async def delete_one(col: str, data: dict) -> pm.results.DeleteResult:
     collection = database[col]
     return await collection.delete_one(data)
 
 
 async def return_all(col: str, filter: dict = {}):
     collection = database[col]
-    return await collection.find(filter).to_list(None)
+    return await collection.find(filter).to_list(0)
 
 # VERIFICATION
 
@@ -57,7 +55,7 @@ async def update_roblox_info(user_id: str, roblox_id: str, data: dict):
     collection = database["roblox_verifications"]
     check = {"user_id": str(user_id)}
     new_data = {"roblox_id": str(roblox_id), "data": data}
-    return await collection.find_one_and_update(check, {"$set": new_data}, return_document=ReturnDocument.AFTER)
+    return await collection.find_one_and_update(check, {"$set": new_data}, return_document=pm.ReturnDocument.AFTER)
 
 
 async def get_roblox_info(user_id: str):
@@ -70,7 +68,7 @@ async def get_roblox_info_by_rbxid(roblox_id: str):
     return await collection.find_one({"roblox_id": str(roblox_id)})
 
 
-async def delete_roblox_info(user_id: str) -> results.DeleteResult:
+async def delete_roblox_info(user_id: str) -> pm.results.DeleteResult:
     collection = database["roblox_verifications"]
     return await collection.delete_one({"user_id": str(user_id)})
 
@@ -79,14 +77,14 @@ async def blacklist_roblox_user(user_id: str, reason: str):
     collection = database["roblox_verifications"]
     check = {"user_id": str(user_id)}
     new_data = {"blacklisted": True, "message": reason}
-    return await collection.find_one_and_update(check, {"$set": new_data}, return_document=ReturnDocument.AFTER)
+    return await collection.find_one_and_update(check, {"$set": new_data}, return_document=pm.ReturnDocument.AFTER)
 
 
 async def remove_blacklist_roblox(user_id: str):
     collection = database["roblox_verifications"]
     check = {"user_id": str(user_id)}
     new_data = {"blacklisted": False}
-    return await collection.find_one_and_update(check, {"$set": new_data}, return_document=ReturnDocument.AFTER)
+    return await collection.find_one_and_update(check, {"$set": new_data}, return_document=pm.ReturnDocument.AFTER)
 
 # EVENTS
 
@@ -127,19 +125,19 @@ async def add_vote(poll_id: int, voter_id: int, choice: str):
     collection = database["polls"]
     new_data = {"$addToSet": {"users": voter_id},
                 "$inc": {"total_votes": 1, choice: 1}}
-    return await collection.find_one_and_update({"_id": poll_id}, new_data, return_document=ReturnDocument.AFTER)
+    return await collection.find_one_and_update({"_id": poll_id}, new_data, return_document=pm.ReturnDocument.AFTER)
 
 
 async def remove_vote(poll_id: int, voter_id: int, choice: str):
     collection = database["polls"]
     new_data = {"$pull": {"users": voter_id},
                 "$inc": {"total_votes": -1, choice: -1}}
-    return await collection.find_one_and_update({"_id": poll_id}, new_data, return_document=ReturnDocument.AFTER)
+    return await collection.find_one_and_update({"_id": poll_id}, new_data, return_document=pm.ReturnDocument.AFTER)
 
 
 async def change_poll_status(poll_id: int, status: str | None):
     collection = database["polls"]
-    return await collection.find_one_and_update({"_id": poll_id}, {"$set": {"status": status}}, return_document=ReturnDocument.AFTER)
+    return await collection.find_one_and_update({"_id": poll_id}, {"$set": {"status": status}}, return_document=pm.ReturnDocument.AFTER)
 
 
 async def get_active_poll():
@@ -155,7 +153,7 @@ async def delete_poll(message_id: int):
 
 
 async def add_date(guild_id: int, date_id: str, date: str, tickets_amount: str, role: int):
-    collection: motor_tornado.MotorCollection = database["dates"]
+    collection = database["dates"]
     data = {
         "guild_id": guild_id,
         "date_id": date_id,
@@ -174,7 +172,7 @@ async def edit_date(date_id: str, new_data: dict):
 
 
 async def get_date(date_id: str):
-    collection: motor_tornado.MotorCollection = database["dates"]
+    collection = database["dates"]
     return await collection.find_one({"date_id": date_id})
 
 
@@ -193,13 +191,13 @@ async def delete_date(date_id: str):
 
 
 async def add_queue(queue_id: int, id: int, channel: int):
-    collection: motor_tornado.MotorCollection = database["queues"]
+    collection = database["queues"]
     data = {"queue_id": queue_id, "message": id, "channel": channel}
     return await collection.insert_one(data)
 
 
 async def get_queue_message(queue_id: int):
-    collection: motor_tornado.MotorCollection = database["queues"]
+    collection = database["queues"]
     data = {"queue_id": queue_id}
     queue = await collection.find_one(data)
     if queue:

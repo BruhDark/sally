@@ -1,13 +1,11 @@
 py-cord>=2.5.0
 tornado
-motor
+pymongo
 asyncio
 python-dotenv
 aiohttp
-datetime
 dnspython
 psutil
 jishaku==2.5.2
 groq>=0.11.0
-spotipy
 PyNaCl

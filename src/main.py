@@ -5,6 +5,7 @@ from discord.ext import commands
 import dotenv
 import os
 import asyncio
+import aiosqlite
 
 from resources.database import database
 from resources import webhook_manager
@@ -51,6 +52,7 @@ class Sally(commands.Bot):
             print("Ready!")
             self.ready_fired = True
             self.uptime = datetime.datetime.now()
+            self.db = await aiosqlite.connect("/data/db.sqlite")
 
 
 sally = Sally()

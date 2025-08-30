@@ -11,7 +11,7 @@ import spotipy
 from spotipy import SpotifyClientCredentials
 from discord import slash_command, Option
 from discord.ext import commands
-from resources.select import RemoveSongButton
+from archive.select import RemoveSongButton
 
 import dotenv
 from typing import Union

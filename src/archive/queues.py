@@ -4,7 +4,7 @@ from discord.ext import commands, tasks
 from discord import utils
 
 from datetime import datetime, timedelta
-from resources.ticket_views import ProcessTicketView
+from archive.ticket_views import ProcessTicketView
 from resources.database import add_queue, get_queue_message, delete_one
 
 import asyncio
