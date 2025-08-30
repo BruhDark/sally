@@ -9,3 +9,4 @@ psutil
 jishaku==2.5.2
 groq>=0.11.0
 PyNaCl
+audioop-lts
