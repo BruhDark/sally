@@ -5,6 +5,8 @@ from groq import AsyncGroq
 from resources.groq_views import FollowConversation, DestroyConversation
 import asyncio
 
+MODEL = "llama-3.3-70b-versatile"
+
 
 class AICog(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -25,7 +27,7 @@ class AICog(commands.Cog):
                                 "content": f"[{message.author.global_name}] " + message.content})
 
                 try:
-                    chat_completion = await self.groq.chat.completions.create(messages=messages, model="llama3-70b-8192", max_tokens=400)
+                    chat_completion = await self.groq.chat.completions.create(messages=messages, model=MODEL, max_tokens=400)
 
                 except groq.RateLimitError:
                     re = await message.reply(content=f"<:error:1283509705376923648> We are being ratelimited! Slow down and continue the conversation in a few minutes. Applying a 5 minutes cooldown to this conversation.")
@@ -54,7 +56,7 @@ class AICog(commands.Cog):
                 message.channel.id)]["messages"] = new_messages
 
     @commands.slash_command(name="chat", description="Begin a chat with AI in this channel.", integration_types={discord.IntegrationType.guild_install})
-    @ discord.option("behaviour", description="A small description of how you want AI to behave. eg. 'You are a famous singer and we are fans.'", max_lenght=200, default=None)
+    @discord.option("behaviour", description="A small description of how you want AI to behave. eg. 'You are a famous singer and we are fans.'", max_lenght=200, default=None)
     async def chat_ai(self, ctx: discord.ApplicationContext, behaviour: str = None):
         ai_context = "Your name is Sally. You are an AI assistant in a Discord channel. Multiple users can talk to you at the same time, the name of the users will be displayed in the content inside square brackets before what the user typed, for example: '[John] Who is Taylor Swift?', this is for you to know who is speaking to you if multiple users are interacting, You DO NOT add these square brackets or your name to your responses. If you are using a user's name, you DO NOT add the square brackets to the response. You only use the. Your response should remain in a short or medium lenght almost all the time, there is nothing wrong with a large lenght answer, BUT, there is a limit of 2000 characters for messages, you should avoid hitting that limit, so your responses should be at max 1800 characters because the final formatted response with your responses to prompts has aditional characters."
         if behaviour:
@@ -69,14 +71,14 @@ class AICog(commands.Cog):
         self.bot.ai_conversations[str(
             ctx.channel.id)]["original_message_url"] = or_response.jump_url
 
-    @ commands.slash_command(description="Ask AI a prompt.", integration_types={discord.IntegrationType.user_install})
-    @ discord.option("prompt", description="The prompt to ask AI", max_lenght=400)
-    @ discord.option("hide", description="Hide the response", default=False)
+    @commands.slash_command(description="Ask AI a prompt.", integration_types={discord.IntegrationType.user_install})
+    @discord.option("prompt", description="The prompt to ask AI", max_lenght=400)
+    @discord.option("hide", description="Hide the response", default=False)
     async def ask(self, ctx: discord.ApplicationContext, prompt: str, hide: bool):
         await ctx.defer(ephemeral=hide)
         messages = [{"role": "system", "content": "You are an AI assistant, you are part of a feature integration in a Discord bot where users can submit a command to ask you a question (prompt). Your answers should remain in a short or medium lenght almost all the time, there is nothing wrong with a large lenght answer, BUT, there is a limit of 2000 characters for messages, you should avoid hitting that limit, so your responses should be at max 1600 or 1700 characters because the final formatted response with your responses to prompts has aditional characters."}, {
             "role": "user", "content": prompt}]
-        chat_completion = await self.groq.chat.completions.create(messages=messages, model="llama3-70b-8192", max_tokens=350)
+        chat_completion = await self.groq.chat.completions.create(messages=messages, model=MODEL, max_tokens=350)
         response = chat_completion.choices[0].message.content
 
         new_messages = messages + [{"role": "system", "content": response}]
@@ -87,7 +89,7 @@ class AICog(commands.Cog):
         except discord.HTTPException as e:
             await ctx.respond(content=f"<:error:1283509705376923648> The response the model returned was somehow too big or something went wrong. The response was saved to the chat completion, you can continue the conversation and ask it to make its last response shorter or start a new one.\n-# <:prompt:1283501054079799419> Prompt: {prompt}", view=FollowConversation(self.groq_client, new_messages, hide, "Make your last answer shorter"), ephemeral=hide)
 
-    @ ask.error
+    @ask.error
     async def ask_error(self, ctx: discord.ApplicationContext, error: commands.CommandError):
         error = getattr(error, "original", error)
         if isinstance(error, groq.APIConnectionError):
